@@ -1,6 +1,7 @@
 /* global document */
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { FlashCards } from './components/FlashCards';
 
-render(<FlashCards />, document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
+root.render(<FlashCards />);

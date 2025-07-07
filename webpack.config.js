@@ -1,7 +1,13 @@
 const HTMLWebPackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
 	entry: "./src/index.tsx",
+	output: {
+		path: path.resolve(__dirname, 'dist'),
+		filename: 'bundle.js',
+		publicPath: '/'
+	},
 	resolve: {
 		extensions: [".js", ".jsx", ".json", ".ts", ".tsx"]
 	},
@@ -10,7 +16,7 @@ module.exports = {
 			{
 				test: /\.(ts|tsx)$/,
 				use: {
-					loader: "awesome-typescript-loader"
+					loader: "ts-loader"
 				}
 			},
 			{
