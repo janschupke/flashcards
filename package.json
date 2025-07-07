@@ -1,0 +1,37 @@
+{
+  "name": "chinese",
+  "version": "1.0.0",
+  "description": "Flashcards for Simplified Chinese",
+  "main": "index.html",
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack --mode production",
+    "test": "test",
+    "lint": "eslint -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
+    "fix": "eslint --fix -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'"
+  },
+  "author": "jan@schupke.io",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "styled-components": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.10",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/styled-components": "^5.1.4",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "eslint": "^7.14.0",
+    "eslint-plugin-react": "^7.21.5",
+    "html-webpack-plugin": "^4.5.0",
+    "source-map-loader": "^1.1.2",
+    "typescript": "^4.1.2",
+    "webpack": "^5.7.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
