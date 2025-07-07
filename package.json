@@ -4,7 +4,7 @@
   "description": "Flashcards for Simplified Chinese",
   "main": "index.html",
   "scripts": {
-    "start": "webpack serve",
+    "start": "webpack serve --mode development",
     "build": "webpack --mode production",
     "test": "test",
     "lint": "eslint -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
