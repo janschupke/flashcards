@@ -1,5 +1,5 @@
 import { Character, HintType, HINT_TYPES } from '../types';
-import data from '../output.json';
+import data from '../data.json';
 
 export const getCharacterByIndex = (index: number): Character | null => {
   return data[index] || null;

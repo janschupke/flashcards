@@ -3,7 +3,7 @@ import { getCharacterByIndex, getHintText, validateLimit, getRandomIndex } from 
 import { HINT_TYPES } from '../types'
 
 // Mock the data import
-vi.mock('../output.json', () => ({
+vi.mock('../data.json', () => ({
   default: [
     { chinese: '一', pinyin: 'yī', english: 'one' },
     { chinese: '二', pinyin: 'èr', english: 'two' },

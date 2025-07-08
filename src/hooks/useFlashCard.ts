@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, DEFAULT_CONFIG } from '../types';
-import data from '../output.json';
+import data from '../data.json';
 
 interface UseFlashCardProps {
   initialCurrent?: number;

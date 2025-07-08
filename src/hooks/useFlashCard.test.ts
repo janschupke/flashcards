@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useFlashCard } from './useFlashCard'
 
 // Mock the data import
-vi.mock('../output.json', () => ({
+vi.mock('../data.json', () => ({
   default: [
     { chinese: '一', pinyin: 'yī', english: 'one' },
     { chinese: '二', pinyin: 'èr', english: 'two' },

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { SettingsSection, SettingsLabel, SettingsInput } from './styled';
 import { validateLimit } from '../utils/characterUtils';
-import data from '../output.json';
+import data from '../data.json';
 
 interface CharacterRangeInputProps {
   currentLimit: number;
