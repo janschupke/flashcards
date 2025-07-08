@@ -196,7 +196,7 @@ const Button = styled.button<{ $primary?: boolean }>`
   }
 `;
 
-const ProgressBar = styled.div`
+const ProgressBar = styled.div.attrs({ role: 'progressbar' })`
   width: 100%;
   height: 6px;
   background: #e2e8f0;
@@ -241,9 +241,21 @@ const StatLabel = styled.div`
   margin-top: 4px;
 `;
 
-export const FlashCards = () => {
-  const [limit, setLimit] = useState(100);
-  const [current, setCurrent] = useState(() => Math.floor(Math.random() * 100));
+// Add props for testability
+interface FlashCardsProps {
+  initialCurrent?: number;
+  initialLimit?: number;
+}
+
+export const FlashCards = ({ initialCurrent, initialLimit }: FlashCardsProps = {}) => {
+  const defaultLimit = Math.min(initialLimit ?? 100, data.length);
+  const [limit, setLimit] = useState(defaultLimit);
+  const [inputValue, setInputValue] = useState(defaultLimit.toString());
+  const [current, setCurrent] = useState(
+    initialCurrent !== undefined
+      ? initialCurrent
+      : Math.floor(Math.random() * defaultLimit)
+  );
   const [hint, setHint] = useState(0);
   const [progress, setProgress] = useState(0);
   const [totalSeen, setTotalSeen] = useState(0);
@@ -254,7 +266,7 @@ export const FlashCards = () => {
 
   const getNext = () => {
     const min = 0;
-    const next = Math.floor(Math.random() * (limit - min + 1) + min);
+    const next = Math.floor(Math.random() * (limit - min) + min);
     setCurrent(next);
     setHint(0);
     setTotalSeen(prev => prev + 1);
@@ -265,19 +277,35 @@ export const FlashCards = () => {
     setHint(result);
   };
 
-  const adjustSetup = (limit: string) => {
-    const newLimit = parseInt(limit) || 100;
-    setLimit(newLimit);
-    setCurrent(Math.floor(Math.random() * newLimit));
+  const adjustSetup = (value: string) => {
+    setInputValue(value);
+    const newLimit = parseInt(value) || 100;
+    const maxLimit = Math.min(newLimit, data.length);
+    
+    // Update the input value to reflect the actual limit (capped)
+    if (newLimit !== maxLimit) {
+      setInputValue(maxLimit.toString());
+    }
+    
+    setLimit(maxLimit);
+    setCurrent(Math.floor(Math.random() * maxLimit));
     setTotalSeen(0);
     setProgress(0);
     setHint(0);
   };
 
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+  };
+
+  const handleInputBlur = () => {
+    adjustSetup(inputValue);
+  };
+
   const getHintText = () => {
     if (hint === 0) return 'Tap a button below to reveal';
-    if (hint === 1) return data[current].pinyin;
-    if (hint === 2) return data[current].english;
+    if (hint === 1) return data[current]?.pinyin || '?';
+    if (hint === 2) return data[current]?.english || '?';
     return '';
   };
 
@@ -297,7 +325,7 @@ export const FlashCards = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, []); // Remove hint dependency to prevent event listener recreation
+  }, [hint]); // Include hint dependency so the event listener has access to current hint state
 
   return (
     <PageContainer>
@@ -312,25 +340,27 @@ export const FlashCards = () => {
           <SettingsInput
             id="limit"
             type="number"
-            value={limit}
-            onChange={e => adjustSetup(e.target.value)}
+            value={inputValue}
+            onChange={e => handleInputChange(e.target.value)}
+            onBlur={handleInputBlur}
             placeholder="100"
             min="1"
-            max="1500"
+            max={data.length}
+            data-testid="range-input"
           />
         </SettingsSection>
 
         <ProgressBar>
-          <ProgressFill $progress={progress} />
+          <ProgressFill $progress={progress} data-testid="progress-fill" />
         </ProgressBar>
 
         <CharacterSection>
-          <ChineseCharacter>
-            {data[current].chinese}
+          <ChineseCharacter data-testid="main-character">
+            {data[current]?.chinese || '?'}
           </ChineseCharacter>
           
           <HintSection>
-            <HintText $visible={hint > 0}>
+            <HintText $visible={hint > 0} data-testid="hint-text">
               {getHintText()}
             </HintText>
           </HintSection>
@@ -350,15 +380,15 @@ export const FlashCards = () => {
 
         <Stats>
           <StatItem>
-            <StatValue>{current + 1}</StatValue>
+            <StatValue data-testid="stat-current">{current + 1}</StatValue>
             <StatLabel>Current</StatLabel>
           </StatItem>
           <StatItem>
-            <StatValue>{totalSeen}</StatValue>
+            <StatValue data-testid="stat-seen">{totalSeen}</StatValue>
             <StatLabel>Seen</StatLabel>
           </StatItem>
           <StatItem>
-            <StatValue>{limit}</StatValue>
+            <StatValue data-testid="stat-total">{limit}</StatValue>
             <StatLabel>Total</StatLabel>
           </StatItem>
         </Stats>

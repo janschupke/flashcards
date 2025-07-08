@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "test",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
     "lint": "eslint -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
     "fix": "eslint --fix -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
     "vercel-build": "npm run build"
@@ -20,6 +22,9 @@
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.0.10",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -29,7 +34,9 @@
     "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^9.30.1",
     "eslint-plugin-react": "^7.37.5",
+    "jsdom": "^26.1.0",
     "typescript": "^5.8.3",
-    "vite": "^7.0.2"
+    "vite": "^7.0.2",
+    "vitest": "^3.2.4"
   }
 }
