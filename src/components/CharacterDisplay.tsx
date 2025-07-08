@@ -22,7 +22,11 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
       </ChineseCharacter>
       
       <HintSection>
-        <HintText $visible={hintType !== HINT_TYPES.NONE} data-testid="hint-text">
+        <HintText 
+          $visible={hintType !== HINT_TYPES.NONE}
+          $isDefault={hintType === HINT_TYPES.NONE}
+          data-testid="hint-text"
+        >
           {hintText}
         </HintText>
       </HintSection>

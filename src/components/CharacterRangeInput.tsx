@@ -13,18 +13,31 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   onLimitChange,
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
+  const maxLimit = data.length;
 
   const handleInputChange = useCallback((value: string) => {
+    // Clamp value to max allowed
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed)) {
+      if (parsed > maxLimit) {
+        setInputValue(maxLimit.toString());
+        return;
+      }
+      if (parsed < 1) {
+        setInputValue('1');
+        return;
+      }
+    }
     setInputValue(value);
-  }, []);
+  }, [maxLimit]);
 
   const handleInputBlur = useCallback(() => {
-    const newLimit = validateLimit(inputValue, data.length);
+    const newLimit = validateLimit(inputValue, maxLimit);
     if (newLimit !== undefined) {
       setInputValue(newLimit.toString());
       onLimitChange(newLimit);
     }
-  }, [inputValue, onLimitChange]);
+  }, [inputValue, onLimitChange, maxLimit]);
 
   return (
     <SettingsSection>
@@ -37,7 +50,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         onBlur={handleInputBlur}
         placeholder="100"
         min="1"
-        max={data.length}
+        max={maxLimit}
         data-testid="range-input"
       />
     </SettingsSection>

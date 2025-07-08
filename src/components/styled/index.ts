@@ -144,16 +144,16 @@ export const HintSection = styled.div`
   margin-bottom: 30px;
 `;
 
-export const HintText = styled.div<{ $visible: boolean }>`
+export const HintText = styled.div<{ $visible: boolean; $isDefault: boolean }>`
   font-size: 1.5rem;
-  color: ${props => props.$visible ? '#dc2626' : '#718096'};
+  color: #718096;
   font-weight: 500;
   transition: all 0.3s ease;
   opacity: ${props => props.$visible ? 1 : 0.6};
   padding: 16px 24px;
-  background: ${props => props.$visible ? 'rgba(220, 38, 38, 0.15)' : 'transparent'};
+  background: transparent;
   border-radius: 12px;
-  border: 2px solid ${props => props.$visible ? '#dc2626' : 'transparent'};
+  border: 2px solid transparent;
 `;
 
 // Button Components
