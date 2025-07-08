@@ -4,8 +4,9 @@
   "description": "Flashcards for Simplified Chinese",
   "main": "index.html",
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "test",
     "lint": "eslint -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
     "fix": "eslint --fix -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
@@ -25,14 +26,10 @@
     "@types/styled-components": "^5.1.34",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
+    "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^9.30.1",
     "eslint-plugin-react": "^7.37.5",
-    "html-webpack-plugin": "^5.6.3",
-    "source-map-loader": "^5.0.0",
-    "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
+    "vite": "^7.0.2"
   }
 }
