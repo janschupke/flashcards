@@ -1,7 +1,7 @@
 import React from 'react';
 import { CharacterSection, ChineseCharacter, HintSection, HintText } from './styled';
 import { getCharacterByIndex, getHintText } from '../utils/characterUtils';
-import { HintType } from '../types';
+import { HintType, HINT_TYPES } from '../types';
 
 interface CharacterDisplayProps {
   currentIndex: number;
@@ -22,7 +22,7 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
       </ChineseCharacter>
       
       <HintSection>
-        <HintText $visible={hintType > 0} data-testid="hint-text">
+        <HintText $visible={hintType !== HINT_TYPES.NONE} data-testid="hint-text">
           {hintText}
         </HintText>
       </HintSection>

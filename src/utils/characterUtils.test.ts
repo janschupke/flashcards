@@ -48,7 +48,7 @@ describe('characterUtils', () => {
     })
 
     it('returns fallback for unknown hint type', () => {
-      const text = getHintText(mockCharacter, 99 as any)
+      const text = getHintText(mockCharacter, 'UNKNOWN' as any)
       expect(text).toBe('?')
     })
 

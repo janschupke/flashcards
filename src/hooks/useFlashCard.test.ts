@@ -29,7 +29,7 @@ describe('useFlashCard', () => {
       
       expect(result.current.current).toBe(0) // Math.random returns 0
       expect(result.current.limit).toBe(5) // data.length is 5
-      expect(result.current.hint).toBe(0)
+      expect(result.current.hint).toBe('NONE')
       expect(result.current.totalSeen).toBe(0)
       expect(result.current.progress).toBe(0)
     })
@@ -42,7 +42,7 @@ describe('useFlashCard', () => {
       
       expect(result.current.current).toBe(2)
       expect(result.current.limit).toBe(3)
-      expect(result.current.hint).toBe(0)
+      expect(result.current.hint).toBe('NONE')
       expect(result.current.totalSeen).toBe(0)
       expect(result.current.progress).toBe(0)
     })
@@ -65,9 +65,9 @@ describe('useFlashCard', () => {
       
       // Set hint to pinyin first
       act(() => {
-        result.current.toggleHint(1)
+        result.current.toggleHint('PINYIN')
       })
-      expect(result.current.hint).toBe(1)
+      expect(result.current.hint).toBe('PINYIN')
       
       // Get next character
       act(() => {
@@ -75,7 +75,7 @@ describe('useFlashCard', () => {
       })
       
       expect(result.current.current).toBe(0) // Math.random returns 0
-      expect(result.current.hint).toBe(0) // Hint should be reset
+      expect(result.current.hint).toBe('NONE') // Hint should be reset
       expect(result.current.totalSeen).toBe(1)
     })
 
@@ -102,28 +102,28 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() => useFlashCard())
       
       act(() => {
-        result.current.toggleHint(1) // Pinyin
+        result.current.toggleHint('PINYIN') // Pinyin
       })
-      expect(result.current.hint).toBe(1)
+      expect(result.current.hint).toBe('PINYIN')
       
       act(() => {
-        result.current.toggleHint(2) // English
+        result.current.toggleHint('ENGLISH') // English
       })
-      expect(result.current.hint).toBe(2)
+      expect(result.current.hint).toBe('ENGLISH')
     })
 
     it('toggles hint off when called with same hint type', () => {
       const { result } = renderHook(() => useFlashCard())
       
       act(() => {
-        result.current.toggleHint(1) // Turn on pinyin
+        result.current.toggleHint('PINYIN') // Turn on pinyin
       })
-      expect(result.current.hint).toBe(1)
+      expect(result.current.hint).toBe('PINYIN')
       
       act(() => {
-        result.current.toggleHint(1) // Turn off pinyin
+        result.current.toggleHint('PINYIN') // Turn off pinyin
       })
-      expect(result.current.hint).toBe(0)
+      expect(result.current.hint).toBe('NONE')
     })
   })
 
@@ -148,7 +148,7 @@ describe('useFlashCard', () => {
       expect(result.current.limit).toBe(3)
       expect(result.current.current).toBe(0) // Math.random returns 0
       expect(result.current.totalSeen).toBe(0) // Should reset
-      expect(result.current.hint).toBe(0) // Should reset
+      expect(result.current.hint).toBe('NONE') // Should reset
     })
 
     it('caps limit to available data length', () => {
@@ -172,11 +172,11 @@ describe('useFlashCard', () => {
       // Set some state
       act(() => {
         result.current.getNext()
-        result.current.toggleHint(1)
+        result.current.toggleHint('PINYIN')
       })
       
       expect(result.current.totalSeen).toBe(1)
-      expect(result.current.hint).toBe(1)
+      expect(result.current.hint).toBe('PINYIN')
       
       // Reset
       act(() => {
@@ -184,7 +184,7 @@ describe('useFlashCard', () => {
       })
       
       expect(result.current.totalSeen).toBe(0)
-      expect(result.current.hint).toBe(0)
+      expect(result.current.hint).toBe('NONE')
       expect(result.current.limit).toBe(5) // Should remain unchanged
       expect(result.current.current).toBe(0) // Math.random returns 0
     })

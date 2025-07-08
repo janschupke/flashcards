@@ -7,7 +7,7 @@ export interface Character {
 export interface FlashCardState {
   current: number;
   limit: number;
-  hint: number;
+  hint: HintType;
   totalSeen: number;
   progress: number;
 }
@@ -24,12 +24,12 @@ export interface FlashCardProps {
   initialLimit?: number;
 }
 
-export type HintType = 0 | 1 | 2;
+export type HintType = 'NONE' | 'PINYIN' | 'ENGLISH';
 
 export const HINT_TYPES = {
-  NONE: 0,
-  PINYIN: 1,
-  ENGLISH: 2,
+  NONE: 'NONE',
+  PINYIN: 'PINYIN',
+  ENGLISH: 'ENGLISH',
 } as const;
 
 export const KEYBOARD_SHORTCUTS = {

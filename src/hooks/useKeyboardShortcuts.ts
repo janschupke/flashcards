@@ -18,13 +18,13 @@ export const useKeyboardShortcuts = ({
         event.preventDefault();
         onNext();
         break;
-      case 'p':
-      case 'P':
+      case KEYBOARD_SHORTCUTS.PINYIN[0]:
+      case KEYBOARD_SHORTCUTS.PINYIN[1]:
         event.preventDefault();
         onTogglePinyin();
         break;
-      case 'e':
-      case 'E':
+      case KEYBOARD_SHORTCUTS.ENGLISH[0]:
+      case KEYBOARD_SHORTCUTS.ENGLISH[1]:
         event.preventDefault();
         onToggleEnglish();
         break;

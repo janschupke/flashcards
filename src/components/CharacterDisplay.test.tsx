@@ -10,7 +10,7 @@ describe('CharacterDisplay', () => {
   it('displays character correctly', () => {
     vi.mocked(getCharacterByIndex).mockReturnValue({ chinese: '一', pinyin: 'yī', english: 'one' });
     vi.mocked(getHintText).mockReturnValue('Tap a button below to reveal');
-    render(<CharacterDisplay currentIndex={0} hintType={0} />);
+    render(<CharacterDisplay currentIndex={0} hintType={'NONE'} />);
     expect(screen.getByTestId('main-character')).toHaveTextContent('一');
     expect(screen.getByTestId('hint-text')).toHaveTextContent('Tap a button below to reveal');
   });
@@ -18,7 +18,7 @@ describe('CharacterDisplay', () => {
   it('displays pinyin hint when active', () => {
     vi.mocked(getCharacterByIndex).mockReturnValue({ chinese: '一', pinyin: 'yī', english: 'one' });
     vi.mocked(getHintText).mockReturnValue('yī');
-    render(<CharacterDisplay currentIndex={0} hintType={1} />);
+    render(<CharacterDisplay currentIndex={0} hintType={'PINYIN'} />);
     expect(screen.getByTestId('hint-text')).toHaveTextContent('yī');
   });
 }); 
