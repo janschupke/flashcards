@@ -1,5 +1,5 @@
 /* global document */
-import React from 'react';
+
 import { createRoot } from 'react-dom/client';
 import { createGlobalStyle } from 'styled-components';
 import { FlashCards } from './components/FlashCards';
@@ -31,7 +31,11 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const root = createRoot(document.getElementById('root'));
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+const root = createRoot(rootElement);
 root.render(
   <>
     <GlobalStyle />

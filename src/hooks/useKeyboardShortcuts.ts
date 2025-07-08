@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { KEYBOARD_SHORTCUTS, HINT_TYPES } from '../types';
+import { KEYBOARD_SHORTCUTS } from '../types';
 
 interface UseKeyboardShortcutsProps {
   onNext: () => void;

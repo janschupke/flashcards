@@ -5,14 +5,13 @@
   "main": "index.html",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "lint": "eslint -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
-    "fix": "eslint --fix -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'",
-    "vercel-build": "npm run build"
+    "fix": "eslint --fix -c .eslintrc './src/**/*.{ts,js,tsx,jsx}'"
   },
   "author": "jan@schupke.io",
   "license": "MIT",

@@ -14,7 +14,7 @@ export interface FlashCardState {
 
 export interface FlashCardActions {
   getNext: () => void;
-  toggleHint: (hintType: number) => void;
+  toggleHint: (hintType: HintType) => void;
   updateLimit: (newLimit: number) => void;
   reset: () => void;
 }
