@@ -60,26 +60,26 @@ describe('characterUtils', () => {
 
   describe('validateLimit', () => {
     it('returns parsed number for valid input', () => {
-      expect(validateLimit('5', 10)).toBe(5)
-      expect(validateLimit('10', 10)).toBe(10)
+      expect(validateLimit('5', 1, 10)).toBe(5)
+      expect(validateLimit('10', 1, 10)).toBe(10)
     })
 
     it('caps value to maximum available', () => {
-      expect(validateLimit('15', 10)).toBe(10)
+      expect(validateLimit('15', 1, 10)).toBe(10)
     })
 
     it('returns default for invalid input', () => {
-      expect(validateLimit('abc', 10)).toBe(10)
-      expect(validateLimit('', 10)).toBe(10)
+      expect(validateLimit('abc', 1, 10)).toBe(10)
+      expect(validateLimit('', 1, 10)).toBe(10)
     })
 
     it('returns default for zero or negative input', () => {
-      expect(validateLimit('0', 10)).toBe(10)
-      expect(validateLimit('-5', 10)).toBe(10)
+      expect(validateLimit('0', 1, 10)).toBe(10)
+      expect(validateLimit('-5', 1, 10)).toBe(10)
     })
 
     it('handles edge case where max is smaller than default', () => {
-      expect(validateLimit('abc', 5)).toBe(5)
+      expect(validateLimit('abc', 1, 5)).toBe(5)
     })
   })
 

@@ -63,7 +63,7 @@ describe('FlashCards', () => {
     expect(rangeInput).toHaveValue(5);
   });
 
-  it('clears pinyin input when transitioning to next character', () => {
+  it('clears pinyin input when transitioning to next character', async () => {
     render(<FlashCards />);
     
     const pinyinInput = screen.getByRole('textbox');
@@ -77,7 +77,8 @@ describe('FlashCards', () => {
     // Click next button
     fireEvent.click(nextButton);
     
-    // Pinyin input should be cleared
+    // Pinyin input should be cleared after state update
+    await new Promise(resolve => setTimeout(resolve, 0));
     expect(pinyinInput).toHaveValue('');
   });
 }); 

@@ -65,7 +65,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         const minLimit = 50;
         const maxLimit = Math.min(1500, data.length);
         let newLimit = limit + increment;
-        newLimit = Math.max(minLimit, Math.min(maxLimit, newLimit));
+        newLimit = Math.min(maxLimit, Math.max(minLimit, newLimit));
         handleLimitChange(newLimit);
         e.preventDefault();
       }

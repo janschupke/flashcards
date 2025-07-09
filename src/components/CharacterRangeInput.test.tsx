@@ -2,6 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterRangeInput } from './CharacterRangeInput';
+import data from '../data.json';
 
 describe('CharacterRangeInput', () => {
   const mockOnLimitChange = vi.fn();
@@ -54,6 +55,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('clamps value to maximum of data length', () => {
+    const maxLimit = Math.min(1500, data.length);
     render(
       <CharacterRangeInput
         currentLimit={100}
@@ -65,8 +67,8 @@ describe('CharacterRangeInput', () => {
     fireEvent.change(input, { target: { value: '9999' } });
     fireEvent.blur(input);
 
-    // Assuming data length is less than 9999
-    expect(mockOnLimitChange).toHaveBeenCalledWith(expect.any(Number));
+    // Should clamp to the maximum allowed value
+    expect(mockOnLimitChange).toHaveBeenCalledWith(maxLimit);
   });
 
   it('increases limit by 50 when up arrow is pressed', () => {
@@ -113,7 +115,6 @@ describe('CharacterRangeInput', () => {
 
   it('prevents going above maximum when up arrow is pressed', () => {
     // Use the real data length
-    const data = require('../data.json');
     const maxLimit = data.length;
     render(
       <CharacterRangeInput
@@ -132,7 +133,7 @@ describe('CharacterRangeInput', () => {
   it('shows error styling when arrow key would exceed limits', () => {
     render(
       <CharacterRangeInput
-        currentLimit={25}
+        currentLimit={50}
         onLimitChange={mockOnLimitChange}
       />
     );
@@ -208,7 +209,7 @@ describe('CharacterRangeInput', () => {
   it('shows red border when arrow key would go below minimum', () => {
     render(
       <CharacterRangeInput
-        currentLimit={30}
+        currentLimit={50}
         onLimitChange={mockOnLimitChange}
       />
     );
@@ -221,7 +222,6 @@ describe('CharacterRangeInput', () => {
   });
 
   it('shows red border when arrow key would go above maximum', () => {
-    const data = require('../data.json');
     const maxLimit = data.length;
     render(
       <CharacterRangeInput
