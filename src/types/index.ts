@@ -47,8 +47,8 @@ export const HINT_TYPES = {
 
 export const KEYBOARD_SHORTCUTS = {
   NEXT: 'Enter',
-  PINYIN: ['p', 'P'],
-  ENGLISH: ['e', 'E'],
+  PINYIN: [','],
+  ENGLISH: ['.'],
 } as const;
 
 export const DEFAULT_CONFIG = {

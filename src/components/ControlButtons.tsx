@@ -15,10 +15,10 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({
   return (
     <ButtonGroup>
       <Button onClick={onTogglePinyin}>
-        Pinyin (P)
+        Pinyin (,)
       </Button>
       <Button onClick={onToggleEnglish}>
-        English (E)
+        English (.)
       </Button>
       <Button $primary onClick={onNext}>
         Next (Enter)
