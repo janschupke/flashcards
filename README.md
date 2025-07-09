@@ -1,27 +1,31 @@
 # 汉字 Flashcards
 
-A modern flashcard web app for practicing Simplified Chinese characters. This project helps learners master the 1,500 most common 汉字 (Chinese characters) with pinyin and English meanings. Built with React 19, Vite, and styled-components v6 for a fast, accessible, and mobile-friendly experience.
+A modern flashcard web app for practicing Chinese characters. This project helps learners master the 1,500 most common 汉字 (Chinese characters) with pinyin and English meanings.
 
-**Live Demo:** [https://hanzi-flashcards-nine.vercel.app/](https://hanzi-flashcards-nine.vercel.app/)
+**Live Demo:** [https://flashcards.schupke.io](https://flashcards.schupke.io)
 
 ---
 
 ## Features
 
 - **Interactive Flashcards:** Practice Chinese characters with instant feedback.
+- **Pinyin Input & Evaluation:** Type pinyin and get instant feedback on accuracy.
 - **Hint System:** Toggle pinyin and English hints for each character.
-- **Progress Tracking:** See your progress and stats as you learn.
+- **Progress Tracking:** See your progress and statistics as you learn.
 - **Keyboard Shortcuts:** Quickly reveal hints or move to the next card.
-- **Custom Range:** Choose how many characters to study in a session.
+- **Custom Range:** Choose how many characters to study in a session (50-1500).
+- **Traditional Character Support:** View traditional characters alongside simplified.
+- **Incorrect Answers Tracking:** Review your mistakes and learn from them.
+- **Previous Character Display:** See the last character you studied.
 - **Responsive Design:** Works great on desktop and mobile.
 
 ---
 
 ## Data Source
 
-- Contains the 1,500 most common Simplified Chinese characters.
-- Data file adapted from [Sensible Chinese](https://sensiblechinese.com/common-chinese-characters).
-- Each entry includes: 汉字, pinyin, English meaning, and a unique sound ID.
+- Contains the 1,500 most common Chinese characters.
+- Each entry includes: 汉字 (simplified), pinyin, English meaning, and traditional character mapping.
+- Traditional characters are automatically generated using a comprehensive mapping system.
 
 ---
 
@@ -54,6 +58,8 @@ Run all tests with:
 npm run test
 ```
 - Uses [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/).
+- Comprehensive test coverage including components, hooks, and utilities.
+- 92+ tests covering all major functionality.
 
 ### Linting & Formatting
 ```bash
@@ -109,19 +115,9 @@ npm run preview
 ---
 
 ## Tech Stack
-- **React 19**
-- **Vite**
-- **TypeScript**
-- **styled-components v6** (React 19+ compatible)
-- **Vitest** (unit testing)
-
----
-
-## License
-MIT
-
----
-
-## Credits
-- Data: [Sensible Chinese](https://sensiblechinese.com/common-chinese-characters)
-- Author: [Jan Schupke](mailto:jan@schupke.io)
+- **React 19.1.0**
+- **Vite 7.0.2**
+- **TypeScript 5.8.3**
+- **styled-components 6.1.19** (React 19+ compatible)
+- **Vitest 3.2.4** (unit testing)
+- **Testing Library** (React component testing)
