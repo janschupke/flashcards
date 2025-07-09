@@ -147,7 +147,7 @@ describe('useFlashCard', () => {
       
       expect(result.current.limit).toBe(3)
       expect(result.current.current).toBe(0) // Math.random returns 0
-      expect(result.current.totalSeen).toBe(0) // Should reset
+      expect(result.current.totalSeen).toBe(1) // Should NOT reset
       expect(result.current.hint).toBe('NONE') // Should reset
     })
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, DEFAULT_CONFIG, DisplayMode } from '../types';
+import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, DEFAULT_CONFIG } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import data from '../data.json';
 
@@ -27,13 +27,8 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
 
   // Memoize progress calculation to avoid unnecessary recalculations
   const progress = useMemo(() => {
-    return state.limit > 0 ? (state.totalSeen / state.limit) * 100 : 0;
+    return state.limit > 0 ? Math.min((state.totalSeen / state.limit) * 100, 100) : 0;
   }, [state.totalSeen, state.limit]);
-
-  // Calculate percentage for scoring
-  const percentage = useMemo(() => {
-    return state.totalAttempted > 0 ? (state.correctAnswers / state.totalAttempted) * 100 : 0;
-  }, [state.correctAnswers, state.totalAttempted]);
 
   // Update progress when dependencies change
   useEffect(() => {
@@ -46,15 +41,23 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const getNext = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      current: getRandomIndex(prev.limit),
-      hint: HINT_TYPES.NONE,
-      totalSeen: prev.totalSeen + 1,
-      // Reset pinyin input state for new character
-      pinyinInput: '',
-      isPinyinCorrect: null,
-    }));
+    setState(prev => {
+      const currentCharacter = data[prev.current];
+      const isCorrect = prev.pinyinInput.trim() ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
+      
+      return {
+        ...prev,
+        current: getRandomIndex(prev.limit),
+        hint: HINT_TYPES.NONE,
+        totalSeen: prev.totalSeen + 1,
+        // Reset pinyin input state for new character
+        pinyinInput: '',
+        isPinyinCorrect: null,
+        // Update scoring
+        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
+        totalAttempted: prev.pinyinInput.trim() ? prev.totalAttempted + 1 : prev.totalAttempted,
+      };
+    });
   }, [getRandomIndex]);
 
   const toggleHint = useCallback((hintType: HintType) => {
@@ -69,16 +72,13 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     setState(prev => ({
       ...prev,
       limit: maxLimit,
-      current: getRandomIndex(maxLimit),
-      totalSeen: 0,
+      // Don't reset current character or totalSeen
+      // Don't reset scoring
       hint: HINT_TYPES.NONE,
-      // Reset scoring when changing limit
-      correctAnswers: 0,
-      totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
     }));
-  }, [getRandomIndex]);
+  }, []);
 
   const reset = useCallback(() => {
     setState(prev => ({
@@ -95,7 +95,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, [getRandomIndex]);
 
   // New actions for traditional character feature
-  const setDisplayMode = useCallback((mode: DisplayMode) => {
+  const setDisplayMode = useCallback((mode: 'simplified' | 'traditional' | 'both') => {
     setState(prev => ({
       ...prev,
       displayMode: mode,

@@ -57,22 +57,9 @@ export const DEFAULT_CONFIG = {
 } as const;
 
 // New types for traditional character feature
-export type DisplayMode = 'simplified' | 'traditional' | 'both';
-
-export interface CharacterDisplayToggleProps {
-  displayMode: DisplayMode;
-  onModeChange: (mode: DisplayMode) => void;
-}
-
 export interface PinyinInputProps {
   currentPinyin: string; // Correct pinyin for current character
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
-}
-
-export interface ScoreDisplayProps {
-  correctAnswers: number;
-  totalAttempted: number;
-  percentage: number;
 } 
