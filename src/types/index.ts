@@ -65,7 +65,7 @@ export const KEYBOARD_SHORTCUTS = {
 } as const;
 
 export const DEFAULT_CONFIG = {
-  DEFAULT_LIMIT: 100,
+  DEFAULT_LIMIT: 500,
   MIN_LIMIT: 1,
   PROGRESS_UPDATE_DELAY: 300,
 } as const;

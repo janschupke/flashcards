@@ -42,7 +42,8 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 
-  const handleInputChange = useCallback((value: string) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     // Clamp value to max allowed
     const parsed = parseInt(value, 10);
     if (!isNaN(parsed)) {
@@ -98,20 +99,20 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 
   return (
     <SettingsSection>
-      <SettingsLabel htmlFor="limit">Character Range</SettingsLabel>
+      <SettingsLabel htmlFor="limit">Character Range (50 - 1500)</SettingsLabel>
       <RangeInput
         id="limit"
         type="number"
         value={inputValue}
-        onChange={(e) => handleInputChange(e.target.value)}
+        onChange={handleInputChange}
         onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
-        placeholder="100"
-        min={minLimit}
-        max={maxLimit}
-        data-testid="range-input"
         $showError={showError}
         $flashKey={errorFlashKey}
+        min={50}
+        max={1500}
+        autoFocus
+        data-testid="range-input"
       />
     </SettingsSection>
   );

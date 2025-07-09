@@ -21,16 +21,12 @@ export const Statistics: React.FC<StatisticsProps> = ({
         <StatLabel>Current</StatLabel>
       </StatItem>
       <StatItem>
-        <StatValue data-testid="stat-seen">{totalSeen}</StatValue>
-        <StatLabel>Seen</StatLabel>
+        <StatValue data-testid="stat-answers">{correctAnswers} / {totalSeen}</StatValue>
+        <StatLabel>Answers</StatLabel>
       </StatItem>
       <StatItem>
         <StatValue data-testid="stat-total">{limit}</StatValue>
         <StatLabel>Total</StatLabel>
-      </StatItem>
-      <StatItem>
-        <StatValue data-testid="stat-correct">{correctAnswers}</StatValue>
-        <StatLabel>Correct</StatLabel>
       </StatItem>
     </Stats>
   );
