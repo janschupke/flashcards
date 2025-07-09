@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { SettingsSection, SettingsLabel, SettingsInput } from './styled';
+import { SettingsSection, SettingsLabel } from './styled';
 import { validateLimit } from '../utils/characterUtils';
 import data from '../data.json';
 import styled from 'styled-components';
@@ -38,7 +38,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
   const [showError, setShowError] = useState(false);
-  const [errorFlashKey, setErrorFlashKey] = useState(0); // force re-render for flash
+  const [errorFlashKey] = useState(0); // force re-render for flash
   const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 

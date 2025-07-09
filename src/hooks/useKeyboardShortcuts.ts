@@ -19,12 +19,10 @@ export const useKeyboardShortcuts = ({
         onNext();
         break;
       case KEYBOARD_SHORTCUTS.PINYIN[0]:
-      case KEYBOARD_SHORTCUTS.PINYIN[1]:
         event.preventDefault();
         onTogglePinyin();
         break;
       case KEYBOARD_SHORTCUTS.ENGLISH[0]:
-      case KEYBOARD_SHORTCUTS.ENGLISH[1]:
         event.preventDefault();
         onToggleEnglish();
         break;

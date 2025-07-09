@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterRangeInput } from './CharacterRangeInput';

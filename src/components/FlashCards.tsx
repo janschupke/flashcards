@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -22,18 +22,14 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     hint,
     totalSeen,
     progress,
-    pinyinInput,
     isPinyinCorrect,
     correctAnswers,
-    totalAttempted,
     flashResult,
     getNext,
     toggleHint,
     updateLimit,
     setPinyinInput,
   } = useFlashCard({ initialCurrent, initialLimit });
-
-  const rangeInputRef = useRef<HTMLInputElement>(null);
 
   const handleTogglePinyin = useCallback(() => {
     toggleHint(HINT_TYPES.PINYIN);
