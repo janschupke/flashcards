@@ -18,6 +18,8 @@ export interface FlashCardState {
   correctAnswers: number;
   totalAttempted: number;
   flashResult: 'correct' | 'incorrect' | null;
+  // Previous character tracking
+  previousCharacter: number | null;
 }
 
 export interface FlashCardActions {

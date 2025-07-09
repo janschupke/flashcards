@@ -24,6 +24,8 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     correctAnswers: 0,
     totalAttempted: 0,
     flashResult: null,
+    // Previous character tracking
+    previousCharacter: null,
   });
 
   // Memoize progress calculation to avoid unnecessary recalculations
@@ -48,6 +50,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       
       return {
         ...prev,
+        previousCharacter: prev.current, // Store current as previous
         current: getRandomIndex(prev.limit),
         hint: HINT_TYPES.NONE,
         totalSeen: prev.totalSeen + 1,

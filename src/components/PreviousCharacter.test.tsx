@@ -1,0 +1,38 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import { PreviousCharacter } from './PreviousCharacter';
+
+// Mock the data
+vi.mock('../data.json', () => ({
+  default: [
+    { item: '1', chinese: '我', pinyin: 'wǒ', english: 'I ; me' },
+    { item: '2', chinese: '好', pinyin: 'hǎo', english: 'good' },
+  ]
+}));
+
+describe('PreviousCharacter', () => {
+  it('renders nothing when previousCharacterIndex is null', () => {
+    const { container } = render(<PreviousCharacter previousCharacterIndex={null} />);
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('renders previous character information when index is provided', () => {
+    render(<PreviousCharacter previousCharacterIndex={0} />);
+    
+    expect(screen.getByText('Previous Character')).toBeInTheDocument();
+    expect(screen.getByText('Simplified')).toBeInTheDocument();
+    expect(screen.getByText('Traditional')).toBeInTheDocument();
+    expect(screen.getByText('Pinyin')).toBeInTheDocument();
+    expect(screen.getByText('English')).toBeInTheDocument();
+    
+    expect(screen.getAllByText('我')).toHaveLength(2); // Simplified and Traditional
+    expect(screen.getByText('wǒ')).toBeInTheDocument();
+    expect(screen.getByText('I ; me')).toBeInTheDocument();
+  });
+
+  it('renders nothing when character index is out of bounds', () => {
+    const { container } = render(<PreviousCharacter previousCharacterIndex={999} />);
+    expect(container.firstChild).toBeNull();
+  });
+}); 
