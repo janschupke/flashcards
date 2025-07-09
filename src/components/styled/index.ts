@@ -37,10 +37,12 @@ export const PageContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  gap: 20px;
 `;
 
 export const Card = styled.div`

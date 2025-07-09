@@ -9,6 +9,8 @@ import { ControlButtons } from './ControlButtons';
 import { ProgressBar } from './ProgressBar';
 import { Statistics } from './Statistics';
 import { PinyinInput } from './PinyinInput';
+import { PreviousCharacter } from './PreviousCharacter';
+import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
 import data from '../data.json';
 
@@ -25,6 +27,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     isPinyinCorrect,
     correctAnswers,
     flashResult,
+    previousCharacter,
+    incorrectAnswers,
     getNext,
     toggleHint,
     updateLimit,
@@ -114,6 +118,16 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           totalSeen={totalSeen}
           limit={limit}
           correctAnswers={correctAnswers}
+        />
+
+        <PreviousCharacter
+          previousCharacterIndex={previousCharacter}
+        />
+      </Card>
+
+      <Card>
+        <IncorrectAnswers
+          incorrectAnswers={incorrectAnswers}
         />
       </Card>
     </PageContainer>

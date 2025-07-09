@@ -24,6 +24,10 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     correctAnswers: 0,
     totalAttempted: 0,
     flashResult: null,
+    // Previous character tracking
+    previousCharacter: null,
+    // Incorrect answers tracking
+    incorrectAnswers: [],
   });
 
   // Memoize progress calculation to avoid unnecessary recalculations
@@ -48,8 +52,21 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       const hasInput = trimmedInput.length > 0;
       const isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
       
+      // Add to incorrect answers if wrong or empty input
+      const newIncorrectAnswers = [...prev.incorrectAnswers];
+      if (!isCorrect) {
+        newIncorrectAnswers.push({
+          characterIndex: prev.current,
+          submittedPinyin: prev.pinyinInput.trim() || '(empty)',
+          correctPinyin: currentCharacter.pinyin,
+          chinese: currentCharacter.chinese,
+          english: currentCharacter.english,
+        });
+      }
+      
       return {
         ...prev,
+        previousCharacter: prev.current, // Store current as previous
         current: getRandomIndex(prev.limit),
         hint: HINT_TYPES.NONE,
         totalSeen: prev.totalSeen + 1,
@@ -60,7 +77,9 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
         correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
         totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
         // Set flash result based on pinyin evaluation
-        flashResult: hasInput ? (isCorrect ? 'correct' : 'incorrect') : null,
+        flashResult: prev.pinyinInput.trim() ? (isCorrect ? 'correct' : 'incorrect') : null,
+        // Update incorrect answers
+        incorrectAnswers: newIncorrectAnswers,
       };
     });
   }, [getRandomIndex]);
