@@ -9,9 +9,27 @@ interface CharacterRangeInputProps {
   onLimitChange: (newLimit: number) => void;
 }
 
-const StyledSettingsInput = styled(SettingsInput)<{ $showError: boolean }>`
-  border-color: ${props => props.$showError ? '#dc3545' : '#4a5568'};
-  transition: border-color 1s ease-out;
+const RangeInput = styled.input<{ $showError: boolean; $flashKey: number }>`
+  width: 100%;
+  max-width: 200px;
+  padding: 12px 16px;
+  border: 2px solid ${props => props.$showError ? '#dc3545' : '#4a5568'};
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  outline: none;
+  background: #2d3748;
+  color: #ffffff;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+  }
+
+  &::placeholder {
+    color: #718096;
+  }
 `;
 
 export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
@@ -20,6 +38,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
   const [showError, setShowError] = useState(false);
+  const [errorFlashKey, setErrorFlashKey] = useState(0); // force re-render for flash
   const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 
@@ -48,23 +67,27 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
     }
   }, [inputValue, onLimitChange, maxLimit, minLimit]);
 
+  // In handleKeyDown, always clamp and flash red if out of bounds
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
       const currentValue = parseInt(inputValue, 10) || currentLimit;
       const increment = e.key === 'ArrowUp' ? 50 : -50;
-      const newValue = currentValue + increment;
-      
-      // Check if the new value would exceed limits
-      if (newValue < minLimit || newValue > maxLimit) {
+      let newValue = currentValue + increment;
+      let flash = false;
+      if (newValue > maxLimit) {
+        newValue = maxLimit;
+        flash = true;
+      } else if (newValue < minLimit) {
+        newValue = minLimit;
+        flash = true;
+      }
+      if (flash) {
         setShowError(true);
         setTimeout(() => setShowError(false), 1000);
       }
-      
-      // Always clamp to valid range and call onLimitChange
-      const clamped = Math.max(minLimit, Math.min(maxLimit, newValue));
-      setInputValue(clamped.toString());
-      onLimitChange(clamped);
+      setInputValue(newValue.toString());
+      onLimitChange(newValue);
     }
   }, [inputValue, currentLimit, onLimitChange, minLimit, maxLimit]);
 
@@ -76,7 +99,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   return (
     <SettingsSection>
       <SettingsLabel htmlFor="limit">Character Range</SettingsLabel>
-      <StyledSettingsInput
+      <RangeInput
         id="limit"
         type="number"
         value={inputValue}
@@ -88,6 +111,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         max={maxLimit}
         data-testid="range-input"
         $showError={showError}
+        $flashKey={errorFlashKey}
       />
     </SettingsSection>
   );
