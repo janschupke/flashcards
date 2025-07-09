@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, DEFAULT_CONFIG } from '../types';
+import { FlashCardState, FlashCardActions, HintType, HINT_TYPES } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import data from '../data.json';
 
@@ -9,7 +9,7 @@ interface UseFlashCardProps {
 }
 
 export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps = {}): FlashCardState & FlashCardActions => {
-  const defaultLimit = Math.min(initialLimit ?? DEFAULT_CONFIG.DEFAULT_LIMIT, data.length);
+  const defaultLimit = initialLimit !== undefined ? Math.min(initialLimit, data.length) : Math.min(1500, data.length);
   
   const [state, setState] = useState<FlashCardState>({
     current: initialCurrent !== undefined ? initialCurrent : Math.floor(Math.random() * defaultLimit),
@@ -48,7 +48,9 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   const getNext = useCallback(() => {
     setState(prev => {
       const currentCharacter = data[prev.current];
-      const isCorrect = prev.pinyinInput.trim() ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
+      const trimmedInput = prev.pinyinInput.trim();
+      const hasInput = trimmedInput.length > 0;
+      const isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
       
       // Add to incorrect answers if wrong or empty input
       const newIncorrectAnswers = [...prev.incorrectAnswers];
@@ -73,7 +75,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
         isPinyinCorrect: null,
         // Update scoring
         correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-        totalAttempted: prev.pinyinInput.trim() ? prev.totalAttempted + 1 : prev.totalAttempted,
+        totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
         // Set flash result based on pinyin evaluation
         flashResult: prev.pinyinInput.trim() ? (isCorrect ? 'correct' : 'incorrect') : null,
         // Update incorrect answers

@@ -65,7 +65,6 @@ const FeedbackMessage = styled.div<{ $isCorrect: boolean | null }>`
 `;
 
 export const PinyinInput: React.FC<PinyinInputProps> = ({
-  currentPinyin,
   currentIndex,
   onSubmit,
   isCorrect,
@@ -91,11 +90,16 @@ export const PinyinInput: React.FC<PinyinInputProps> = ({
     if (flashResult && inputRef.current) {
       const className = flashResult === 'correct' ? 'flash-correct' : 'flash-incorrect';
       inputRef.current.classList.add(className);
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.classList.remove(className);
         }
       }, 1000);
+      
+      // Cleanup function to clear timeout on unmount or dependency change
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
   }, [flashResult]);
 
