@@ -5,12 +5,14 @@ interface StatisticsProps {
   current: number;
   totalSeen: number;
   limit: number;
+  correctAnswers: number;
 }
 
 export const Statistics: React.FC<StatisticsProps> = ({
   current,
   totalSeen,
   limit,
+  correctAnswers,
 }) => {
   return (
     <Stats>
@@ -25,6 +27,10 @@ export const Statistics: React.FC<StatisticsProps> = ({
       <StatItem>
         <StatValue data-testid="stat-total">{limit}</StatValue>
         <StatLabel>Total</StatLabel>
+      </StatItem>
+      <StatItem>
+        <StatValue data-testid="stat-correct">{correctAnswers}</StatValue>
+        <StatLabel>Correct</StatLabel>
       </StatItem>
     </Stats>
   );

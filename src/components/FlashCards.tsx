@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -8,7 +8,9 @@ import { CharacterDisplay } from './CharacterDisplay';
 import { ControlButtons } from './ControlButtons';
 import { ProgressBar } from './ProgressBar';
 import { Statistics } from './Statistics';
+import { PinyinInput } from './PinyinInput';
 import { FlashCardProps } from '../types';
+import data from '../data.json';
 
 export const FlashCards: React.FC<FlashCardProps> = ({ 
   initialCurrent, 
@@ -20,9 +22,13 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     hint,
     totalSeen,
     progress,
+    isPinyinCorrect,
+    correctAnswers,
+    flashResult,
     getNext,
     toggleHint,
     updateLimit,
+    setPinyinInput,
   } = useFlashCard({ initialCurrent, initialLimit });
 
   const handleTogglePinyin = useCallback(() => {
@@ -37,12 +43,36 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     updateLimit(newLimit);
   }, [updateLimit]);
 
+  const handlePinyinSubmit = useCallback((input: string) => {
+    setPinyinInput(input);
+  }, [setPinyinInput]);
+
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
     onNext: getNext,
     onTogglePinyin: handleTogglePinyin,
     onToggleEnglish: handleToggleEnglish,
   });
+
+  // Global arrow key handler for range
+  useEffect(() => {
+    const handleArrow = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        // Only trigger if not focused on the range input
+        const active = document.activeElement;
+        if (active && (active as HTMLElement).id === 'limit') return;
+        const increment = e.key === 'ArrowUp' ? 50 : -50;
+        const minLimit = 50;
+        const maxLimit = Math.min(1500, data.length);
+        let newLimit = limit + increment;
+        newLimit = Math.min(maxLimit, Math.max(minLimit, newLimit));
+        handleLimitChange(newLimit);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', handleArrow);
+    return () => window.removeEventListener('keydown', handleArrow);
+  }, [limit, handleLimitChange]);
 
   return (
     <PageContainer>
@@ -64,6 +94,15 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           hintType={hint as HintType}
         />
 
+        <PinyinInput
+          currentPinyin={data[current]?.pinyin || ''}
+          currentIndex={current}
+          onSubmit={handlePinyinSubmit}
+          isCorrect={isPinyinCorrect}
+          disabled={false}
+          flashResult={flashResult}
+        />
+
         <ControlButtons
           onTogglePinyin={handleTogglePinyin}
           onToggleEnglish={handleToggleEnglish}
@@ -74,6 +113,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           current={current}
           totalSeen={totalSeen}
           limit={limit}
+          correctAnswers={correctAnswers}
         />
       </Card>
     </PageContainer>

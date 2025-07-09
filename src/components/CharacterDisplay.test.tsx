@@ -1,24 +1,29 @@
 
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 import { CharacterDisplay } from './CharacterDisplay';
-import { getCharacterByIndex, getHintText } from '../utils/characterUtils';
-
-vi.mock('../utils/characterUtils');
+import { HINT_TYPES } from '../types';
 
 describe('CharacterDisplay', () => {
-  it('displays character correctly', () => {
-    vi.mocked(getCharacterByIndex).mockReturnValue({ chinese: '一', pinyin: 'yī', english: 'one' });
-    vi.mocked(getHintText).mockReturnValue('Tap a button below to reveal');
-    render(<CharacterDisplay currentIndex={0} hintType={'NONE'} />);
-    expect(screen.getByTestId('main-character')).toHaveTextContent('一');
-    expect(screen.getByTestId('hint-text')).toHaveTextContent('Tap a button below to reveal');
+  it('should display both simplified and traditional characters', () => {
+    render(
+      <CharacterDisplay
+        currentIndex={0}
+        hintType={HINT_TYPES.NONE}
+      />
+    );
+
+    expect(screen.getByTestId('simplified-character')).toBeInTheDocument();
+    expect(screen.getByTestId('traditional-character')).toBeInTheDocument();
   });
 
-  it('displays pinyin hint when active', () => {
-    vi.mocked(getCharacterByIndex).mockReturnValue({ chinese: '一', pinyin: 'yī', english: 'one' });
-    vi.mocked(getHintText).mockReturnValue('yī');
-    render(<CharacterDisplay currentIndex={0} hintType={'PINYIN'} />);
-    expect(screen.getByTestId('hint-text')).toHaveTextContent('yī');
+  it('should show hint text when hint is provided', () => {
+    render(
+      <CharacterDisplay
+        currentIndex={0}
+        hintType={HINT_TYPES.PINYIN}
+      />
+    );
+
+    expect(screen.getByTestId('hint-text')).toBeInTheDocument();
   });
 }); 

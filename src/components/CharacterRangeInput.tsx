@@ -1,19 +1,45 @@
-import React, { useState, useCallback } from 'react';
-import { SettingsSection, SettingsLabel, SettingsInput } from './styled';
+import React, { useState, useCallback, useEffect } from 'react';
+import { SettingsSection, SettingsLabel } from './styled';
 import { validateLimit } from '../utils/characterUtils';
 import data from '../data.json';
+import styled from 'styled-components';
 
 interface CharacterRangeInputProps {
   currentLimit: number;
   onLimitChange: (newLimit: number) => void;
 }
 
+const RangeInput = styled.input<{ $showError: boolean }>`
+  width: 100%;
+  max-width: 200px;
+  padding: 12px 16px;
+  border: 2px solid ${props => props.$showError ? '#dc3545' : '#4a5568'};
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  outline: none;
+  background: #2d3748;
+  color: #ffffff;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+  }
+
+  &::placeholder {
+    color: #718096;
+  }
+`;
+
 export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   currentLimit,
   onLimitChange,
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
-  const maxLimit = data.length;
+  const [showError, setShowError] = useState(false);
+  const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
+  const minLimit = 50;
 
   const handleInputChange = useCallback((value: string) => {
     // Clamp value to max allowed
@@ -23,35 +49,64 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         setInputValue(maxLimit.toString());
         return;
       }
-      if (parsed < 1) {
-        setInputValue('1');
+      if (parsed < minLimit) {
+        setInputValue(minLimit.toString());
         return;
       }
     }
     setInputValue(value);
-  }, [maxLimit]);
+  }, [maxLimit, minLimit]);
 
   const handleInputBlur = useCallback(() => {
-    const newLimit = validateLimit(inputValue, maxLimit);
-    if (newLimit !== undefined) {
-      setInputValue(newLimit.toString());
-      onLimitChange(newLimit);
+    const newLimit = validateLimit(inputValue, minLimit, maxLimit);
+    setInputValue(newLimit.toString());
+    onLimitChange(newLimit);
+  }, [inputValue, onLimitChange, maxLimit, minLimit]);
+
+  // In handleKeyDown, always clamp and flash red if out of bounds
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const currentValue = parseInt(inputValue, 10) || currentLimit;
+      const increment = e.key === 'ArrowUp' ? 50 : -50;
+      let newValue = currentValue + increment;
+      let flash = false;
+      if (newValue > maxLimit) {
+        newValue = maxLimit;
+        flash = true;
+      } else if (newValue < minLimit) {
+        newValue = minLimit;
+        flash = true;
+      }
+      if (flash) {
+        setShowError(true);
+        setTimeout(() => setShowError(false), 1000);
+      }
+      setInputValue(newValue.toString());
+      onLimitChange(newValue);
     }
-  }, [inputValue, onLimitChange, maxLimit]);
+  }, [inputValue, currentLimit, onLimitChange, minLimit, maxLimit]);
+
+  // Update input value when currentLimit changes externally
+  useEffect(() => {
+    setInputValue(currentLimit.toString());
+  }, [currentLimit]);
 
   return (
     <SettingsSection>
       <SettingsLabel htmlFor="limit">Character Range</SettingsLabel>
-      <SettingsInput
+      <RangeInput
         id="limit"
         type="number"
         value={inputValue}
         onChange={(e) => handleInputChange(e.target.value)}
         onBlur={handleInputBlur}
+        onKeyDown={handleKeyDown}
         placeholder="100"
-        min="1"
+        min={minLimit}
         max={maxLimit}
         data-testid="range-input"
+        $showError={showError}
       />
     </SettingsSection>
   );

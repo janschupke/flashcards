@@ -34,8 +34,8 @@ A modern flashcard web app for practicing Simplified Chinese characters. This pr
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/janschupke/hanzi-flashcards.git
-cd hanzi-flashcards
+git clone https://github.com/janschupke/flashcards.git
+cd flashcards
 
 # Install dependencies
 npm install
