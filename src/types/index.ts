@@ -2,6 +2,7 @@ export interface Character {
   chinese: string;
   pinyin: string;
   english: string;
+  traditional?: string; // Add traditional field
 }
 
 export interface FlashCardState {
@@ -10,6 +11,12 @@ export interface FlashCardState {
   hint: HintType;
   totalSeen: number;
   progress: number;
+  // New fields for traditional character feature
+  displayMode: 'simplified' | 'traditional' | 'both';
+  pinyinInput: string;
+  isPinyinCorrect: boolean | null;
+  correctAnswers: number;
+  totalAttempted: number;
 }
 
 export interface FlashCardActions {
@@ -17,6 +24,11 @@ export interface FlashCardActions {
   toggleHint: (hintType: HintType) => void;
   updateLimit: (newLimit: number) => void;
   reset: () => void;
+  // New actions for traditional character feature
+  setDisplayMode: (mode: 'simplified' | 'traditional' | 'both') => void;
+  setPinyinInput: (input: string) => void;
+  evaluatePinyin: () => void;
+  resetScore: () => void;
 }
 
 export interface FlashCardProps {
@@ -42,4 +54,25 @@ export const DEFAULT_CONFIG = {
   DEFAULT_LIMIT: 100,
   MIN_LIMIT: 1,
   PROGRESS_UPDATE_DELAY: 300,
-} as const; 
+} as const;
+
+// New types for traditional character feature
+export type DisplayMode = 'simplified' | 'traditional' | 'both';
+
+export interface CharacterDisplayToggleProps {
+  displayMode: DisplayMode;
+  onModeChange: (mode: DisplayMode) => void;
+}
+
+export interface PinyinInputProps {
+  currentPinyin: string; // Correct pinyin for current character
+  onSubmit: (input: string) => void;
+  isCorrect: boolean | null; // null = not evaluated, true/false = result
+  disabled?: boolean;
+}
+
+export interface ScoreDisplayProps {
+  correctAnswers: number;
+  totalAttempted: number;
+  percentage: number;
+} 
