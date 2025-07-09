@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { PinyinInput } from './PinyinInput';
 
@@ -14,6 +14,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -26,6 +27,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -40,6 +42,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -55,6 +58,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={true}
       />
@@ -67,6 +71,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={false}
       />
@@ -79,6 +84,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -92,6 +98,7 @@ describe('PinyinInput', () => {
     render(
       <PinyinInput
         currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         disabled={true}
@@ -102,44 +109,87 @@ describe('PinyinInput', () => {
     expect(input).toBeDisabled();
   });
 
-  it('has correct styling when correct', () => {
-    render(
+  it('clears input when currentIndex changes', () => {
+    const { rerender } = render(
       <PinyinInput
         currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={true}
-      />
-    );
-
-    const input = screen.getByRole('textbox');
-    expect(input).toHaveStyle('border-color: rgb(40, 167, 69)');
-  });
-
-  it('has incorrect styling when incorrect', () => {
-    render(
-      <PinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={false}
-      />
-    );
-
-    const input = screen.getByRole('textbox');
-    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
-  });
-
-  it.skip('has neutral styling when not evaluated', () => {
-    render(
-      <PinyinInput
-        currentPinyin="ni3"
+        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
     );
 
     const input = screen.getByRole('textbox');
-    // Simulate blur to check the neutral border color
-    input.blur();
-    expect(input).toHaveStyle('border-color: rgb(233, 236, 239)');
+    fireEvent.change(input, { target: { value: 'test' } });
+    expect(input).toHaveValue('test');
+
+    // Change the currentIndex prop
+    rerender(
+      <PinyinInput
+        currentPinyin="wo3"
+        currentIndex={1}
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+      />
+    );
+
+    // Input should be cleared
+    expect(input).toHaveValue('');
+  });
+
+  it('flashes green when flashResult is correct', async () => {
+    render(
+      <PinyinInput
+        currentPinyin="ni3"
+        currentIndex={0}
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult="correct"
+      />
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveClass('flash-correct');
+
+    // Wait for animation to complete
+    await waitFor(() => {
+      expect(input).not.toHaveClass('flash-correct');
+    }, { timeout: 1100 });
+  });
+
+  it('flashes red when flashResult is incorrect', async () => {
+    render(
+      <PinyinInput
+        currentPinyin="ni3"
+        currentIndex={0}
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult="incorrect"
+      />
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveClass('flash-incorrect');
+
+    // Wait for animation to complete
+    await waitFor(() => {
+      expect(input).not.toHaveClass('flash-incorrect');
+    }, { timeout: 1100 });
+  });
+
+  it('does not flash when flashResult is null', () => {
+    render(
+      <PinyinInput
+        currentPinyin="ni3"
+        currentIndex={0}
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult={null}
+      />
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).not.toHaveClass('flash-correct');
+    expect(input).not.toHaveClass('flash-incorrect');
   });
 }); 

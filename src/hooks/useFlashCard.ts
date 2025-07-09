@@ -23,6 +23,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     isPinyinCorrect: null,
     correctAnswers: 0,
     totalAttempted: 0,
+    flashResult: null,
   });
 
   // Memoize progress calculation to avoid unnecessary recalculations
@@ -56,6 +57,8 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
         // Update scoring
         correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
         totalAttempted: prev.pinyinInput.trim() ? prev.totalAttempted + 1 : prev.totalAttempted,
+        // Set flash result based on pinyin evaluation
+        flashResult: prev.pinyinInput.trim() ? (isCorrect ? 'correct' : 'incorrect') : null,
       };
     });
   }, [getRandomIndex]);
@@ -77,6 +80,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       hint: HINT_TYPES.NONE,
       pinyinInput: '',
       isPinyinCorrect: null,
+      flashResult: null,
     }));
   }, []);
 
@@ -91,6 +95,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
+      flashResult: null,
     }));
   }, [getRandomIndex]);
 
@@ -131,8 +136,19 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
+      flashResult: null,
     }));
   }, []);
+
+  // Clear flash result after animation
+  useEffect(() => {
+    if (state.flashResult) {
+      const timer = setTimeout(() => {
+        setState(prev => ({ ...prev, flashResult: null }));
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.flashResult]);
 
   return {
     ...state,

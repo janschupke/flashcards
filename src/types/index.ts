@@ -17,6 +17,7 @@ export interface FlashCardState {
   isPinyinCorrect: boolean | null;
   correctAnswers: number;
   totalAttempted: number;
+  flashResult: 'correct' | 'incorrect' | null;
 }
 
 export interface FlashCardActions {
@@ -59,7 +60,9 @@ export const DEFAULT_CONFIG = {
 // New types for traditional character feature
 export interface PinyinInputProps {
   currentPinyin: string; // Correct pinyin for current character
+  currentIndex: number;
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
+  flashResult?: 'correct' | 'incorrect' | null;
 } 

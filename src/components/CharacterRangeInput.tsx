@@ -10,7 +10,7 @@ interface CharacterRangeInputProps {
 }
 
 const StyledSettingsInput = styled(SettingsInput)<{ $showError: boolean }>`
-  border-color: ${props => props.$showError ? '#dc3545' : '#ced4da'};
+  border-color: ${props => props.$showError ? '#dc3545' : '#4a5568'};
   transition: border-color 1s ease-out;
 `;
 
@@ -20,7 +20,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
   const [showError, setShowError] = useState(false);
-  const maxLimit = data.length;
+  const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 
   const handleInputChange = useCallback((value: string) => {
@@ -42,15 +42,15 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   const handleInputBlur = useCallback(() => {
     const newLimit = validateLimit(inputValue, maxLimit);
     if (newLimit !== undefined) {
-      setInputValue(newLimit.toString());
-      onLimitChange(newLimit);
+      const clampedLimit = Math.max(minLimit, Math.min(maxLimit, newLimit));
+      setInputValue(clampedLimit.toString());
+      onLimitChange(clampedLimit);
     }
-  }, [inputValue, onLimitChange, maxLimit]);
+  }, [inputValue, onLimitChange, maxLimit, minLimit]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
-      
       const currentValue = parseInt(inputValue, 10) || currentLimit;
       const increment = e.key === 'ArrowUp' ? 50 : -50;
       const newValue = currentValue + increment;
@@ -62,9 +62,9 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
       }
       
       // Always clamp to valid range and call onLimitChange
-      const newLimit = Math.max(minLimit, Math.min(maxLimit, newValue));
-      setInputValue(newLimit.toString());
-      onLimitChange(newLimit);
+      const clamped = Math.max(minLimit, Math.min(maxLimit, newValue));
+      setInputValue(clamped.toString());
+      onLimitChange(clamped);
     }
   }, [inputValue, currentLimit, onLimitChange, minLimit, maxLimit]);
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -26,11 +26,14 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     isPinyinCorrect,
     correctAnswers,
     totalAttempted,
+    flashResult,
     getNext,
     toggleHint,
     updateLimit,
     setPinyinInput,
   } = useFlashCard({ initialCurrent, initialLimit });
+
+  const rangeInputRef = useRef<HTMLInputElement>(null);
 
   const handleTogglePinyin = useCallback(() => {
     toggleHint(HINT_TYPES.PINYIN);
@@ -55,6 +58,26 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     onToggleEnglish: handleToggleEnglish,
   });
 
+  // Global arrow key handler for range
+  useEffect(() => {
+    const handleArrow = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        // Only trigger if not focused on the range input
+        const active = document.activeElement;
+        if (active && (active as HTMLElement).id === 'limit') return;
+        const increment = e.key === 'ArrowUp' ? 50 : -50;
+        const minLimit = 50;
+        const maxLimit = Math.min(1500, data.length);
+        let newLimit = limit + increment;
+        newLimit = Math.max(minLimit, Math.min(maxLimit, newLimit));
+        handleLimitChange(newLimit);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', handleArrow);
+    return () => window.removeEventListener('keydown', handleArrow);
+  }, [limit, handleLimitChange]);
+
   return (
     <PageContainer>
       <Card>
@@ -77,9 +100,11 @@ export const FlashCards: React.FC<FlashCardProps> = ({
 
         <PinyinInput
           currentPinyin={data[current]?.pinyin || ''}
+          currentIndex={current}
           onSubmit={handlePinyinSubmit}
           isCorrect={isPinyinCorrect}
           disabled={false}
+          flashResult={flashResult}
         />
 
         <ControlButtons

@@ -177,4 +177,64 @@ describe('CharacterRangeInput', () => {
     expect(input).toHaveAttribute('min', '50');
     expect(input).toHaveAttribute('max');
   });
+
+  it('enforces minimum limit of 50 when typing', () => {
+    render(
+      <CharacterRangeInput
+        currentLimit={100}
+        onLimitChange={mockOnLimitChange}
+      />
+    );
+
+    const input = screen.getByTestId('range-input');
+    fireEvent.change(input, { target: { value: '30' } });
+    expect(input).toHaveValue(50);
+  });
+
+  it('enforces minimum limit of 50 when using arrow keys', () => {
+    render(
+      <CharacterRangeInput
+        currentLimit={60}
+        onLimitChange={mockOnLimitChange}
+      />
+    );
+
+    const input = screen.getByTestId('range-input');
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    
+    // Should clamp to 50, not go below
+    expect(mockOnLimitChange).toHaveBeenCalledWith(50);
+  });
+
+  it('shows red border when arrow key would go below minimum', () => {
+    render(
+      <CharacterRangeInput
+        currentLimit={30}
+        onLimitChange={mockOnLimitChange}
+      />
+    );
+
+    const input = screen.getByTestId('range-input');
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    // Should show red border for 1 second
+    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
+  });
+
+  it('shows red border when arrow key would go above maximum', () => {
+    const data = require('../data.json');
+    const maxLimit = data.length;
+    render(
+      <CharacterRangeInput
+        currentLimit={maxLimit - 10}
+        onLimitChange={mockOnLimitChange}
+      />
+    );
+
+    const input = screen.getByTestId('range-input');
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    // Should show red border for 1 second
+    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
+  });
 }); 
