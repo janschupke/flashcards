@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { SettingsSection, SettingsLabel, SettingsInput } from './styled';
+import { SettingsSection, SettingsLabel } from './styled';
 import { validateLimit } from '../utils/characterUtils';
 import data from '../data.json';
 import styled from 'styled-components';
@@ -9,7 +9,7 @@ interface CharacterRangeInputProps {
   onLimitChange: (newLimit: number) => void;
 }
 
-const RangeInput = styled.input<{ $showError: boolean; $flashKey: number }>`
+const RangeInput = styled.input<{ $showError: boolean }>`
   width: 100%;
   max-width: 200px;
   padding: 12px 16px;
@@ -38,7 +38,6 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
   const [showError, setShowError] = useState(false);
-  const [errorFlashKey, setErrorFlashKey] = useState(0); // force re-render for flash
   const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 
@@ -60,12 +59,9 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   }, [maxLimit, minLimit]);
 
   const handleInputBlur = useCallback(() => {
-    const newLimit = validateLimit(inputValue, maxLimit);
-    if (newLimit !== undefined) {
-      const clampedLimit = Math.max(minLimit, Math.min(maxLimit, newLimit));
-      setInputValue(clampedLimit.toString());
-      onLimitChange(clampedLimit);
-    }
+    const newLimit = validateLimit(inputValue, minLimit, maxLimit);
+    setInputValue(newLimit.toString());
+    onLimitChange(newLimit);
   }, [inputValue, onLimitChange, maxLimit, minLimit]);
 
   // In handleKeyDown, always clamp and flash red if out of bounds

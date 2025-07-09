@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { CharacterDisplay } from './CharacterDisplay';
 import { HINT_TYPES } from '../types';
