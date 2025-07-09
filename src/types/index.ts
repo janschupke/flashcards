@@ -5,6 +5,15 @@ export interface Character {
   traditional?: string; // Add traditional field
 }
 
+export interface IncorrectAnswer {
+  characterIndex: number;
+  submittedPinyin: string;
+  correctPinyin: string;
+  chinese: string;
+  traditional?: string;
+  english: string;
+}
+
 export interface FlashCardState {
   current: number;
   limit: number;
@@ -20,6 +29,8 @@ export interface FlashCardState {
   flashResult: 'correct' | 'incorrect' | null;
   // Previous character tracking
   previousCharacter: number | null;
+  // Incorrect answers tracking
+  incorrectAnswers: IncorrectAnswer[];
 }
 
 export interface FlashCardActions {

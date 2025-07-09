@@ -12,9 +12,10 @@ vi.mock('../data.json', () => ({
 }));
 
 describe('PreviousCharacter', () => {
-  it('renders nothing when previousCharacterIndex is null', () => {
-    const { container } = render(<PreviousCharacter previousCharacterIndex={null} />);
-    expect(container.firstChild).toBeNull();
+  it('renders placeholders when previousCharacterIndex is null', () => {
+    render(<PreviousCharacter previousCharacterIndex={null} />);
+    expect(screen.getByText('Previous Character')).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(4); // All placeholders
   });
 
   it('renders previous character information when index is provided', () => {
@@ -31,8 +32,9 @@ describe('PreviousCharacter', () => {
     expect(screen.getByText('I ; me')).toBeInTheDocument();
   });
 
-  it('renders nothing when character index is out of bounds', () => {
-    const { container } = render(<PreviousCharacter previousCharacterIndex={999} />);
-    expect(container.firstChild).toBeNull();
+  it('renders placeholders when character index is out of bounds', () => {
+    render(<PreviousCharacter previousCharacterIndex={999} />);
+    expect(screen.getByText('Previous Character')).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(4); // All placeholders
   });
 }); 
