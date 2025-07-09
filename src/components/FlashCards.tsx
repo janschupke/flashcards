@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
+import styled from 'styled-components';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { HINT_TYPES, HintType } from '../types';
@@ -13,6 +14,11 @@ import { PreviousCharacter } from './PreviousCharacter';
 import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
 import data from '../data.json';
+
+const CardCompact = styled(Card)`
+  padding-top: 16px;
+  padding-bottom: 16px;
+`;
 
 export const FlashCards: React.FC<FlashCardProps> = ({ 
   initialCurrent, 
@@ -125,11 +131,11 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         />
       </Card>
 
-      <Card>
+      <CardCompact>
         <IncorrectAnswers
           incorrectAnswers={incorrectAnswers}
         />
-      </Card>
+      </CardCompact>
     </PageContainer>
   );
 };

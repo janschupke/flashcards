@@ -15,7 +15,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 12px 0;
+  padding: 8px 0;
   user-select: none;
   
   &:hover {
@@ -42,6 +42,7 @@ const Content = styled.div<{ $isExpanded: boolean }>`
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
   opacity: ${props => props.$isExpanded ? '1' : '0'};
+  padding: 8px 0;
 `;
 
 const Table = styled.table`

@@ -14,8 +14,7 @@ describe('Statistics', () => {
     );
 
     expect(screen.getByTestId('stat-current')).toHaveTextContent('6');
-    expect(screen.getByTestId('stat-seen')).toHaveTextContent('10');
+    expect(screen.getByTestId('stat-answers')).toHaveTextContent('7 / 10');
     expect(screen.getByTestId('stat-total')).toHaveTextContent('100');
-    expect(screen.getByTestId('stat-correct')).toHaveTextContent('7');
   });
 }); 

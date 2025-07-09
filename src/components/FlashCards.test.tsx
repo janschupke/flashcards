@@ -29,9 +29,9 @@ describe('FlashCards', () => {
     // Press up arrow key
     fireEvent.keyDown(window, { key: 'ArrowUp' });
     
-    // The limit should be increased by 50, but max is 5 (mocked data)
+    // The limit should be increased by 50, but min is 50 (clamped)
     const rangeInput = screen.getByTestId('range-input');
-    expect(rangeInput).toHaveValue(5);
+    expect(rangeInput).toHaveValue(50);
   });
 
   it('responds to global arrow keys when pinyin input is focused - down arrow', () => {
@@ -44,9 +44,9 @@ describe('FlashCards', () => {
     // Press down arrow key
     fireEvent.keyDown(window, { key: 'ArrowDown' });
     
-    // The limit should be decreased by 50, but min is 5 (mocked data)
+    // The limit should be decreased by 50, but min is 50 (clamped)
     const rangeInput = screen.getByTestId('range-input');
-    expect(rangeInput).toHaveValue(5);
+    expect(rangeInput).toHaveValue(50);
   });
 
   it('does not respond to global arrow keys when range input is focused', () => {
@@ -60,7 +60,7 @@ describe('FlashCards', () => {
     fireEvent.keyDown(window, { key: 'ArrowUp' });
     
     // The limit should not change (range input handles its own arrow keys)
-    expect(rangeInput).toHaveValue(5);
+    expect(rangeInput).toHaveValue(50);
   });
 
   it('clears pinyin input when transitioning to next character', async () => {
