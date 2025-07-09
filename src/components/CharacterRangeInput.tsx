@@ -104,7 +104,6 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
         $showError={showError}
-        $flashKey={errorFlashKey}
         min={50}
         max={1500}
         autoFocus
