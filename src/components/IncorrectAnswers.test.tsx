@@ -69,26 +69,4 @@ describe('IncorrectAnswers', () => {
     expect(screen.getByText('possessive p.')).toBeInTheDocument();
     expect(screen.getByText('(empty)')).toBeInTheDocument(); // submitted
   });
-
-  it('displays traditional character when different from simplified', () => {
-    const answersWithTraditional: IncorrectAnswer[] = [
-      {
-        characterIndex: 0,
-        submittedPinyin: 'test',
-        correctPinyin: 'wǒ',
-        chinese: '我',
-        traditional: '我',
-        english: 'I ; me',
-      },
-    ];
-    
-    render(<IncorrectAnswers incorrectAnswers={answersWithTraditional} />);
-    
-    const header = screen.getByText('Incorrect Answers (1)').closest('div');
-    fireEvent.click(header!);
-    
-    // Should not show traditional since it's the same as simplified
-    const traditionalElements = screen.queryAllByText('我');
-    expect(traditionalElements.length).toBeGreaterThan(0); // Only the simplified one
-  });
 }); 

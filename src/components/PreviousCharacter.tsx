@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import data from '../data.json';
+import { getTraditionalCharacter } from '../utils/traditionalMapping';
 
 interface PreviousCharacterProps {
   previousCharacterIndex: number | null;
@@ -80,7 +81,7 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({
         </InfoItem>
         <InfoItem>
           <Label>Traditional</Label>
-          <TraditionalValue>{character ? character.chinese : PLACEHOLDER}</TraditionalValue>
+          <TraditionalValue>{character ? getTraditionalCharacter(character.chinese) : PLACEHOLDER}</TraditionalValue>
         </InfoItem>
         <InfoItem>
           <Label>Pinyin</Label>
