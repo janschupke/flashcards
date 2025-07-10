@@ -67,7 +67,6 @@ const FeedbackMessage = styled.div<{ $isCorrect: boolean | null }>`
 export const PinyinInput: React.FC<PinyinInputProps> = ({
   value,
   onChange,
-  currentIndex,
   onSubmit,
   isCorrect,
   disabled = false,

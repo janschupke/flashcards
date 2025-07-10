@@ -109,7 +109,6 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           value={pinyinInput}
           onChange={setPinyinInput}
           currentPinyin={data[current]?.pinyin || ''}
-          currentIndex={current}
           onSubmit={handlePinyinSubmit}
           isCorrect={isPinyinCorrect}
           disabled={false}

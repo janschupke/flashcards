@@ -130,7 +130,6 @@ describe('PinyinInput', () => {
             value={value}
             onChange={setValue}
             currentPinyin={index === 0 ? 'ni3' : 'wo3'}
-            currentIndex={index}
             onSubmit={mockOnSubmit}
             isCorrect={null}
           />

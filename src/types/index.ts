@@ -75,7 +75,6 @@ export interface PinyinInputProps {
   value: string;
   onChange: (value: string) => void;
   currentPinyin: string; // Correct pinyin for current character
-  currentIndex: number;
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
