@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
 import { getModeSpecificLimit } from '../utils/characterUtils';
+import { FlashcardMode } from '../types';
 import { MODES } from './ModeToggleButtons';
 
 // Mock the data
@@ -89,21 +90,21 @@ describe('FlashCards', () => {
     
     // Initially should show pinyin mode with max based on available data
     const rangeInput = screen.getByTestId('range-input');
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.PINYIN).toString());
     
     // Switch to simplified mode
     const simplifiedButton = screen.getByText('简体 (F2)');
     fireEvent.click(simplifiedButton);
     
     // Should now show simplified mode with max based on available data
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('simplified').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.SIMPLIFIED).toString());
     
     // Switch back to pinyin mode
     const pinyinButton = screen.getByText('拼音 (F1)');
     fireEvent.click(pinyinButton);
     
     // Should show pinyin mode with max again
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.PINYIN).toString());
   });
 
   it('switches mode with right arrow key, and does not go past last mode', () => {

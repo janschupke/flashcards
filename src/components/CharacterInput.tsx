@@ -1,6 +1,7 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from './styled';
 import { CharacterInputProps } from '../types';
+import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../constants';
 
 export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
   ({
@@ -21,7 +22,7 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
         setIsFlashing(true);
         const timer = setTimeout(() => {
           setIsFlashing(false);
-        }, 1000);
+        }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
         return () => clearTimeout(timer);
       }
     }, [flashResult]);
@@ -40,9 +41,9 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
     const getPlaceholder = () => {
       switch (mode) {
         case 'simplified':
-          return '输入简体字';
+          return CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER;
         case 'traditional':
-          return '输入繁体字';
+          return CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER;
         default:
           return '输入字符';
       }
@@ -50,10 +51,10 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
 
     const getFeedbackText = () => {
       if (isCorrect === true) {
-        return '✓ 正确';
+        return CHINESE_TEXT.FEEDBACK.CORRECT;
       }
       if (isCorrect === false) {
-        return `✗ 错误，正确答案是: ${expectedCharacter}`;
+        return CHINESE_TEXT.FEEDBACK.INCORRECT_CHARACTER(expectedCharacter);
       }
       return '';
     };
@@ -79,7 +80,7 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
             spellCheck="false"
           />
         </InputBorderWrapper>
-        <FeedbackText isCorrect={isCorrect} data-testid="feedback-text">
+        <FeedbackText $isCorrect={isCorrect} data-testid="feedback-text">
           {getFeedbackText()}
         </FeedbackText>
       </InputContainer>

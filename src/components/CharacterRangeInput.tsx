@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { SettingsSection, SettingsLabel } from './styled';
 import { validateLimit } from '../utils/characterUtils';
+import { APP_LIMITS, UI_CONSTANTS, CHINESE_TEXT } from '../constants';
 import data from '../data.json';
 import styled from 'styled-components';
 
@@ -37,8 +38,8 @@ const RangeInput = styled.input`
 export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   currentLimit,
   onLimitChange,
-  minLimit = 50,
-  maxLimit = Math.min(1500, data.length),
+  minLimit = APP_LIMITS.MIN_LIMIT,
+  maxLimit = Math.min(APP_LIMITS.PINYIN_MODE_MAX, data.length),
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
 
@@ -70,7 +71,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
       const currentValue = parseInt(inputValue, 10) || currentLimit;
-      const increment = e.key === 'ArrowUp' ? 50 : -50;
+      const increment = e.key === 'ArrowUp' ? UI_CONSTANTS.INCREMENT_STEP : -UI_CONSTANTS.INCREMENT_STEP;
       let newValue = currentValue + increment;
       if (newValue > maxLimit) {
         newValue = maxLimit;
@@ -89,7 +90,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 
   return (
     <SettingsSection>
-      <SettingsLabel htmlFor="limit">Character Range ({minLimit} - {maxLimit})</SettingsLabel>
+      <SettingsLabel htmlFor="limit">{CHINESE_TEXT.LABELS.CHARACTER_RANGE(minLimit, maxLimit)}</SettingsLabel>
       <RangeInput
         id="limit"
         type="number"

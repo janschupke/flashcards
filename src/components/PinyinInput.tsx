@@ -1,6 +1,7 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from './styled';
 import { PinyinInputProps } from '../types';
+import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../constants';
 
 export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
   ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
@@ -12,7 +13,7 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
         setIsFlashing(true);
         const timer = setTimeout(() => {
           setIsFlashing(false);
-        }, 1000);
+        }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
         return () => clearTimeout(timer);
       }
     }, [flashResult]);
@@ -28,14 +29,14 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
       }
     };
 
-    const getPlaceholder = () => 'Type pinyin';
+    const getPlaceholder = () => CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER;
 
     const getFeedbackText = () => {
       if (isCorrect === true) {
-        return '✓ 正确';
+        return CHINESE_TEXT.FEEDBACK.CORRECT;
       }
       if (isCorrect === false) {
-        return `✗ 错误，正确答案是: ${currentPinyin}`;
+        return CHINESE_TEXT.FEEDBACK.INCORRECT_PINYIN(currentPinyin);
       }
       return '';
     };
@@ -61,7 +62,7 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
             spellCheck="false"
           />
         </InputBorderWrapper>
-        <FeedbackText isCorrect={isCorrect} data-testid="feedback-text">
+        <FeedbackText $isCorrect={isCorrect} data-testid="feedback-text">
           {getFeedbackText()}
         </FeedbackText>
       </InputContainer>

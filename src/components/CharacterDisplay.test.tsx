@@ -1,7 +1,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { CharacterDisplay } from './CharacterDisplay';
-import { HINT_TYPES } from '../types';
+import { FlashcardMode, HINT_TYPES } from '../types';
 
 describe('CharacterDisplay', () => {
   it('should display both simplified and traditional characters in pinyin mode', () => {
@@ -9,7 +9,7 @@ describe('CharacterDisplay', () => {
       <CharacterDisplay
         currentIndex={0}
         hintType={HINT_TYPES.NONE}
-        mode="pinyin"
+        mode={FlashcardMode.PINYIN}
       />
     );
 
@@ -22,7 +22,7 @@ describe('CharacterDisplay', () => {
       <CharacterDisplay
         currentIndex={0}
         hintType={HINT_TYPES.NONE}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -35,7 +35,7 @@ describe('CharacterDisplay', () => {
       <CharacterDisplay
         currentIndex={0}
         hintType={HINT_TYPES.NONE}
-        mode="traditional"
+        mode={FlashcardMode.TRADITIONAL}
       />
     );
 
@@ -48,7 +48,7 @@ describe('CharacterDisplay', () => {
       <CharacterDisplay
         currentIndex={0}
         hintType={HINT_TYPES.PINYIN}
-        mode="pinyin"
+        mode={FlashcardMode.PINYIN}
       />
     );
 

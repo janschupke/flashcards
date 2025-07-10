@@ -17,7 +17,23 @@ export interface IncorrectAnswer {
   mode: 'pinyin' | 'simplified' | 'traditional'; // Track which mode the answer was given in
 }
 
-export type FlashcardMode = 'pinyin' | 'simplified' | 'traditional';
+// Add new enums
+export enum FlashcardMode {
+  PINYIN = 'pinyin',
+  SIMPLIFIED = 'simplified',
+  TRADITIONAL = 'traditional',
+}
+
+export enum HintType {
+  NONE = 'NONE',
+  PINYIN = 'PINYIN',
+  ENGLISH = 'ENGLISH',
+}
+
+export enum FlashResult {
+  CORRECT = 'correct',
+  INCORRECT = 'incorrect',
+}
 
 export interface FlashCardState {
   current: number;
@@ -31,7 +47,7 @@ export interface FlashCardState {
   isPinyinCorrect: boolean | null;
   correctAnswers: number;
   totalAttempted: number;
-  flashResult: 'correct' | 'incorrect' | null;
+  flashResult: FlashResult | null;
   // Previous character tracking
   previousCharacter: number | null;
   // Incorrect answers tracking
@@ -66,12 +82,11 @@ export interface FlashCardProps {
   initialLimit?: number;
 }
 
-export type HintType = 'NONE' | 'PINYIN' | 'ENGLISH';
-
+// Update existing constants to use enums
 export const HINT_TYPES = {
-  NONE: 'NONE',
-  PINYIN: 'PINYIN',
-  ENGLISH: 'ENGLISH',
+  NONE: HintType.NONE,
+  PINYIN: HintType.PINYIN,
+  ENGLISH: HintType.ENGLISH,
 } as const;
 
 export const KEYBOARD_SHORTCUTS = {
@@ -97,7 +112,7 @@ export interface PinyinInputProps {
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
-  flashResult?: 'correct' | 'incorrect' | null;
+  flashResult?: FlashResult | null;
 }
 
 // New types for character input feature
@@ -108,7 +123,7 @@ export interface CharacterInputProps {
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
-  flashResult?: 'correct' | 'incorrect' | null;
+  flashResult?: FlashResult | null;
   mode: FlashcardMode;
 }
 

@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { ModeToggleButtonsProps, FlashcardMode } from '../types';
 
 export const MODES: { mode: FlashcardMode; label: string; title: string }[] = [
-  { mode: 'pinyin', label: '拼音 (F1)', title: '拼音模式 - Pinyin Mode (F1)' },
-  { mode: 'simplified', label: '简体 (F2)', title: '简体模式 - Simplified Mode (F2)' },
-  { mode: 'traditional', label: '繁体 (F3)', title: '繁体模式 - Traditional Mode (F3)' },
+  { mode: FlashcardMode.PINYIN, label: '拼音 (F1)', title: '拼音模式 - Pinyin Mode (F1)' },
+  { mode: FlashcardMode.SIMPLIFIED, label: '简体 (F2)', title: '简体模式 - Simplified Mode (F2)' },
+  { mode: FlashcardMode.TRADITIONAL, label: '繁体 (F3)', title: '繁体模式 - Traditional Mode (F3)' },
 ];
 
 const Container = styled.div`
@@ -26,12 +26,12 @@ const ButtonContainer = styled.div`
   width: 100%;
 `;
 
-const ModeButton = styled.button<{ isActive: boolean }>`
+const ModeButton = styled.button<{ $isActive: boolean }>`
   flex: 1;
   padding: 12px 16px;
-  border: 2px solid ${props => props.isActive ? '#dc2626' : '#4a5568'};
-  background-color: ${props => props.isActive ? '#dc2626' : '#2d3748'};
-  color: ${props => props.isActive ? '#ffffff' : '#e2e8f0'};
+  border: 2px solid ${props => props.$isActive ? '#dc2626' : '#4a5568'};
+  background-color: ${props => props.$isActive ? '#dc2626' : '#2d3748'};
+  color: ${props => props.$isActive ? '#ffffff' : '#e2e8f0'};
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
@@ -39,8 +39,8 @@ const ModeButton = styled.button<{ isActive: boolean }>`
   transition: all 0.2s ease-in-out;
   
   &:hover {
-    background-color: ${props => props.isActive ? '#b91c1c' : '#4a5568'};
-    border-color: ${props => props.isActive ? '#b91c1c' : '#718096'};
+    background-color: ${props => props.$isActive ? '#b91c1c' : '#4a5568'};
+    border-color: ${props => props.$isActive ? '#b91c1c' : '#718096'};
   }
   
   &:focus {
@@ -70,7 +70,7 @@ export const ModeToggleButtons: React.FC<ModeToggleButtonsProps> = ({
         {MODES.map(({ mode, label, title }) => (
           <ModeButton
             key={mode}
-            isActive={currentMode === mode}
+            $isActive={currentMode === mode}
             onClick={() => handleModeChange(mode)}
             title={title}
           >

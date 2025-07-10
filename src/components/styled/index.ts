@@ -299,13 +299,13 @@ export const InputField = styled.input`
   }
 `;
 
-export const FeedbackText = styled.div<{ isCorrect: boolean | null }>`
+export const FeedbackText = styled.div<{ $isCorrect: boolean | null }>`
   margin-top: 8px;
   font-size: 14px;
   font-weight: 500;
   color: ${props => {
-    if (props.isCorrect === true) return '#10b981';
-    if (props.isCorrect === false) return '#ef4444';
+    if (props.$isCorrect === true) return '#10b981';
+    if (props.$isCorrect === false) return '#ef4444';
     return '#6b7280';
   }};
   min-height: 20px;

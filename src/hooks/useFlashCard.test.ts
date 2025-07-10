@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useFlashCard } from './useFlashCard'
 import { getModeSpecificLimit } from '../utils/characterUtils';
+import { FlashcardMode, HintType } from '../types';
 
 // Mock the data import
 vi.mock('../data.json', () => ({
@@ -66,7 +67,7 @@ describe('useFlashCard', () => {
       
       // Set hint to pinyin first
       act(() => {
-        result.current.toggleHint('PINYIN')
+        result.current.toggleHint(HintType.PINYIN)
       })
       expect(result.current.hint).toBe('PINYIN')
       
@@ -103,12 +104,12 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() => useFlashCard())
       
       act(() => {
-        result.current.toggleHint('PINYIN') // Pinyin
+        result.current.toggleHint(HintType.PINYIN) // Pinyin
       })
       expect(result.current.hint).toBe('PINYIN')
       
       act(() => {
-        result.current.toggleHint('ENGLISH') // English
+        result.current.toggleHint(HintType.ENGLISH) // English
       })
       expect(result.current.hint).toBe('ENGLISH')
     })
@@ -117,12 +118,12 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() => useFlashCard())
       
       act(() => {
-        result.current.toggleHint('PINYIN') // Turn on pinyin
+        result.current.toggleHint(HintType.PINYIN) // Turn on pinyin
       })
       expect(result.current.hint).toBe('PINYIN')
       
       act(() => {
-        result.current.toggleHint('PINYIN') // Turn off pinyin
+        result.current.toggleHint(HintType.PINYIN) // Turn off pinyin
       })
       expect(result.current.hint).toBe('NONE')
     })
@@ -173,7 +174,7 @@ describe('useFlashCard', () => {
       // Set some state
       act(() => {
         result.current.getNext()
-        result.current.toggleHint('PINYIN')
+        result.current.toggleHint(HintType.PINYIN)
       })
       
       expect(result.current.totalSeen).toBe(1)
@@ -232,7 +233,7 @@ describe('useFlashCard', () => {
     
     // Change mode
     act(() => {
-      result.current.setMode('simplified');
+      result.current.setMode(FlashcardMode.SIMPLIFIED);
     });
     
     expect(result.current.mode).toBe('simplified');
@@ -247,30 +248,30 @@ describe('useFlashCard', () => {
     
     // Start in pinyin mode - limit will be capped to available data
     expect(result.current.mode).toBe('pinyin');
-    expect(result.current.limit).toBe(getModeSpecificLimit('pinyin'));
+    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.PINYIN));
     
     // Switch to simplified mode
     act(() => {
-      result.current.setMode('simplified');
+      result.current.setMode(FlashcardMode.SIMPLIFIED);
     });
     
     expect(result.current.mode).toBe('simplified');
-    expect(result.current.limit).toBe(getModeSpecificLimit('simplified'));
+    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.SIMPLIFIED));
     
     // Switch back to pinyin mode
     act(() => {
-      result.current.setMode('pinyin');
+      result.current.setMode(FlashcardMode.PINYIN);
     });
     
     expect(result.current.mode).toBe('pinyin');
-    expect(result.current.limit).toBe(getModeSpecificLimit('pinyin'));
+    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.PINYIN));
     
     // Switch to traditional mode
     act(() => {
-      result.current.setMode('traditional');
+      result.current.setMode(FlashcardMode.TRADITIONAL);
     });
     
     expect(result.current.mode).toBe('traditional');
-    expect(result.current.limit).toBe(getModeSpecificLimit('traditional'));
+    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.TRADITIONAL));
   });
 }) 
