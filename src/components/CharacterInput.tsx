@@ -13,12 +13,7 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
     flashResult,
     mode,
   }, ref) => {
-    const [localValue, setLocalValue] = useState(value);
     const [isFlashing, setIsFlashing] = useState(false);
-
-    useEffect(() => {
-      setLocalValue(value);
-    }, [value]);
 
     // Handle flash result changes
     useEffect(() => {
@@ -33,13 +28,12 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      setLocalValue(newValue);
       onChange(newValue);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && !disabled) {
-        onSubmit(localValue);
+        onSubmit(value);
       }
     };
 
@@ -74,7 +68,7 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
           <InputField
             ref={ref}
             type="text"
-            value={localValue}
+            value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={getPlaceholder()}

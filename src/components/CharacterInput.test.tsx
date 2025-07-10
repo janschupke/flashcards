@@ -59,7 +59,7 @@ describe('CharacterInput', () => {
   });
 
   it('calls onSubmit when Enter is pressed', () => {
-    render(
+    const { rerender } = render(
       <CharacterInput
         value=""
         onChange={mockOnChange}
@@ -72,6 +72,19 @@ describe('CharacterInput', () => {
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '们' } });
+    
+    // Update the component with the new value to simulate controlled component behavior
+    rerender(
+      <CharacterInput
+        value="们"
+        onChange={mockOnChange}
+        expectedCharacter="们"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        mode="simplified"
+      />
+    );
+    
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
     expect(mockOnSubmit).toHaveBeenCalledWith('们');

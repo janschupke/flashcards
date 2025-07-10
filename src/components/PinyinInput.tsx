@@ -4,12 +4,7 @@ import { PinyinInputProps } from '../types';
 
 export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
   ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
-    const [localValue, setLocalValue] = useState(value);
     const [isFlashing, setIsFlashing] = useState(false);
-
-    useEffect(() => {
-      setLocalValue(value);
-    }, [value]);
 
     // Handle flash result changes
     useEffect(() => {
@@ -24,13 +19,12 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      setLocalValue(newValue);
       onChange(newValue);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && !disabled) {
-        onSubmit(localValue);
+        onSubmit(value);
       }
     };
 
@@ -56,7 +50,7 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
           <InputField
             ref={ref}
             type="text"
-            value={localValue}
+            value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={getPlaceholder()}
