@@ -130,20 +130,7 @@ describe('CharacterRangeInput', () => {
     expect(mockOnLimitChange).toHaveBeenCalledWith(maxLimit);
   });
 
-  it('shows error styling when arrow key would exceed limits', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={50}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
 
-    const input = screen.getByTestId('range-input');
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-
-    // The input should show error styling (red border)
-    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
-  });
 
   it('updates input value when currentLimit prop changes', () => {
     const { rerender } = render(
@@ -206,34 +193,7 @@ describe('CharacterRangeInput', () => {
     expect(mockOnLimitChange).toHaveBeenCalledWith(50);
   });
 
-  it('shows red border when arrow key would go below minimum', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={50}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
 
-    const input = screen.getByTestId('range-input');
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
 
-    // Should show red border for 1 second
-    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
-  });
 
-  it('shows red border when arrow key would go above maximum', () => {
-    const maxLimit = data.length;
-    render(
-      <CharacterRangeInput
-        currentLimit={maxLimit - 10}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
-
-    const input = screen.getByTestId('range-input');
-    fireEvent.keyDown(input, { key: 'ArrowUp' });
-
-    // Should show red border for 1 second
-    expect(input).toHaveStyle('border-color: rgb(220, 53, 69)');
-  });
 }); 

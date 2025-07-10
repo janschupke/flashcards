@@ -9,11 +9,11 @@ interface CharacterRangeInputProps {
   onLimitChange: (newLimit: number) => void;
 }
 
-const RangeInput = styled.input<{ $showError: boolean }>`
+const RangeInput = styled.input`
   width: 100%;
   max-width: 200px;
   padding: 12px 16px;
-  border: 2px solid ${props => props.$showError ? '#dc3545' : '#4a5568'};
+  border: 2px solid #4a5568;
   border-radius: 12px;
   font-size: 1rem;
   font-family: inherit;
@@ -37,7 +37,6 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   onLimitChange,
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
-  const [showError, setShowError] = useState(false);
   const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
   const minLimit = 50;
 
@@ -64,24 +63,17 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
     onLimitChange(newLimit);
   }, [inputValue, onLimitChange, maxLimit, minLimit]);
 
-  // In handleKeyDown, always clamp and flash red if out of bounds
+  // In handleKeyDown, always clamp to bounds
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
       const currentValue = parseInt(inputValue, 10) || currentLimit;
       const increment = e.key === 'ArrowUp' ? 50 : -50;
       let newValue = currentValue + increment;
-      let flash = false;
       if (newValue > maxLimit) {
         newValue = maxLimit;
-        flash = true;
       } else if (newValue < minLimit) {
         newValue = minLimit;
-        flash = true;
-      }
-      if (flash) {
-        setShowError(true);
-        setTimeout(() => setShowError(false), 1000);
       }
       setInputValue(newValue.toString());
       onLimitChange(newValue);
@@ -103,7 +95,6 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         onChange={handleInputChange}
         onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
-        $showError={showError}
         min={50}
         max={1500}
         autoFocus
