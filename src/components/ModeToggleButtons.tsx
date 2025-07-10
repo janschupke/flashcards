@@ -2,6 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { ModeToggleButtonsProps, FlashcardMode } from '../types';
 
+export const MODES: { mode: FlashcardMode; label: string; title: string }[] = [
+  { mode: 'pinyin', label: '拼音 (F1)', title: '拼音模式 - Pinyin Mode (F1)' },
+  { mode: 'simplified', label: '简体 (F2)', title: '简体模式 - Simplified Mode (F2)' },
+  { mode: 'traditional', label: '繁体 (F3)', title: '繁体模式 - Traditional Mode (F3)' },
+];
+
 const Container = styled.div`
   margin-bottom: 20px;
 `;
@@ -61,27 +67,16 @@ export const ModeToggleButtons: React.FC<ModeToggleButtonsProps> = ({
     <Container>
       <Title>Flashcard Mode</Title>
       <ButtonContainer>
-        <ModeButton
-          isActive={currentMode === 'pinyin'}
-          onClick={() => handleModeChange('pinyin')}
-          title="拼音模式 - Pinyin Mode (F1)"
-        >
-          拼音 (F1)
-        </ModeButton>
-        <ModeButton
-          isActive={currentMode === 'simplified'}
-          onClick={() => handleModeChange('simplified')}
-          title="简体模式 - Simplified Mode (F2)"
-        >
-          简体 (F2)
-        </ModeButton>
-        <ModeButton
-          isActive={currentMode === 'traditional'}
-          onClick={() => handleModeChange('traditional')}
-          title="繁体模式 - Traditional Mode (F3)"
-        >
-          繁体 (F3)
-        </ModeButton>
+        {MODES.map(({ mode, label, title }) => (
+          <ModeButton
+            key={mode}
+            isActive={currentMode === mode}
+            onClick={() => handleModeChange(mode)}
+            title={title}
+          >
+            {label}
+          </ModeButton>
+        ))}
       </ButtonContainer>
     </Container>
   );

@@ -18,6 +18,7 @@ import { FlashCardProps } from '../types';
 import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit, validateCharacterInput } from '../utils/characterUtils';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import data from '../data.json';
+import { MODES } from './ModeToggleButtons';
 
 const CardCompact = styled(Card)`
   padding-top: 16px;
@@ -107,6 +108,24 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     onToggleEnglish: handleToggleEnglish,
     onModeChange: handleModeChange,
   });
+
+  // Add left/right arrow hotkeys for mode switching
+  useEffect(() => {
+    const handleArrowModeSwitch = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const modeIndex = MODES.findIndex((m: { mode: string }) => m.mode === mode);
+      if (modeIndex === -1) return;
+      if (e.key === 'ArrowLeft' && modeIndex > 0) {
+        setMode(MODES[modeIndex - 1].mode);
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight' && modeIndex < MODES.length - 1) {
+        setMode(MODES[modeIndex + 1].mode);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', handleArrowModeSwitch);
+    return () => window.removeEventListener('keydown', handleArrowModeSwitch);
+  }, [mode, setMode]);
 
   // Global arrow key handler for range
   useEffect(() => {
