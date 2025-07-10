@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
-import { validateCharacterInput, getFilteredCharacters, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
+import { validateCharacterInput, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
 import data from '../data.json';
 
 interface UseFlashCardProps {

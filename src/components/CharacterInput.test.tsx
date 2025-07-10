@@ -1,7 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterInput } from './CharacterInput';
-import React from 'react';
 
 describe('CharacterInput', () => {
   const mockOnChange = vi.fn();

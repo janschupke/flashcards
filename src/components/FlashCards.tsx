@@ -15,8 +15,7 @@ import { ModeToggleButtons } from './ModeToggleButtons';
 import { PreviousCharacter } from './PreviousCharacter';
 import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
-import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit, validateCharacterInput } from '../utils/characterUtils';
-import { evaluatePinyinInput } from '../utils/pinyinUtils';
+import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../utils/characterUtils';
 import data from '../data.json';
 import { MODES } from './ModeToggleButtons';
 
@@ -50,7 +49,6 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     setPinyinInput,
     setCharacterInput,
     setMode,
-    validateCharacter,
     setPinyinFlashResult,
     setCharacterFlashResult,
   } = useFlashCard({ initialCurrent, initialLimit });

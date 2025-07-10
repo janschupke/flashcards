@@ -72,16 +72,6 @@ const SubmittedTd = styled(Td)<{ $isCorrect: boolean }>`
   color: ${props => props.$isCorrect ? '#48bb78' : '#f56565'};
 `;
 
-const ModeBadge = styled.span`
-  background-color: #4a5568;
-  color: #e2e8f0;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-left: 4px;
-`;
-
 const EmptyMessage = styled.div`
   text-align: center;
   color: #718096;
@@ -96,19 +86,6 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
-  };
-
-  const getModeLabel = (mode: string) => {
-    switch (mode) {
-      case 'pinyin':
-        return '拼音';
-      case 'simplified':
-        return '简体';
-      case 'traditional':
-        return '繁体';
-      default:
-        return mode;
-    }
   };
 
   const getSubmittedColumn = (answer: IncorrectAnswer) => {
