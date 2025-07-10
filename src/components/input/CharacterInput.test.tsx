@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterInput } from './CharacterInput';
-import { FlashcardMode, FlashResult } from '../types';
+import { FlashcardMode, FlashResult } from '../../types';
 
 describe('CharacterInput', () => {
   const mockOnChange = vi.fn();

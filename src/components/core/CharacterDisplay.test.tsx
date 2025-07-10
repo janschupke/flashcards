@@ -1,7 +1,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { CharacterDisplay } from './CharacterDisplay';
-import { FlashcardMode, HINT_TYPES } from '../types';
+import { FlashcardMode, HINT_TYPES } from '../../types';
 
 describe('CharacterDisplay', () => {
   it('should display both simplified and traditional characters in pinyin mode', () => {

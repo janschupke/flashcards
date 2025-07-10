@@ -1,7 +1,7 @@
 /* global document */
 
 import { createRoot } from 'react-dom/client';
-import { FlashCards } from './components/FlashCards';
+import { FlashCards } from './components/core/FlashCards';
 import { GlobalStyle } from './theme/styled';
 
 const rootElement = document.getElementById('root');

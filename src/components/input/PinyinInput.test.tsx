@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { PinyinInput } from './PinyinInput';
 import React from 'react';
-import { FlashResult } from '../types';
+import { FlashResult } from '../../types';
 
 describe('PinyinInput', () => {
   const mockOnSubmit = vi.fn();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { IncorrectAnswer } from '../types';
+import { IncorrectAnswer } from '../../types';
 
 interface IncorrectAnswersProps {
   incorrectAnswers: IncorrectAnswer[];

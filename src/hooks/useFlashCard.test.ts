@@ -5,13 +5,13 @@ import { getModeSpecificLimit } from '../utils/characterUtils';
 import { FlashcardMode, HintType } from '../types';
 
 // Mock the data import
-vi.mock('../data.json', () => ({
+vi.mock('../data/characters.json', () => ({
   default: [
-    { simplified: '一', traditional: '一', pinyin: 'yī', english: 'one' },
-    { simplified: '二', traditional: '二', pinyin: 'èr', english: 'two' },
-    { simplified: '三', traditional: '三', pinyin: 'sān', english: 'three' },
-    { simplified: '四', traditional: '四', pinyin: 'sì', english: 'four' },
-    { simplified: '五', traditional: '五', pinyin: 'wǔ', english: 'five' },
+    { item: '1', simplified: '一', traditional: '一', pinyin: 'yī', english: 'one' },
+    { item: '2', simplified: '二', traditional: '二', pinyin: 'èr', english: 'two' },
+    { item: '3', simplified: '三', traditional: '三', pinyin: 'sān', english: 'three' },
+    { item: '4', simplified: '四', traditional: '四', pinyin: 'sì', english: 'four' },
+    { item: '5', simplified: '五', traditional: '五', pinyin: 'wǔ', english: 'five' },
   ]
 }))
 

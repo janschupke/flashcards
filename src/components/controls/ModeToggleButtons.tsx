@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ModeToggleButtonsProps, FlashcardMode } from '../types';
+import { ModeToggleButtonsProps, FlashcardMode } from '../../types';
 
 export const MODES: { mode: FlashcardMode; label: string; title: string }[] = [
   { mode: FlashcardMode.PINYIN, label: '拼音 (F1)', title: '拼音模式 - Pinyin Mode (F1)' },

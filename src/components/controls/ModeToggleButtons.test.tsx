@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ModeToggleButtons } from './ModeToggleButtons';
-import { FlashcardMode } from '../types';
+import { FlashcardMode } from '../../types';
 
 describe('ModeToggleButtons', () => {
   const mockOnModeChange = vi.fn();

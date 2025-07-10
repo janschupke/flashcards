@@ -1,10 +1,19 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from './styled';
-import { PinyinInputProps } from '../types';
-import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../constants';
+import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from '../styled';
+import { CharacterInputProps } from '../../types';
+import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../../constants';
 
-export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
-  ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
+export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
+  ({
+    value,
+    onChange,
+    expectedCharacter,
+    onSubmit,
+    isCorrect,
+    disabled = false,
+    flashResult,
+    mode,
+  }, ref) => {
     const [isFlashing, setIsFlashing] = useState(false);
 
     // Handle flash result changes
@@ -29,14 +38,23 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
       }
     };
 
-    const getPlaceholder = () => CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER;
+    const getPlaceholder = () => {
+      switch (mode) {
+        case 'simplified':
+          return CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER;
+        case 'traditional':
+          return CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER;
+        default:
+          return '输入字符';
+      }
+    };
 
     const getFeedbackText = () => {
       if (isCorrect === true) {
         return CHINESE_TEXT.FEEDBACK.CORRECT;
       }
       if (isCorrect === false) {
-        return CHINESE_TEXT.FEEDBACK.INCORRECT_PINYIN(currentPinyin);
+        return CHINESE_TEXT.FEEDBACK.INCORRECT_CHARACTER(expectedCharacter);
       }
       return '';
     };
@@ -70,4 +88,4 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
   }
 );
 
-PinyinInput.displayName = 'PinyinInput'; 
+CharacterInput.displayName = 'CharacterInput'; 

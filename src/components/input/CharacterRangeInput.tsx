@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { SettingsSection, SettingsLabel } from './styled';
-import { validateLimit } from '../utils/characterUtils';
-import { APP_LIMITS, UI_CONSTANTS, CHINESE_TEXT } from '../constants';
-import data from '../data.json';
+import { SettingsSection, SettingsLabel } from '../styled';
+import { validateLimit } from '../../utils/characterUtils';
+import { APP_LIMITS, UI_CONSTANTS, CHINESE_TEXT } from '../../constants';
+import data from '../../data/characters.json';
 import styled from 'styled-components';
 
 interface CharacterRangeInputProps {

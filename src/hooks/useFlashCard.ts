@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode, FlashResult } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import { validateCharacterInput, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
-import data from '../data.json';
+import data from '../data/characters.json';
 
 interface UseFlashCardProps {
   initialCurrent?: number;

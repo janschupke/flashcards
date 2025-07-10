@@ -1,18 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
-import { getModeSpecificLimit } from '../utils/characterUtils';
-import { FlashcardMode } from '../types';
-import { MODES } from './ModeToggleButtons';
+import { getModeSpecificLimit } from '../../utils/characterUtils';
+import { FlashcardMode } from '../../types';
+import { MODES } from '../controls/ModeToggleButtons';
 
 // Mock the data
-vi.mock('../data.json', () => ({
+vi.mock('../../data/characters.json', () => ({
   default: [
-    { character: '你', pinyin: 'nǐ', english: 'you' },
-    { character: '好', pinyin: 'hǎo', english: 'good' },
-    { character: '我', pinyin: 'wǒ', english: 'I' },
-    { character: '是', pinyin: 'shì', english: 'is' },
-    { character: '的', pinyin: 'de', english: 'of' },
+    { item: '1', simplified: '你', traditional: '你', pinyin: 'nǐ', english: 'you' },
+    { item: '2', simplified: '好', traditional: '好', pinyin: 'hǎo', english: 'good' },
+    { item: '3', simplified: '我', traditional: '我', pinyin: 'wǒ', english: 'I' },
+    { item: '4', simplified: '是', traditional: '是', pinyin: 'shì', english: 'is' },
+    { item: '5', simplified: '的', traditional: '的', pinyin: 'de', english: 'of' },
   ]
 }));
 

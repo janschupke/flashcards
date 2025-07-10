@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonGroup, Button } from './styled';
+import { ButtonGroup, Button } from '../styled';
 
 interface ControlButtonsProps {
   onTogglePinyin: () => void;

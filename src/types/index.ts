@@ -1,4 +1,5 @@
 export interface Character {
+  item: string;
   simplified: string;
   traditional: string;
   pinyin: string;

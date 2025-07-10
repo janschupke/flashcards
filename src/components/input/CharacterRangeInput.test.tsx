@@ -2,7 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterRangeInput } from './CharacterRangeInput';
-import data from '../data.json';
+import data from '../../data/characters.json';
 
 describe('CharacterRangeInput', () => {
   const mockOnLimitChange = vi.fn();

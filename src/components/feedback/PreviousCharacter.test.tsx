@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { PreviousCharacter } from './PreviousCharacter';
 
 // Mock the data
-vi.mock('../data.json', () => ({
+vi.mock('../../data/characters.json', () => ({
   default: [
     { item: '1', simplified: '我', traditional: '我', pinyin: 'wǒ', english: 'I ; me' },
     { item: '2', simplified: '好', traditional: '好', pinyin: 'hǎo', english: 'good' },

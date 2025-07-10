@@ -1,6 +1,6 @@
 import { Character, FlashcardMode, HintType, HINT_TYPES } from '../types';
 import { UI_CONSTANTS } from '../constants';
-import data from '../data.json';
+import data from '../data/characters.json';
 
 export const getCharacterByIndex = (index: number): Character | null => {
   return data[index] || null;
