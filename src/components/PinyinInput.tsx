@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { PinyinInputProps } from '../types';
 
 const InputContainer = styled.div`
-  margin: 20px 0;
+  margin: 0px;
+  margin-bottom: 10px;
   text-align: center;
 `;
 

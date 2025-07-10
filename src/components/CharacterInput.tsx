@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { CharacterInputProps } from '../types';
 
 const InputContainer = styled.div`
-  margin: 20px 0;
+  margin: 0px;
   text-align: center;
 `;
 

@@ -32,6 +32,8 @@ A modern flashcard web app for practicing Chinese characters. This project helps
 - **F1:** Switch to Pinyin mode
 - **F2:** Switch to Simplified mode  
 - **F3:** Switch to Traditional mode
+- **Left Arrow:** Switch to previous mode
+- **Right Arrow:** Switch to next mode
 - **Comma (,):** Toggle pinyin hint
 - **Period (.):** Toggle English hint
 - **Arrow Up/Down:** Adjust character range

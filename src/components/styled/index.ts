@@ -124,7 +124,6 @@ export const SettingsInput = styled.input`
 
 // Character Components
 export const CharacterSection = styled.div`
-  margin-bottom: 30px;
   animation: ${slideIn} 0.4s ease-out;
 `;
 
@@ -143,7 +142,6 @@ export const HintSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
 `;
 
 export const HintText = styled.div<{ $visible: boolean; $isDefault: boolean }>`
