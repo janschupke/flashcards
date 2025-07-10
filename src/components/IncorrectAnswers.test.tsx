@@ -11,6 +11,7 @@ describe('IncorrectAnswers', () => {
       simplified: '我',
       traditional: '我',
       english: 'I ; me',
+      mode: 'pinyin',
     },
     {
       characterIndex: 1,
@@ -19,6 +20,7 @@ describe('IncorrectAnswers', () => {
       simplified: '的',
       traditional: '的',
       english: 'possessive p.',
+      mode: 'pinyin',
     },
   ];
 

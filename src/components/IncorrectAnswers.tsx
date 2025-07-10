@@ -72,6 +72,16 @@ const SubmittedTd = styled(Td)<{ $isCorrect: boolean }>`
   color: ${props => props.$isCorrect ? '#48bb78' : '#f56565'};
 `;
 
+const ModeBadge = styled.span`
+  background-color: #4a5568;
+  color: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 4px;
+`;
+
 const EmptyMessage = styled.div`
   text-align: center;
   color: #718096;
@@ -86,6 +96,91 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const getModeLabel = (mode: string) => {
+    switch (mode) {
+      case 'pinyin':
+        return '拼音';
+      case 'simplified':
+        return '简体';
+      case 'traditional':
+        return '繁体';
+      default:
+        return mode;
+    }
+  };
+
+  const getSubmittedColumn = (answer: IncorrectAnswer) => {
+    if (answer.mode === 'pinyin') {
+      return answer.submittedPinyin;
+    } else {
+      return answer.submittedCharacter || '(empty)';
+    }
+  };
+
+  const getCorrectColumn = (answer: IncorrectAnswer) => {
+    if (answer.mode === 'pinyin') {
+      return answer.correctPinyin;
+    } else {
+      return answer.correctCharacter || '';
+    }
+  };
+
+  const getColumnHeaders = () => {
+    const hasCharacterModes = incorrectAnswers.some(answer => answer.mode !== 'pinyin');
+    
+    if (hasCharacterModes) {
+      return (
+        <tr>
+          <Th>Simplified</Th>
+          <Th>Traditional</Th>
+          <Th>Mode</Th>
+          <Th>Expected</Th>
+          <Th>Submitted</Th>
+          <Th>English</Th>
+        </tr>
+      );
+    } else {
+      return (
+        <tr>
+          <Th>Simplified</Th>
+          <Th>Traditional</Th>
+          <Th>Pinyin</Th>
+          <Th>Submitted</Th>
+          <Th>English</Th>
+        </tr>
+      );
+    }
+  };
+
+  const renderTableRow = (answer: IncorrectAnswer) => {
+    const hasCharacterModes = incorrectAnswers.some(a => a.mode !== 'pinyin');
+    
+    if (hasCharacterModes) {
+      return (
+        <tr key={answer.characterIndex}>
+          <Td>{answer.simplified}</Td>
+          <Td>{answer.traditional}</Td>
+          <Td>
+            <ModeBadge>{getModeLabel(answer.mode)}</ModeBadge>
+          </Td>
+          <Td>{getCorrectColumn(answer)}</Td>
+          <SubmittedTd $isCorrect={false}>{getSubmittedColumn(answer)}</SubmittedTd>
+          <Td>{answer.english}</Td>
+        </tr>
+      );
+    } else {
+      return (
+        <tr key={answer.characterIndex}>
+          <Td>{answer.simplified}</Td>
+          <Td>{answer.traditional}</Td>
+          <Td>{answer.correctPinyin}</Td>
+          <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
+          <Td>{answer.english}</Td>
+        </tr>
+      );
+    }
   };
 
   return (
@@ -104,24 +199,10 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
         ) : (
           <Table>
             <thead>
-              <tr>
-                <Th>Simplified</Th>
-                <Th>Traditional</Th>
-                <Th>Pinyin</Th>
-                <Th>Submitted</Th>
-                <Th>English</Th>
-              </tr>
+              {getColumnHeaders()}
             </thead>
             <tbody>
-              {incorrectAnswers.map((answer) => (
-                <tr key={answer.characterIndex}>
-                  <Td>{answer.simplified}</Td>
-                  <Td>{answer.traditional}</Td>
-                  <Td>{answer.correctPinyin}</Td>
-                  <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
-                  <Td>{answer.english}</Td>
-                </tr>
-              ))}
+              {incorrectAnswers.map(renderTableRow)}
             </tbody>
           </Table>
         )}

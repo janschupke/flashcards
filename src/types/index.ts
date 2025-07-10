@@ -9,10 +9,15 @@ export interface IncorrectAnswer {
   characterIndex: number;
   submittedPinyin: string;
   correctPinyin: string;
+  submittedCharacter?: string; // New field for character input modes
+  correctCharacter?: string; // New field for character input modes
   simplified: string;
   traditional: string;
   english: string;
+  mode: 'pinyin' | 'simplified' | 'traditional'; // Track which mode the answer was given in
 }
+
+export type FlashcardMode = 'pinyin' | 'simplified' | 'traditional';
 
 export interface FlashCardState {
   current: number;
@@ -31,6 +36,10 @@ export interface FlashCardState {
   previousCharacter: number | null;
   // Incorrect answers tracking
   incorrectAnswers: IncorrectAnswer[];
+  // New fields for flashcard modes
+  mode: FlashcardMode;
+  characterInput: string; // New field for character modes
+  isCharacterCorrect: boolean | null; // New field for character validation
 }
 
 export interface FlashCardActions {
@@ -43,6 +52,10 @@ export interface FlashCardActions {
   setPinyinInput: (input: string) => void;
   evaluatePinyin: () => void;
   resetScore: () => void;
+  // New actions for flashcard modes
+  setMode: (mode: FlashcardMode) => void;
+  setCharacterInput: (input: string) => void;
+  validateCharacter: () => void;
 }
 
 export interface FlashCardProps {
@@ -62,6 +75,9 @@ export const KEYBOARD_SHORTCUTS = {
   NEXT: 'Enter',
   PINYIN: [','],
   ENGLISH: ['.'],
+  MODE_PINYIN: '1',
+  MODE_SIMPLIFIED: '2',
+  MODE_TRADITIONAL: '3',
 } as const;
 
 export const DEFAULT_CONFIG = {
@@ -79,4 +95,22 @@ export interface PinyinInputProps {
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
   flashResult?: 'correct' | 'incorrect' | null;
+}
+
+// New types for character input feature
+export interface CharacterInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  expectedCharacter: string; // Expected character for current mode
+  onSubmit: (input: string) => void;
+  isCorrect: boolean | null; // null = not evaluated, true/false = result
+  disabled?: boolean;
+  flashResult?: 'correct' | 'incorrect' | null;
+  mode: FlashcardMode;
+}
+
+// New types for mode toggle buttons
+export interface ModeToggleButtonsProps {
+  currentMode: FlashcardMode;
+  onModeChange: (mode: FlashcardMode) => void;
 } 
