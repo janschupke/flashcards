@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FlashCardState, FlashCardActions, HintType, HINT_TYPES } from '../types';
+import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
+import { validateCharacterInput, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
 import data from '../data.json';
 
 interface UseFlashCardProps {
@@ -28,6 +29,10 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     previousCharacter: null,
     // Incorrect answers tracking
     incorrectAnswers: [],
+    // New fields for flashcard modes
+    mode: 'pinyin',
+    characterInput: '',
+    isCharacterCorrect: null,
   });
 
   // Memoize progress calculation to avoid unnecessary recalculations
@@ -40,50 +45,88 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     setState(prev => ({ ...prev, progress }));
   }, [progress]);
 
-  // Memoized random number generator for better performance
-  const getRandomIndex = useCallback((max: number): number => {
-    return Math.floor(Math.random() * max);
-  }, []);
+  // Get current character based on mode
+  const getCurrentCharacter = useCallback(() => {
+    if (state.mode === 'pinyin') {
+      return data[state.current];
+    } else {
+      return getCharacterAtIndex(state.current, state.mode);
+    }
+  }, [state.current, state.mode]);
 
   const getNext = useCallback(() => {
     setState(prev => {
-      const currentCharacter = data[prev.current];
-      const trimmedInput = prev.pinyinInput.trim();
-      const hasInput = trimmedInput.length > 0;
-      const isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
-      
-      // Add to incorrect answers if wrong or empty input
-      const newIncorrectAnswers = [...prev.incorrectAnswers];
-      if (!isCorrect) {
-        newIncorrectAnswers.push({
-          characterIndex: prev.current,
-          submittedPinyin: prev.pinyinInput.trim() || '(empty)',
-          correctPinyin: currentCharacter.pinyin,
-          simplified: currentCharacter.simplified,
-          traditional: currentCharacter.traditional,
-          english: currentCharacter.english,
-        });
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+
+      let isCorrect = false;
+      let hasInput = false;
+      let newIncorrectAnswers = [...prev.incorrectAnswers];
+
+      if (prev.mode === 'pinyin') {
+        const trimmedInput = prev.pinyinInput.trim();
+        hasInput = trimmedInput.length > 0;
+        isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
+        
+        // Add to incorrect answers if wrong or empty input
+        if (!isCorrect) {
+          newIncorrectAnswers.push({
+            characterIndex: prev.current,
+            submittedPinyin: prev.pinyinInput.trim() || '(empty)',
+            correctPinyin: currentCharacter.pinyin,
+            simplified: currentCharacter.simplified,
+            traditional: currentCharacter.traditional,
+            english: currentCharacter.english,
+            mode: 'pinyin',
+          });
+        }
+      } else {
+        // Character input modes
+        const trimmedInput = prev.characterInput.trim();
+        hasInput = trimmedInput.length > 0;
+        const expectedCharacter = prev.mode === 'simplified' ? currentCharacter.simplified : currentCharacter.traditional;
+        isCorrect = hasInput ? validateCharacterInput(prev.characterInput, expectedCharacter) : false;
+        
+        // Add to incorrect answers if wrong or empty input
+        if (!isCorrect) {
+          newIncorrectAnswers.push({
+            characterIndex: prev.current,
+            submittedPinyin: '', // Not applicable for character modes
+            correctPinyin: '', // Not applicable for character modes
+            submittedCharacter: prev.characterInput.trim() || '(empty)',
+            correctCharacter: expectedCharacter,
+            simplified: currentCharacter.simplified,
+            traditional: currentCharacter.traditional,
+            english: currentCharacter.english,
+            mode: prev.mode,
+          });
+        }
       }
+      
+      // Get new random index based on current mode
+      const newIndex = getRandomCharacterIndex(prev.mode, prev.limit);
       
       return {
         ...prev,
         previousCharacter: prev.current, // Store current as previous
-        current: getRandomIndex(prev.limit),
+        current: newIndex,
         hint: HINT_TYPES.NONE,
         totalSeen: prev.totalSeen + 1,
-        // Reset pinyin input state for new character
+        // Reset input state for new character
         pinyinInput: '',
         isPinyinCorrect: null,
+        characterInput: '',
+        isCharacterCorrect: null,
         // Update scoring
         correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
         totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
-        // Set flash result based on pinyin evaluation
-        flashResult: prev.pinyinInput.trim() ? (isCorrect ? 'correct' : 'incorrect') : null,
+        // Set flash result based on evaluation
+        flashResult: hasInput ? (isCorrect ? 'correct' : 'incorrect') : null,
         // Update incorrect answers
         incorrectAnswers: newIncorrectAnswers,
       };
     });
-  }, [getRandomIndex]);
+  }, [getCurrentCharacter]);
 
   const toggleHint = useCallback((hintType: HintType) => {
     setState(prev => ({
@@ -93,7 +136,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const updateLimit = useCallback((newLimit: number) => {
-    const maxLimit = Math.min(newLimit, data.length);
+    const maxLimit = Math.min(newLimit, getModeSpecificLimit(state.mode));
     setState(prev => ({
       ...prev,
       limit: maxLimit,
@@ -102,14 +145,16 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       hint: HINT_TYPES.NONE,
       pinyinInput: '',
       isPinyinCorrect: null,
+      characterInput: '',
+      isCharacterCorrect: null,
       flashResult: null,
     }));
-  }, []);
+  }, [state.mode]);
 
   const reset = useCallback(() => {
     setState(prev => ({
       ...prev,
-      current: getRandomIndex(prev.limit),
+      current: getRandomCharacterIndex(prev.mode, prev.limit),
       totalSeen: 0,
       hint: HINT_TYPES.NONE,
       // Reset scoring
@@ -117,9 +162,11 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
+      characterInput: '',
+      isCharacterCorrect: null,
       flashResult: null,
     }));
-  }, [getRandomIndex]);
+  }, []);
 
   // New actions for traditional character feature
   const setDisplayMode = useCallback((mode: 'simplified' | 'traditional' | 'both') => {
@@ -139,7 +186,9 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
 
   const evaluatePinyin = useCallback(() => {
     setState(prev => {
-      const currentCharacter = data[prev.current];
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
       const isCorrect = evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin);
       
       return {
@@ -149,7 +198,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
         totalAttempted: prev.totalAttempted + 1,
       };
     });
-  }, []);
+  }, [getCurrentCharacter]);
 
   const resetScore = useCallback(() => {
     setState(prev => ({
@@ -158,9 +207,95 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
+      characterInput: '',
+      isCharacterCorrect: null,
       flashResult: null,
     }));
   }, []);
+
+  // New actions for flashcard modes
+  const setMode = useCallback((mode: FlashcardMode) => {
+    setState(prev => {
+      const newMaxLimit = getModeSpecificLimit(mode);
+      // Always use the max available for the mode as the default limit
+      const newLimit = newMaxLimit;
+      return {
+        ...prev,
+        mode,
+        limit: newLimit,
+        current: getRandomCharacterIndex(mode, newLimit),
+        totalSeen: 0,
+        correctAnswers: 0,
+        totalAttempted: 0,
+        hint: HINT_TYPES.NONE,
+        pinyinInput: '',
+        isPinyinCorrect: null,
+        characterInput: '',
+        isCharacterCorrect: null,
+        flashResult: null,
+        incorrectAnswers: [], // Reset incorrect answers on mode change
+      };
+    });
+  }, []);
+
+  const setCharacterInput = useCallback((input: string) => {
+    setState(prev => ({
+      ...prev,
+      characterInput: input,
+      isCharacterCorrect: null, // Reset evaluation when input changes
+    }));
+  }, []);
+
+  const validateCharacter = useCallback(() => {
+    setState(prev => {
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
+      const expectedCharacter = prev.mode === 'simplified' ? currentCharacter.simplified : currentCharacter.traditional;
+      const isCorrect = validateCharacterInput(prev.characterInput, expectedCharacter);
+      
+      return {
+        ...prev,
+        isCharacterCorrect: isCorrect,
+        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
+        totalAttempted: prev.totalAttempted + 1,
+      };
+    });
+  }, [getCurrentCharacter]);
+
+  // New functions to set flash result immediately
+  const setPinyinFlashResult = useCallback((input: string) => {
+    setState(prev => {
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
+      const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
+      
+      return {
+        ...prev,
+        pinyinInput: input,
+        isPinyinCorrect: isCorrect,
+        flashResult: isCorrect ? 'correct' : 'incorrect',
+      };
+    });
+  }, [getCurrentCharacter]);
+
+  const setCharacterFlashResult = useCallback((input: string) => {
+    setState(prev => {
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
+      const expectedCharacter = prev.mode === 'simplified' ? currentCharacter.simplified : currentCharacter.traditional;
+      const isCorrect = validateCharacterInput(input, expectedCharacter);
+      
+      return {
+        ...prev,
+        characterInput: input,
+        isCharacterCorrect: isCorrect,
+        flashResult: isCorrect ? 'correct' : 'incorrect',
+      };
+    });
+  }, [getCurrentCharacter]);
 
   // Clear flash result after animation
   useEffect(() => {
@@ -182,5 +317,10 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     setPinyinInput,
     evaluatePinyin,
     resetScore,
+    setMode,
+    setCharacterInput,
+    validateCharacter,
+    setPinyinFlashResult,
+    setCharacterFlashResult,
   };
 }; 

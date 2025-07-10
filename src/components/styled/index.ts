@@ -124,7 +124,6 @@ export const SettingsInput = styled.input`
 
 // Character Components
 export const CharacterSection = styled.div`
-  margin-bottom: 30px;
   animation: ${slideIn} 0.4s ease-out;
 `;
 
@@ -143,7 +142,6 @@ export const HintSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
 `;
 
 export const HintText = styled.div<{ $visible: boolean; $isDefault: boolean }>`
@@ -248,4 +246,67 @@ export const StatLabel = styled.div`
   letter-spacing: 0.5px;
   margin-top: 4px;
   color: #a0aec0;
+`; 
+
+export const InputContainer = styled.div`
+  margin: 0px;
+  text-align: center;
+`;
+
+export const InputBorderWrapper = styled.div<{
+  $isCorrect: boolean | null;
+  $flashResult: 'correct' | 'incorrect' | null;
+  $isFlashing: boolean;
+}>`
+  display: inline-block;
+  width: 100%;
+  max-width: 300px;
+  border: 3px solid ${props => {
+    if (props.$flashResult === 'correct') return '#10b981';
+    if (props.$flashResult === 'incorrect') return '#ef4444';
+    if (props.$isCorrect === true) return '#10b981';
+    if (props.$isCorrect === false) return '#ef4444';
+    return '#4a5568';
+  }};
+  border-radius: 12px;
+  transition: border-color 0.3s ease-in-out;
+  background-color: #2d3748;
+`;
+
+export const InputField = styled.input`
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 24px;
+  text-align: center;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  transition: color 0.3s ease-in-out;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &:disabled {
+    background-color: #1a202c;
+    color: #718096;
+    cursor: not-allowed;
+  }
+  
+  &::placeholder {
+    color: #718096;
+  }
+`;
+
+export const FeedbackText = styled.div<{ isCorrect: boolean | null }>`
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${props => {
+    if (props.isCorrect === true) return '#10b981';
+    if (props.isCorrect === false) return '#ef4444';
+    return '#6b7280';
+  }};
+  min-height: 20px;
 `; 

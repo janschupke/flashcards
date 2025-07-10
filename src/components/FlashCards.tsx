@@ -1,19 +1,23 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
 import styled from 'styled-components';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { HINT_TYPES, HintType } from '../types';
+import { HINT_TYPES, HintType, FlashcardMode } from '../types';
 import { CharacterRangeInput } from './CharacterRangeInput';
 import { CharacterDisplay } from './CharacterDisplay';
 import { ControlButtons } from './ControlButtons';
 import { ProgressBar } from './ProgressBar';
 import { Statistics } from './Statistics';
 import { PinyinInput } from './PinyinInput';
+import { CharacterInput } from './CharacterInput';
+import { ModeToggleButtons } from './ModeToggleButtons';
 import { PreviousCharacter } from './PreviousCharacter';
 import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
+import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../utils/characterUtils';
 import data from '../data.json';
+import { MODES } from './ModeToggleButtons';
 
 const CardCompact = styled(Card)`
   padding-top: 16px;
@@ -31,15 +35,22 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     totalSeen,
     progress,
     isPinyinCorrect,
+    isCharacterCorrect,
     correctAnswers,
     flashResult,
     previousCharacter,
     incorrectAnswers,
+    mode,
+    pinyinInput,
+    characterInput,
     getNext,
     toggleHint,
     updateLimit,
     setPinyinInput,
-    pinyinInput,
+    setCharacterInput,
+    setMode,
+    setPinyinFlashResult,
+    setCharacterFlashResult,
   } = useFlashCard({ initialCurrent, initialLimit });
 
   const handleTogglePinyin = useCallback(() => {
@@ -55,15 +66,64 @@ export const FlashCards: React.FC<FlashCardProps> = ({
   }, [updateLimit]);
 
   const handlePinyinSubmit = useCallback((input: string) => {
-    setPinyinInput(input);
-  }, [setPinyinInput]);
+    setPinyinFlashResult(input);
+  }, [setPinyinFlashResult]);
+
+  const handleCharacterSubmit = useCallback((input: string) => {
+    setCharacterFlashResult(input);
+  }, [setCharacterFlashResult]);
+
+  const handleModeChange = useCallback((newMode: FlashcardMode) => {
+    setMode(newMode);
+  }, [setMode]);
+
+  // Get current character based on mode
+  const getCurrentCharacter = () => {
+    if (mode === 'pinyin') {
+      return data[current];
+    } else {
+      return getCharacterAtIndex(current, mode);
+    }
+  };
+
+  const currentCharacter = getCurrentCharacter();
+
+  // Get mode-specific limits
+  const getModeLimits = () => {
+    const maxLimit = getModeSpecificLimit(mode);
+    return {
+      minLimit: 50,
+      maxLimit: Math.min(maxLimit, mode === 'pinyin' ? 1500 : 539),
+    };
+  };
+
+  const { minLimit, maxLimit } = getModeLimits();
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
     onNext: getNext,
     onTogglePinyin: handleTogglePinyin,
     onToggleEnglish: handleToggleEnglish,
+    onModeChange: handleModeChange,
   });
+
+  // Add left/right arrow hotkeys for mode switching
+  useEffect(() => {
+    const handleArrowModeSwitch = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const modeIndex = MODES.findIndex((m: { mode: string }) => m.mode === mode);
+      if (modeIndex === -1) return;
+      if (e.key === 'ArrowLeft' && modeIndex > 0) {
+        setMode(MODES[modeIndex - 1].mode);
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight' && modeIndex < MODES.length - 1) {
+        setMode(MODES[modeIndex + 1].mode);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', handleArrowModeSwitch);
+    return () => window.removeEventListener('keydown', handleArrowModeSwitch);
+  }, [mode, setMode]);
 
   // Global arrow key handler for range
   useEffect(() => {
@@ -74,7 +134,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         if (active && (active as HTMLElement).id === 'limit') return;
         const increment = e.key === 'ArrowUp' ? 50 : -50;
         const minLimit = 50;
-        const maxLimit = Math.min(1500, data.length);
+        const maxLimit = mode === 'pinyin' ? Math.min(1500, data.length) : 539; // 539 characters have different simplified/traditional
         let newLimit = limit + increment;
         newLimit = Math.min(maxLimit, Math.max(minLimit, newLimit));
         handleLimitChange(newLimit);
@@ -83,7 +143,20 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     };
     window.addEventListener('keydown', handleArrow);
     return () => window.removeEventListener('keydown', handleArrow);
-  }, [limit, handleLimitChange]);
+  }, [limit, handleLimitChange, mode]);
+
+  // Refs for focusing inputs
+  const pinyinInputRef = useRef<HTMLInputElement>(null);
+  const characterInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the relevant input after mode change
+  useEffect(() => {
+    if (mode === 'pinyin' && pinyinInputRef.current) {
+      pinyinInputRef.current.focus();
+    } else if ((mode === 'simplified' || mode === 'traditional') && characterInputRef.current) {
+      characterInputRef.current.focus();
+    }
+  }, [mode]);
 
   return (
     <PageContainer>
@@ -93,9 +166,16 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           <Subtitle>Learn Chinese characters with interactive flashcards</Subtitle>
         </Header>
 
+        <ModeToggleButtons
+          currentMode={mode}
+          onModeChange={handleModeChange}
+        />
+
         <CharacterRangeInput
           currentLimit={limit}
           onLimitChange={handleLimitChange}
+          minLimit={minLimit}
+          maxLimit={maxLimit}
         />
 
         <ProgressBar progress={progress} />
@@ -103,17 +183,33 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         <CharacterDisplay
           currentIndex={current}
           hintType={hint as HintType}
+          mode={mode}
         />
 
-        <PinyinInput
-          value={pinyinInput}
-          onChange={setPinyinInput}
-          currentPinyin={data[current]?.pinyin || ''}
-          onSubmit={handlePinyinSubmit}
-          isCorrect={isPinyinCorrect}
-          disabled={false}
-          flashResult={flashResult}
-        />
+        {mode === 'pinyin' ? (
+          <PinyinInput
+            ref={pinyinInputRef}
+            value={pinyinInput}
+            onChange={setPinyinInput}
+            currentPinyin={currentCharacter?.pinyin || ''}
+            onSubmit={handlePinyinSubmit}
+            isCorrect={isPinyinCorrect}
+            disabled={false}
+            flashResult={flashResult}
+          />
+        ) : (
+          <CharacterInput
+            ref={characterInputRef}
+            value={characterInput}
+            onChange={setCharacterInput}
+            expectedCharacter={currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''}
+            onSubmit={handleCharacterSubmit}
+            isCorrect={isCharacterCorrect}
+            disabled={false}
+            flashResult={flashResult}
+            mode={mode}
+          />
+        )}
 
         <ControlButtons
           onTogglePinyin={handleTogglePinyin}

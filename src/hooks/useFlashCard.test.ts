@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useFlashCard } from './useFlashCard'
+import { getModeSpecificLimit } from '../utils/characterUtils';
 
 // Mock the data import
 vi.mock('../data.json', () => ({
@@ -218,4 +219,58 @@ describe('useFlashCard', () => {
       expect(result.current.progress).toBe(0)
     })
   })
+
+  it('should reset statistics when mode changes', () => {
+    const { result } = renderHook(() => useFlashCard({ initialLimit: 100 }));
+    
+    // Set some initial state
+    act(() => {
+      result.current.getNext();
+    });
+    
+    expect(result.current.totalSeen).toBe(1);
+    
+    // Change mode
+    act(() => {
+      result.current.setMode('simplified');
+    });
+    
+    expect(result.current.mode).toBe('simplified');
+    expect(result.current.totalSeen).toBe(0);
+    expect(result.current.correctAnswers).toBe(0);
+    expect(result.current.totalAttempted).toBe(0);
+    expect(result.current.incorrectAnswers).toEqual([]);
+  });
+
+  it('should set appropriate default limits when switching modes', () => {
+    const { result } = renderHook(() => useFlashCard({ initialLimit: 100 }));
+    
+    // Start in pinyin mode - limit will be capped to available data
+    expect(result.current.mode).toBe('pinyin');
+    expect(result.current.limit).toBe(getModeSpecificLimit('pinyin'));
+    
+    // Switch to simplified mode
+    act(() => {
+      result.current.setMode('simplified');
+    });
+    
+    expect(result.current.mode).toBe('simplified');
+    expect(result.current.limit).toBe(getModeSpecificLimit('simplified'));
+    
+    // Switch back to pinyin mode
+    act(() => {
+      result.current.setMode('pinyin');
+    });
+    
+    expect(result.current.mode).toBe('pinyin');
+    expect(result.current.limit).toBe(getModeSpecificLimit('pinyin'));
+    
+    // Switch to traditional mode
+    act(() => {
+      result.current.setMode('traditional');
+    });
+    
+    expect(result.current.mode).toBe('traditional');
+    expect(result.current.limit).toBe(getModeSpecificLimit('traditional'));
+  });
 }) 

@@ -1,9 +1,18 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from './styled';
-import { PinyinInputProps } from '../types';
+import { CharacterInputProps } from '../types';
 
-export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
-  ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
+export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
+  ({
+    value,
+    onChange,
+    expectedCharacter,
+    onSubmit,
+    isCorrect,
+    disabled = false,
+    flashResult,
+    mode,
+  }, ref) => {
     const [isFlashing, setIsFlashing] = useState(false);
 
     // Handle flash result changes
@@ -28,14 +37,23 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
       }
     };
 
-    const getPlaceholder = () => 'Type pinyin';
+    const getPlaceholder = () => {
+      switch (mode) {
+        case 'simplified':
+          return '输入简体字';
+        case 'traditional':
+          return '输入繁体字';
+        default:
+          return '输入字符';
+      }
+    };
 
     const getFeedbackText = () => {
       if (isCorrect === true) {
         return '✓ 正确';
       }
       if (isCorrect === false) {
-        return `✗ 错误，正确答案是: ${currentPinyin}`;
+        return `✗ 错误，正确答案是: ${expectedCharacter}`;
       }
       return '';
     };
@@ -69,4 +87,4 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
   }
 );
 
-PinyinInput.displayName = 'PinyinInput'; 
+CharacterInput.displayName = 'CharacterInput'; 

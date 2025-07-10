@@ -88,6 +88,74 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
     setIsExpanded(!isExpanded);
   };
 
+  const getSubmittedColumn = (answer: IncorrectAnswer) => {
+    if (answer.mode === 'pinyin') {
+      return answer.submittedPinyin;
+    } else {
+      return answer.submittedCharacter || '(empty)';
+    }
+  };
+
+  const getCorrectColumn = (answer: IncorrectAnswer) => {
+    if (answer.mode === 'pinyin') {
+      return answer.correctPinyin;
+    } else {
+      return answer.correctCharacter || '';
+    }
+  };
+
+  const getColumnHeaders = () => {
+    const hasCharacterModes = incorrectAnswers.some(answer => answer.mode !== 'pinyin');
+    
+    if (hasCharacterModes) {
+      return (
+        <tr>
+          <Th>Simplified</Th>
+          <Th>Traditional</Th>
+          <Th>Expected</Th>
+          <Th>Submitted</Th>
+          <Th>English</Th>
+        </tr>
+      );
+    } else {
+      return (
+        <tr>
+          <Th>Simplified</Th>
+          <Th>Traditional</Th>
+          <Th>Pinyin</Th>
+          <Th>Submitted</Th>
+          <Th>English</Th>
+        </tr>
+      );
+    }
+  };
+
+  const renderTableRow = (answer: IncorrectAnswer) => {
+    const hasCharacterModes = incorrectAnswers.some(a => a.mode !== 'pinyin');
+    
+    if (hasCharacterModes) {
+      return (
+        <tr key={answer.characterIndex}>
+          <Td>{answer.simplified}</Td>
+          <Td>{answer.traditional}</Td>
+          <Td>{getCorrectColumn(answer)}</Td>
+          <SubmittedTd $isCorrect={false}>{getSubmittedColumn(answer)}</SubmittedTd>
+          <Td>{answer.english}</Td>
+        </tr>
+      );
+    } else {
+      return (
+        <tr key={answer.characterIndex}>
+          <Td>{answer.simplified}</Td>
+          <Td>{answer.traditional}</Td>
+          <Td>{answer.correctPinyin}</Td>
+          <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
+          <Td>{answer.english}</Td>
+        </tr>
+      );
+    }
+  };
+
   return (
     <Container>
       <Header onClick={toggleExpanded}>
@@ -104,24 +172,10 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
         ) : (
           <Table>
             <thead>
-              <tr>
-                <Th>Simplified</Th>
-                <Th>Traditional</Th>
-                <Th>Pinyin</Th>
-                <Th>Submitted</Th>
-                <Th>English</Th>
-              </tr>
+              {getColumnHeaders()}
             </thead>
             <tbody>
-              {incorrectAnswers.map((answer) => (
-                <tr key={answer.characterIndex}>
-                  <Td>{answer.simplified}</Td>
-                  <Td>{answer.traditional}</Td>
-                  <Td>{answer.correctPinyin}</Td>
-                  <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
-                  <Td>{answer.english}</Td>
-                </tr>
-              ))}
+              {incorrectAnswers.map(renderTableRow)}
             </tbody>
           </Table>
         )}

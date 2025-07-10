@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
+import { getModeSpecificLimit } from '../utils/characterUtils';
+import { MODES } from './ModeToggleButtons';
 
 // Mock the data
 vi.mock('../data.json', () => ({
@@ -80,5 +82,59 @@ describe('FlashCards', () => {
     // Pinyin input should be cleared after state update
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(pinyinInput).toHaveValue('');
+  });
+
+  it('should update character range when switching modes', () => {
+    render(<FlashCards />);
+    
+    // Initially should show pinyin mode with max based on available data
+    const rangeInput = screen.getByTestId('range-input');
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    
+    // Switch to simplified mode
+    const simplifiedButton = screen.getByText('简体 (F2)');
+    fireEvent.click(simplifiedButton);
+    
+    // Should now show simplified mode with max based on available data
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('simplified').toString());
+    
+    // Switch back to pinyin mode
+    const pinyinButton = screen.getByText('拼音 (F1)');
+    fireEvent.click(pinyinButton);
+    
+    // Should show pinyin mode with max again
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+  });
+
+  it('switches mode with right arrow key, and does not go past last mode', () => {
+    render(<FlashCards />);
+    // Start at first mode
+    let currentModeIndex = 0;
+    for (let i = 1; i < MODES.length; i++) {
+      fireEvent.keyDown(window, { key: 'ArrowRight' });
+      currentModeIndex = i;
+      // The button for the current mode should be active
+      expect(screen.getByText(MODES[currentModeIndex].label)).toHaveStyle('background-color: #dc2626');
+    }
+    // Try to go past the last mode
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    // Should still be at the last mode
+    expect(screen.getByText(MODES[MODES.length - 1].label)).toHaveStyle('background-color: #dc2626');
+  });
+
+  it('switches mode with left arrow key, and does not go past first mode', () => {
+    render(<FlashCards />);
+    // Move to last mode first
+    for (let i = 1; i < MODES.length; i++) {
+      fireEvent.keyDown(window, { key: 'ArrowRight' });
+    }
+    // Now move left through all modes
+    for (let i = MODES.length - 2; i >= 0; i--) {
+      fireEvent.keyDown(window, { key: 'ArrowLeft' });
+      expect(screen.getByText(MODES[i].label)).toHaveStyle('background-color: #dc2626');
+    }
+    // Try to go past the first mode
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(screen.getByText(MODES[0].label)).toHaveStyle('background-color: #dc2626');
   });
 }); 

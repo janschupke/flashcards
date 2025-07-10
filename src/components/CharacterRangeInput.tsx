@@ -7,6 +7,8 @@ import styled from 'styled-components';
 interface CharacterRangeInputProps {
   currentLimit: number;
   onLimitChange: (newLimit: number) => void;
+  minLimit?: number;
+  maxLimit?: number;
 }
 
 const RangeInput = styled.input`
@@ -35,10 +37,10 @@ const RangeInput = styled.input`
 export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   currentLimit,
   onLimitChange,
+  minLimit = 50,
+  maxLimit = Math.min(1500, data.length),
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
-  const maxLimit = Math.min(1500, data.length); // Use data length as max, but cap at 1500
-  const minLimit = 50;
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -87,7 +89,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 
   return (
     <SettingsSection>
-      <SettingsLabel htmlFor="limit">Character Range (50 - 1500)</SettingsLabel>
+      <SettingsLabel htmlFor="limit">Character Range ({minLimit} - {maxLimit})</SettingsLabel>
       <RangeInput
         id="limit"
         type="number"
@@ -95,8 +97,8 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         onChange={handleInputChange}
         onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
-        min={50}
-        max={1500}
+        min={minLimit}
+        max={maxLimit}
         autoFocus
         data-testid="range-input"
       />
