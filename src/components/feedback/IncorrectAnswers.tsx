@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { IncorrectAnswer } from '../types';
+import { IncorrectAnswer, FlashcardMode } from '../../types';
 
 interface IncorrectAnswersProps {
   incorrectAnswers: IncorrectAnswer[];
@@ -89,7 +89,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
   };
 
   const getSubmittedColumn = (answer: IncorrectAnswer) => {
-    if (answer.mode === 'pinyin') {
+    if (answer.mode === FlashcardMode.PINYIN) {
       return answer.submittedPinyin;
     } else {
       return answer.submittedCharacter || '(empty)';
@@ -97,7 +97,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
   };
 
   const getCorrectColumn = (answer: IncorrectAnswer) => {
-    if (answer.mode === 'pinyin') {
+    if (answer.mode === FlashcardMode.PINYIN) {
       return answer.correctPinyin;
     } else {
       return answer.correctCharacter || '';
@@ -105,7 +105,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
   };
 
   const getColumnHeaders = () => {
-    const hasCharacterModes = incorrectAnswers.some(answer => answer.mode !== 'pinyin');
+    const hasCharacterModes = incorrectAnswers.some(answer => answer.mode !== FlashcardMode.PINYIN);
     
     if (hasCharacterModes) {
       return (
@@ -131,7 +131,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
   };
 
   const renderTableRow = (answer: IncorrectAnswer) => {
-    const hasCharacterModes = incorrectAnswers.some(a => a.mode !== 'pinyin');
+    const hasCharacterModes = incorrectAnswers.some(a => a.mode !== FlashcardMode.PINYIN);
     
     if (hasCharacterModes) {
       return (

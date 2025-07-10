@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stats, StatItem, StatValue, StatLabel } from './styled';
+import { Stats, StatItem, StatValue, StatLabel } from '../styled';
 
 interface StatisticsProps {
   current: number;

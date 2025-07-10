@@ -1,17 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
-import { getModeSpecificLimit } from '../utils/characterUtils';
-import { MODES } from './ModeToggleButtons';
+import { getModeSpecificLimit } from '../../utils/characterUtils';
+import { FlashcardMode } from '../../types';
+import { MODES } from '../controls/ModeToggleButtons';
 
 // Mock the data
-vi.mock('../data.json', () => ({
+vi.mock('../../data/characters.json', () => ({
   default: [
-    { character: '你', pinyin: 'nǐ', english: 'you' },
-    { character: '好', pinyin: 'hǎo', english: 'good' },
-    { character: '我', pinyin: 'wǒ', english: 'I' },
-    { character: '是', pinyin: 'shì', english: 'is' },
-    { character: '的', pinyin: 'de', english: 'of' },
+    { item: '1', simplified: '你', traditional: '你', pinyin: 'nǐ', english: 'you' },
+    { item: '2', simplified: '好', traditional: '好', pinyin: 'hǎo', english: 'good' },
+    { item: '3', simplified: '我', traditional: '我', pinyin: 'wǒ', english: 'I' },
+    { item: '4', simplified: '是', traditional: '是', pinyin: 'shì', english: 'is' },
+    { item: '5', simplified: '的', traditional: '的', pinyin: 'de', english: 'of' },
   ]
 }));
 
@@ -89,21 +90,21 @@ describe('FlashCards', () => {
     
     // Initially should show pinyin mode with max based on available data
     const rangeInput = screen.getByTestId('range-input');
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.PINYIN).toString());
     
     // Switch to simplified mode
     const simplifiedButton = screen.getByText('简体 (F2)');
     fireEvent.click(simplifiedButton);
     
     // Should now show simplified mode with max based on available data
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('simplified').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.SIMPLIFIED).toString());
     
     // Switch back to pinyin mode
     const pinyinButton = screen.getByText('拼音 (F1)');
     fireEvent.click(pinyinButton);
     
     // Should show pinyin mode with max again
-    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit(FlashcardMode.PINYIN).toString());
   });
 
   it('switches mode with right arrow key, and does not go past last mode', () => {

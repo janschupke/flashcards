@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { PinyinInput } from './PinyinInput';
 import React from 'react';
+import { FlashResult } from '../../types';
 
 describe('PinyinInput', () => {
   const mockOnSubmit = vi.fn();
@@ -137,7 +138,7 @@ describe('PinyinInput', () => {
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        flashResult="correct"
+        flashResult={FlashResult.CORRECT}
       />
     );
 
@@ -151,7 +152,7 @@ describe('PinyinInput', () => {
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        flashResult="incorrect"
+        flashResult={FlashResult.INCORRECT}
       />
     );
 
@@ -180,7 +181,7 @@ describe('PinyinInput', () => {
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
         isCorrect={false}
-        flashResult="correct"
+        flashResult={FlashResult.CORRECT}
       />
     );
 
@@ -239,7 +240,7 @@ describe('PinyinInput', () => {
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        flashResult="correct"
+        flashResult={FlashResult.CORRECT}
       />
     );
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProgressBar as StyledProgressBar, ProgressFill } from './styled';
+import { ProgressBar as StyledProgressBar, ProgressFill } from '../styled';
 
 interface ProgressBarProps {
   progress: number;

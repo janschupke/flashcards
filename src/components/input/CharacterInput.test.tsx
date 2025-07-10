@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterInput } from './CharacterInput';
+import { FlashcardMode, FlashResult } from '../../types';
 
 describe('CharacterInput', () => {
   const mockOnChange = vi.fn();
@@ -18,7 +19,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -33,7 +34,7 @@ describe('CharacterInput', () => {
         expectedCharacter="們"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="traditional"
+        mode={FlashcardMode.TRADITIONAL}
       />
     );
 
@@ -48,7 +49,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -66,7 +67,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -81,7 +82,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
     
@@ -98,7 +99,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={true}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -113,7 +114,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={false}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -128,7 +129,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={true}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -144,7 +145,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={false}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
       />
     );
 
@@ -160,7 +161,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
         disabled={true}
       />
     );
@@ -178,8 +179,8 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
-        flashResult="correct"
+        mode={FlashcardMode.SIMPLIFIED}
+        flashResult={FlashResult.CORRECT}
       />
     );
 
@@ -195,8 +196,8 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
-        flashResult="incorrect"
+        mode={FlashcardMode.SIMPLIFIED}
+        flashResult={FlashResult.INCORRECT}
       />
     );
 
@@ -212,7 +213,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
         flashResult={null}
       />
     );
@@ -229,8 +230,8 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={false}
-        mode="simplified"
-        flashResult="correct"
+        mode={FlashcardMode.SIMPLIFIED}
+        flashResult={FlashResult.CORRECT}
       />
     );
 
@@ -249,8 +250,8 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
-        flashResult="correct"
+        mode={FlashcardMode.SIMPLIFIED}
+        flashResult={FlashResult.CORRECT}
       />
     );
 
@@ -265,7 +266,7 @@ describe('CharacterInput', () => {
         expectedCharacter="们"
         onSubmit={mockOnSubmit}
         isCorrect={null}
-        mode="simplified"
+        mode={FlashcardMode.SIMPLIFIED}
         flashResult={null}
       />
     );

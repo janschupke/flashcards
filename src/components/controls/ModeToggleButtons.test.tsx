@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ModeToggleButtons } from './ModeToggleButtons';
+import { FlashcardMode } from '../../types';
 
 describe('ModeToggleButtons', () => {
   const mockOnModeChange = vi.fn();
@@ -12,7 +13,7 @@ describe('ModeToggleButtons', () => {
   it('renders all three mode buttons', () => {
     render(
       <ModeToggleButtons
-        currentMode="pinyin"
+        currentMode={FlashcardMode.PINYIN}
         onModeChange={mockOnModeChange}
       />
     );
@@ -25,7 +26,7 @@ describe('ModeToggleButtons', () => {
   it('renders the mode title', () => {
     render(
       <ModeToggleButtons
-        currentMode="pinyin"
+        currentMode={FlashcardMode.PINYIN}
         onModeChange={mockOnModeChange}
       />
     );
@@ -36,7 +37,7 @@ describe('ModeToggleButtons', () => {
   it('highlights the current mode button', () => {
     render(
       <ModeToggleButtons
-        currentMode="simplified"
+        currentMode={FlashcardMode.SIMPLIFIED}
         onModeChange={mockOnModeChange}
       />
     );
@@ -48,7 +49,7 @@ describe('ModeToggleButtons', () => {
   it('calls onModeChange when a different mode is clicked', () => {
     render(
       <ModeToggleButtons
-        currentMode="pinyin"
+        currentMode={FlashcardMode.PINYIN}
         onModeChange={mockOnModeChange}
       />
     );
@@ -62,7 +63,7 @@ describe('ModeToggleButtons', () => {
   it('does not call onModeChange when the current mode is clicked', () => {
     render(
       <ModeToggleButtons
-        currentMode="traditional"
+        currentMode={FlashcardMode.TRADITIONAL}
         onModeChange={mockOnModeChange}
       />
     );
@@ -76,7 +77,7 @@ describe('ModeToggleButtons', () => {
   it('has correct accessibility attributes', () => {
     render(
       <ModeToggleButtons
-        currentMode="pinyin"
+        currentMode={FlashcardMode.PINYIN}
         onModeChange={mockOnModeChange}
       />
     );

@@ -1,7 +1,7 @@
 import React from 'react';
-import { CharacterSection, ChineseCharacter, HintSection, HintText } from './styled';
-import { getCharacterByIndex, getHintText, getDisplayCharacter } from '../utils/characterUtils';
-import { HintType, HINT_TYPES, FlashcardMode } from '../types';
+import { CharacterSection, ChineseCharacter, HintSection, HintText } from '../styled';
+import { getCharacterByIndex, getHintText, getDisplayCharacter } from '../../utils/characterUtils';
+import { HintType, HINT_TYPES, FlashcardMode } from '../../types';
 import styled from 'styled-components';
 
 interface CharacterDisplayProps {

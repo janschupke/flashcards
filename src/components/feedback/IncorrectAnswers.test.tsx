@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { IncorrectAnswers } from './IncorrectAnswers';
-import { IncorrectAnswer } from '../types';
+import { IncorrectAnswer } from '../../types';
 
 describe('IncorrectAnswers', () => {
   const mockIncorrectAnswers: IncorrectAnswer[] = [

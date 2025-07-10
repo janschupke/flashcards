@@ -2,7 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterRangeInput } from './CharacterRangeInput';
-import data from '../data.json';
+import { APP_LIMITS } from '../../constants';
 
 describe('CharacterRangeInput', () => {
   const mockOnLimitChange = vi.fn();
@@ -55,7 +55,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('clamps value to maximum of data length', () => {
-    const maxLimit = Math.min(1500, data.length);
+    const maxLimit = APP_LIMITS.PINYIN_MODE_MAX;
     render(
       <CharacterRangeInput
         currentLimit={100}
@@ -114,8 +114,8 @@ describe('CharacterRangeInput', () => {
   });
 
   it('prevents going above maximum when up arrow is pressed', () => {
-    // Use the real data length
-    const maxLimit = data.length;
+    // Use the constant for maximum limit
+    const maxLimit = APP_LIMITS.PINYIN_MODE_MAX;
     render(
       <CharacterRangeInput
         currentLimit={maxLimit - 25}

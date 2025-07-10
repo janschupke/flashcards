@@ -30,15 +30,15 @@ export const useKeyboardShortcuts = ({
         break;
       case KEYBOARD_SHORTCUTS.MODE_PINYIN:
         event.preventDefault();
-        onModeChange?.('pinyin');
+        onModeChange?.(FlashcardMode.PINYIN);
         break;
       case KEYBOARD_SHORTCUTS.MODE_SIMPLIFIED:
         event.preventDefault();
-        onModeChange?.('simplified');
+        onModeChange?.(FlashcardMode.SIMPLIFIED);
         break;
       case KEYBOARD_SHORTCUTS.MODE_TRADITIONAL:
         event.preventDefault();
-        onModeChange?.('traditional');
+        onModeChange?.(FlashcardMode.TRADITIONAL);
         break;
     }
   }, [onNext, onTogglePinyin, onToggleEnglish, onModeChange]);

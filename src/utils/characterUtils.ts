@@ -1,5 +1,6 @@
 import { Character, FlashcardMode, HintType, HINT_TYPES } from '../types';
-import data from '../data.json';
+import { UI_CONSTANTS } from '../constants';
+import data from '../data/characters.json';
 
 export const getCharacterByIndex = (index: number): Character | null => {
   return data[index] || null;
@@ -23,7 +24,7 @@ export const getHintText = (character: Character | null, hintType: HintType): st
 export const validateLimit = (value: string, minAvailable: number, maxAvailable: number): number => {
   const parsed = parseInt(value, 10);
   if (isNaN(parsed) || parsed <= 0) {
-    return Math.max(minAvailable, Math.min(100, maxAvailable));
+    return Math.max(minAvailable, Math.min(UI_CONSTANTS.MIN_WIDTH, maxAvailable));
   }
   return Math.max(minAvailable, Math.min(parsed, maxAvailable));
 };

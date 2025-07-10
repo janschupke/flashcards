@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { PageContainer, Card, Header, Title, Subtitle } from './styled';
+import { PageContainer, Card, Header, Title, Subtitle } from '../styled';
 import styled from 'styled-components';
-import { useFlashCard } from '../hooks/useFlashCard';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { HINT_TYPES, HintType, FlashcardMode } from '../types';
-import { CharacterRangeInput } from './CharacterRangeInput';
+import { useFlashCard } from '../../hooks/useFlashCard';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { HINT_TYPES, HintType, FlashcardMode } from '../../types';
+import { CharacterRangeInput } from '../input/CharacterRangeInput';
 import { CharacterDisplay } from './CharacterDisplay';
-import { ControlButtons } from './ControlButtons';
-import { ProgressBar } from './ProgressBar';
-import { Statistics } from './Statistics';
-import { PinyinInput } from './PinyinInput';
-import { CharacterInput } from './CharacterInput';
-import { ModeToggleButtons } from './ModeToggleButtons';
-import { PreviousCharacter } from './PreviousCharacter';
-import { IncorrectAnswers } from './IncorrectAnswers';
-import { FlashCardProps } from '../types';
-import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../utils/characterUtils';
-import data from '../data.json';
-import { MODES } from './ModeToggleButtons';
+import { ControlButtons } from '../controls/ControlButtons';
+import { ProgressBar } from '../feedback/ProgressBar';
+import { Statistics } from '../feedback/Statistics';
+import { PinyinInput } from '../input/PinyinInput';
+import { CharacterInput } from '../input/CharacterInput';
+import { ModeToggleButtons } from '../controls/ModeToggleButtons';
+import { PreviousCharacter } from '../feedback/PreviousCharacter';
+import { IncorrectAnswers } from '../feedback/IncorrectAnswers';
+import { FlashCardProps } from '../../types';
+import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../../utils/characterUtils';
+import { APP_LIMITS, UI_CONSTANTS, CHINESE_TEXT } from '../../constants';
+import data from '../../data/characters.json';
+import { MODES } from '../controls/ModeToggleButtons';
 
 const CardCompact = styled(Card)`
   padding-top: 16px;
@@ -92,8 +93,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({
   const getModeLimits = () => {
     const maxLimit = getModeSpecificLimit(mode);
     return {
-      minLimit: 50,
-      maxLimit: Math.min(maxLimit, mode === 'pinyin' ? 1500 : 539),
+      minLimit: APP_LIMITS.MIN_LIMIT,
+      maxLimit: Math.min(maxLimit, mode === 'pinyin' ? APP_LIMITS.PINYIN_MODE_MAX : APP_LIMITS.SIMPLIFIED_TRADITIONAL_MAX),
     };
   };
 
@@ -132,9 +133,9 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         // Only trigger if not focused on the range input
         const active = document.activeElement;
         if (active && (active as HTMLElement).id === 'limit') return;
-        const increment = e.key === 'ArrowUp' ? 50 : -50;
-        const minLimit = 50;
-        const maxLimit = mode === 'pinyin' ? Math.min(1500, data.length) : 539; // 539 characters have different simplified/traditional
+        const increment = e.key === 'ArrowUp' ? UI_CONSTANTS.INCREMENT_STEP : -UI_CONSTANTS.INCREMENT_STEP;
+        const minLimit = APP_LIMITS.MIN_LIMIT;
+        const maxLimit = mode === 'pinyin' ? Math.min(APP_LIMITS.PINYIN_MODE_MAX, data.length) : APP_LIMITS.SIMPLIFIED_TRADITIONAL_MAX;
         let newLimit = limit + increment;
         newLimit = Math.min(maxLimit, Math.max(minLimit, newLimit));
         handleLimitChange(newLimit);
@@ -162,8 +163,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     <PageContainer>
       <Card>
         <Header>
-          <Title>汉字 Flashcards</Title>
-          <Subtitle>Learn Chinese characters with interactive flashcards</Subtitle>
+          <Title>{CHINESE_TEXT.APP_TITLE}</Title>
+          <Subtitle>{CHINESE_TEXT.APP_SUBTITLE}</Subtitle>
         </Header>
 
         <ModeToggleButtons
