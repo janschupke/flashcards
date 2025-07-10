@@ -135,7 +135,6 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
         <tr>
           <Th>Simplified</Th>
           <Th>Traditional</Th>
-          <Th>Mode</Th>
           <Th>Expected</Th>
           <Th>Submitted</Th>
           <Th>English</Th>
@@ -162,9 +161,6 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
         <tr key={answer.characterIndex}>
           <Td>{answer.simplified}</Td>
           <Td>{answer.traditional}</Td>
-          <Td>
-            <ModeBadge>{getModeLabel(answer.mode)}</ModeBadge>
-          </Td>
           <Td>{getCorrectColumn(answer)}</Td>
           <SubmittedTd $isCorrect={false}>{getSubmittedColumn(answer)}</SubmittedTd>
           <Td>{answer.english}</Td>

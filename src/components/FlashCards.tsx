@@ -15,7 +15,8 @@ import { ModeToggleButtons } from './ModeToggleButtons';
 import { PreviousCharacter } from './PreviousCharacter';
 import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
-import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../utils/characterUtils';
+import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit, validateCharacterInput } from '../utils/characterUtils';
+import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import data from '../data.json';
 
 const CardCompact = styled(Card)`
@@ -49,6 +50,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     setCharacterInput,
     setMode,
     validateCharacter,
+    setPinyinFlashResult,
+    setCharacterFlashResult,
   } = useFlashCard({ initialCurrent, initialLimit });
 
   const handleTogglePinyin = useCallback(() => {
@@ -64,12 +67,12 @@ export const FlashCards: React.FC<FlashCardProps> = ({
   }, [updateLimit]);
 
   const handlePinyinSubmit = useCallback((input: string) => {
-    setPinyinInput(input);
-  }, [setPinyinInput]);
+    setPinyinFlashResult(input);
+  }, [setPinyinFlashResult]);
 
   const handleCharacterSubmit = useCallback((input: string) => {
-    setCharacterInput(input);
-  }, [setCharacterInput]);
+    setCharacterFlashResult(input);
+  }, [setCharacterFlashResult]);
 
   const handleModeChange = useCallback((newMode: FlashcardMode) => {
     setMode(newMode);

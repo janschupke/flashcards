@@ -263,6 +263,40 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     });
   }, [getCurrentCharacter]);
 
+  // New functions to set flash result immediately
+  const setPinyinFlashResult = useCallback((input: string) => {
+    setState(prev => {
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
+      const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
+      
+      return {
+        ...prev,
+        pinyinInput: input,
+        isPinyinCorrect: isCorrect,
+        flashResult: isCorrect ? 'correct' : 'incorrect',
+      };
+    });
+  }, [getCurrentCharacter]);
+
+  const setCharacterFlashResult = useCallback((input: string) => {
+    setState(prev => {
+      const currentCharacter = getCurrentCharacter();
+      if (!currentCharacter) return prev;
+      
+      const expectedCharacter = prev.mode === 'simplified' ? currentCharacter.simplified : currentCharacter.traditional;
+      const isCorrect = validateCharacterInput(input, expectedCharacter);
+      
+      return {
+        ...prev,
+        characterInput: input,
+        isCharacterCorrect: isCorrect,
+        flashResult: isCorrect ? 'correct' : 'incorrect',
+      };
+    });
+  }, [getCurrentCharacter]);
+
   // Clear flash result after animation
   useEffect(() => {
     if (state.flashResult) {
@@ -286,5 +320,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     setMode,
     setCharacterInput,
     validateCharacter,
+    setPinyinFlashResult,
+    setCharacterFlashResult,
   };
 }; 

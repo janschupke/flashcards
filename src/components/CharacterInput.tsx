@@ -9,7 +9,7 @@ const InputContainer = styled.div`
 
 const InputField = styled.input<{ isCorrect: boolean | null; flashResult: 'correct' | 'incorrect' | null }>`
   width: 100%;
-  max-width: 200px;
+  max-width: 300px;
   padding: 16px 20px;
   font-size: 24px;
   text-align: center;

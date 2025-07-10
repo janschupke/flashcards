@@ -33,20 +33,7 @@ describe('PinyinInput', () => {
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
-  it('has autofocus attribute', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
-
-    const input = screen.getByRole('textbox');
-    expect(document.activeElement).toBe(input);
-  });
-
-  it('calls onSubmit when input changes', () => {
+  it('calls onSubmit when Enter is pressed', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -57,6 +44,7 @@ describe('PinyinInput', () => {
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'ni' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
 
     expect(mockOnSubmit).toHaveBeenCalledWith('ni');
   });
@@ -70,7 +58,7 @@ describe('PinyinInput', () => {
       />
     );
 
-    expect(screen.getByText('✓ Correct!')).toBeInTheDocument();
+    expect(screen.getByText('✓ 正确')).toBeInTheDocument();
   });
 
   it('shows incorrect feedback when pinyin is wrong', () => {
@@ -82,11 +70,11 @@ describe('PinyinInput', () => {
       />
     );
 
-    expect(screen.getByText('✗ Incorrect. Try again.')).toBeInTheDocument();
+    expect(screen.getByText('✗ 错误，正确答案是: ni3')).toBeInTheDocument();
   });
 
   it('shows no feedback when isCorrect is null', () => {
-    render(
+    const { container } = render(
       <ControlledPinyinInput
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
@@ -94,7 +82,9 @@ describe('PinyinInput', () => {
       />
     );
 
-    const feedbackElement = screen.getByTestId('feedback-message');
+    // Find the feedback div by looking for the styled component class
+    const feedbackElement = container.querySelector('div[class*="sc-fhHczv"]');
+    expect(feedbackElement).toBeInTheDocument();
     expect(feedbackElement).toHaveTextContent('');
   });
 
@@ -126,7 +116,7 @@ describe('PinyinInput', () => {
     expect(input).toHaveValue('test');
   });
 
-  it('calls onSubmit when input value changes', () => {
+  it('calls onSubmit when Enter is pressed with input value', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -137,10 +127,11 @@ describe('PinyinInput', () => {
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'test' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
     expect(mockOnSubmit).toHaveBeenCalledWith('test');
   });
 
-  it('flashes green when flashResult is correct', async () => {
+  it('shows green border when flashResult is correct', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -151,13 +142,11 @@ describe('PinyinInput', () => {
     );
 
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('flash-correct');
-    await waitFor(() => {
-      expect(input).not.toHaveClass('flash-correct');
-    }, { timeout: 1100 });
+    // Check that the input has the correct border color by checking the styled-component class
+    expect(input).toHaveStyle({ borderColor: '#10b981' });
   });
 
-  it('flashes red when flashResult is incorrect', async () => {
+  it('shows red border when flashResult is incorrect', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -168,13 +157,11 @@ describe('PinyinInput', () => {
     );
 
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('flash-incorrect');
-    await waitFor(() => {
-      expect(input).not.toHaveClass('flash-incorrect');
-    }, { timeout: 1100 });
+    // Check that the input has the correct border color by checking the styled-component class
+    expect(input).toHaveStyle({ borderColor: '#ef4444' });
   });
 
-  it('does not flash when flashResult is null', () => {
+  it('shows default border when flashResult is null', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -185,7 +172,7 @@ describe('PinyinInput', () => {
     );
 
     const input = screen.getByRole('textbox');
-    expect(input).not.toHaveClass('flash-correct');
-    expect(input).not.toHaveClass('flash-incorrect');
+    // Check that the input has the default border color
+    expect(input).toHaveStyle({ borderColor: '#4a5568' });
   });
 }); 

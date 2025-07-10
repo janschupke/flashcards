@@ -56,6 +56,9 @@ export interface FlashCardActions {
   setMode: (mode: FlashcardMode) => void;
   setCharacterInput: (input: string) => void;
   validateCharacter: () => void;
+  // New actions for immediate flash result
+  setPinyinFlashResult: (input: string) => void;
+  setCharacterFlashResult: (input: string) => void;
 }
 
 export interface FlashCardProps {
