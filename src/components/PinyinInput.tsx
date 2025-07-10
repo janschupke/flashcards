@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { PinyinInputProps } from '../types';
 import styled from 'styled-components';
 
@@ -65,13 +65,14 @@ const FeedbackMessage = styled.div<{ $isCorrect: boolean | null }>`
 `;
 
 export const PinyinInput: React.FC<PinyinInputProps> = ({
+  value,
+  onChange,
   currentIndex,
   onSubmit,
   isCorrect,
   disabled = false,
   flashResult = null,
 }) => {
-  const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -79,11 +80,6 @@ export const PinyinInput: React.FC<PinyinInputProps> = ({
       inputRef.current.focus();
     }
   }, []);
-
-  // Clear input when character changes (currentPinyin changes)
-  useEffect(() => {
-    setInputValue('');
-  }, [currentIndex]);
 
   // Handle flash animation
   useEffect(() => {
@@ -95,7 +91,6 @@ export const PinyinInput: React.FC<PinyinInputProps> = ({
           inputRef.current.classList.remove(className);
         }
       }, 1000);
-      
       // Cleanup function to clear timeout on unmount or dependency change
       return () => {
         clearTimeout(timeoutId);
@@ -105,9 +100,9 @@ export const PinyinInput: React.FC<PinyinInputProps> = ({
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
+    onChange(value);
     onSubmit(value.trim());
-  }, [onSubmit]);
+  }, [onChange, onSubmit]);
 
   const getFeedbackMessage = () => {
     if (isCorrect === null) return '';
@@ -120,7 +115,7 @@ export const PinyinInput: React.FC<PinyinInputProps> = ({
       <PinyinStyledInput
         ref={inputRef}
         type="text"
-        value={inputValue}
+        value={value}
         onChange={handleInputChange}
         placeholder="Enter pinyin..."
         disabled={disabled}

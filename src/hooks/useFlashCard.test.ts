@@ -5,11 +5,11 @@ import { useFlashCard } from './useFlashCard'
 // Mock the data import
 vi.mock('../data.json', () => ({
   default: [
-    { chinese: '一', pinyin: 'yī', english: 'one' },
-    { chinese: '二', pinyin: 'èr', english: 'two' },
-    { chinese: '三', pinyin: 'sān', english: 'three' },
-    { chinese: '四', pinyin: 'sì', english: 'four' },
-    { chinese: '五', pinyin: 'wǔ', english: 'five' },
+    { simplified: '一', traditional: '一', pinyin: 'yī', english: 'one' },
+    { simplified: '二', traditional: '二', pinyin: 'èr', english: 'two' },
+    { simplified: '三', traditional: '三', pinyin: 'sān', english: 'three' },
+    { simplified: '四', traditional: '四', pinyin: 'sì', english: 'four' },
+    { simplified: '五', traditional: '五', pinyin: 'wǔ', english: 'five' },
   ]
 }))
 

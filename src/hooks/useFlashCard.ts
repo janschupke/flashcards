@@ -59,7 +59,8 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
           characterIndex: prev.current,
           submittedPinyin: prev.pinyinInput.trim() || '(empty)',
           correctPinyin: currentCharacter.pinyin,
-          chinese: currentCharacter.chinese,
+          simplified: currentCharacter.simplified,
+          traditional: currentCharacter.traditional,
           english: currentCharacter.english,
         });
       }

@@ -115,8 +115,8 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
             <tbody>
               {incorrectAnswers.map((answer) => (
                 <tr key={answer.characterIndex}>
-                  <Td>{answer.chinese}</Td>
-                  <Td>{answer.traditional ?? answer.chinese}</Td>
+                  <Td>{answer.simplified}</Td>
+                  <Td>{answer.traditional}</Td>
                   <Td>{answer.correctPinyin}</Td>
                   <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
                   <Td>{answer.english}</Td>
