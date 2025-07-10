@@ -25,7 +25,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -38,7 +37,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -52,7 +50,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -68,7 +65,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={true}
       />
@@ -81,7 +77,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={false}
       />
@@ -94,7 +89,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -108,7 +102,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         disabled={true}
@@ -119,37 +112,38 @@ describe('PinyinInput', () => {
     expect(input).toBeDisabled();
   });
 
-  it('clears input when currentIndex changes', () => {
-    function TestWrapper() {
-      const [value, setValue] = React.useState('');
-      const [index, setIndex] = React.useState(0);
-      React.useEffect(() => { setValue(''); }, [index]);
-      return (
-        <>
-          <PinyinInput
-            value={value}
-            onChange={setValue}
-            currentPinyin={index === 0 ? 'ni3' : 'wo3'}
-            onSubmit={mockOnSubmit}
-            isCorrect={null}
-          />
-          <button onClick={() => setIndex(i => i + 1)}>Next</button>
-        </>
-      );
-    }
-    render(<TestWrapper />);
+  it('updates value when onChange is called', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+      />
+    );
+
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'test' } });
     expect(input).toHaveValue('test');
-    fireEvent.click(screen.getByText('Next'));
-    expect(input).toHaveValue('');
+  });
+
+  it('calls onSubmit when input value changes', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+      />
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'test' } });
+    expect(mockOnSubmit).toHaveBeenCalledWith('test');
   });
 
   it('flashes green when flashResult is correct', async () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult="correct"
@@ -167,7 +161,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult="incorrect"
@@ -185,7 +178,6 @@ describe('PinyinInput', () => {
     render(
       <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult={null}
