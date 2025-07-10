@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
+import { getModeSpecificLimit } from '../utils/characterUtils';
 
 // Mock the data
 vi.mock('../data.json', () => ({
@@ -80,5 +81,27 @@ describe('FlashCards', () => {
     // Pinyin input should be cleared after state update
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(pinyinInput).toHaveValue('');
+  });
+
+  it('should update character range when switching modes', () => {
+    render(<FlashCards />);
+    
+    // Initially should show pinyin mode with max based on available data
+    const rangeInput = screen.getByTestId('range-input');
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
+    
+    // Switch to simplified mode
+    const simplifiedButton = screen.getByText('简体 (F2)');
+    fireEvent.click(simplifiedButton);
+    
+    // Should now show simplified mode with max based on available data
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('simplified').toString());
+    
+    // Switch back to pinyin mode
+    const pinyinButton = screen.getByText('拼音 (F1)');
+    fireEvent.click(pinyinButton);
+    
+    // Should show pinyin mode with max again
+    expect(rangeInput).toHaveAttribute('max', getModeSpecificLimit('pinyin').toString());
   });
 }); 

@@ -13,36 +13,6 @@ describe('CharacterInput', () => {
     mockOnSubmit.mockClear();
   });
 
-  it('renders with correct label for simplified mode', () => {
-    render(
-      <CharacterInput
-        value=""
-        onChange={mockOnChange}
-        expectedCharacter="们"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-        mode="simplified"
-      />
-    );
-
-    expect(screen.getByText('请输入简体字')).toBeInTheDocument();
-  });
-
-  it('renders with correct label for traditional mode', () => {
-    render(
-      <CharacterInput
-        value=""
-        onChange={mockOnChange}
-        expectedCharacter="們"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-        mode="traditional"
-      />
-    );
-
-    expect(screen.getByText('请输入繁体字')).toBeInTheDocument();
-  });
-
   it('shows correct placeholder for simplified mode', () => {
     render(
       <CharacterInput

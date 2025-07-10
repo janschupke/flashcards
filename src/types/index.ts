@@ -75,9 +75,9 @@ export const KEYBOARD_SHORTCUTS = {
   NEXT: 'Enter',
   PINYIN: [','],
   ENGLISH: ['.'],
-  MODE_PINYIN: '1',
-  MODE_SIMPLIFIED: '2',
-  MODE_TRADITIONAL: '3',
+  MODE_PINYIN: 'F1',
+  MODE_SIMPLIFIED: 'F2',
+  MODE_TRADITIONAL: 'F3',
 } as const;
 
 export const DEFAULT_CONFIG = {

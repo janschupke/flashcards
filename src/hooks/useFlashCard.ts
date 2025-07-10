@@ -217,8 +217,8 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   const setMode = useCallback((mode: FlashcardMode) => {
     setState(prev => {
       const newMaxLimit = getModeSpecificLimit(mode);
-      const newLimit = Math.min(prev.limit, newMaxLimit);
-      
+      // Always use the max available for the mode as the default limit
+      const newLimit = newMaxLimit;
       return {
         ...prev,
         mode,

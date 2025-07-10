@@ -1,129 +1,114 @@
-import React, { useCallback, useRef, useEffect } from 'react';
-import { PinyinInputProps } from '../types';
+import React, { useState, useEffect, forwardRef } from 'react';
 import styled from 'styled-components';
+import { PinyinInputProps } from '../types';
 
 const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 1rem 0;
-  gap: 0.5rem;
+  margin: 20px 0;
+  text-align: center;
 `;
 
-const PinyinStyledInput = styled.input`
+const InputField = styled.input<{ isCorrect: boolean | null; flashResult: 'correct' | 'incorrect' | null }>`
   width: 100%;
   max-width: 200px;
-  padding: 12px 16px;
-  border: 2px solid #4a5568;
+  padding: 16px 20px;
+  font-size: 24px;
+  text-align: center;
+  border: 3px solid ${props => {
+    if (props.flashResult === 'correct') return '#10b981';
+    if (props.flashResult === 'incorrect') return '#ef4444';
+    if (props.isCorrect === true) return '#10b981';
+    if (props.isCorrect === false) return '#ef4444';
+    return '#4a5568';
+  }};
   border-radius: 12px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 0.3s ease;
-  outline: none;
-  background: #2d3748;
+  background-color: #2d3748;
   color: #ffffff;
+  transition: all 0.3s ease-in-out;
   
   &:focus {
-    border-color: #4a5568;
-    box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+    outline: none;
+    border-color: #718096;
+    box-shadow: 0 0 0 3px rgba(113, 128, 150, 0.1);
+  }
+  
+  &:disabled {
+    background-color: #1a202c;
+    color: #718096;
+    cursor: not-allowed;
   }
   
   &::placeholder {
     color: #718096;
   }
-
-  &.flash-correct {
-    border-color: #28a745;
-    animation: flashGreen 1s ease-out;
-  }
-
-  &.flash-incorrect {
-    border-color: #dc3545;
-    animation: flashRed 1s ease-out;
-  }
-
-  @keyframes flashGreen {
-    0%, 100% { border-color: #4a5568; }
-    50% { border-color: #28a745; }
-  }
-
-  @keyframes flashRed {
-    0%, 100% { border-color: #4a5568; }
-    50% { border-color: #dc3545; }
-  }
 `;
 
-const FeedbackMessage = styled.div<{ $isCorrect: boolean | null }>`
-  font-size: 0.875rem;
+const FeedbackText = styled.div<{ isCorrect: boolean | null }>`
+  margin-top: 8px;
+  font-size: 14px;
   font-weight: 500;
   color: ${props => {
-    if (props.$isCorrect === null) return '#6c757d';
-    return props.$isCorrect ? '#28a745' : '#dc3545';
+    if (props.isCorrect === true) return '#10b981';
+    if (props.isCorrect === false) return '#ef4444';
+    return '#6b7280';
   }};
-  min-height: 1.25rem;
-  text-align: center;
+  min-height: 20px;
 `;
 
-export const PinyinInput: React.FC<PinyinInputProps> = ({
-  value,
-  onChange,
-  onSubmit,
-  isCorrect,
-  disabled = false,
-  flashResult = null,
-}) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
+  ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
+    const [localValue, setLocalValue] = useState(value);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+    useEffect(() => {
+      setLocalValue(value);
+    }, [value]);
 
-  // Handle flash animation
-  useEffect(() => {
-    if (flashResult && inputRef.current) {
-      const className = flashResult === 'correct' ? 'flash-correct' : 'flash-incorrect';
-      inputRef.current.classList.add(className);
-      const timeoutId = setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.classList.remove(className);
-        }
-      }, 1000);
-      // Cleanup function to clear timeout on unmount or dependency change
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [flashResult]);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setLocalValue(newValue);
+      onChange(newValue);
+    };
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    onChange(value);
-    onSubmit(value.trim());
-  }, [onChange, onSubmit]);
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && !disabled) {
+        onSubmit(localValue);
+      }
+    };
 
-  const getFeedbackMessage = () => {
-    if (isCorrect === null) return '';
-    if (isCorrect) return '✓ Correct!';
-    return '✗ Incorrect. Try again.';
-  };
+    const getPlaceholder = () => 'Type pinyin (e.g. nihao)';
 
-  return (
-    <InputContainer>
-      <PinyinStyledInput
-        ref={inputRef}
-        type="text"
-        value={value}
-        onChange={handleInputChange}
-        placeholder="Enter pinyin..."
-        disabled={disabled}
-        aria-label="Pinyin input"
-        autoComplete="off"
-      />
-      <FeedbackMessage $isCorrect={isCorrect} data-testid="feedback-message">
-        {getFeedbackMessage()}
-      </FeedbackMessage>
-    </InputContainer>
-  );
-}; 
+    const getFeedbackText = () => {
+      if (isCorrect === true) {
+        return '✓ 正确';
+      }
+      if (isCorrect === false) {
+        return `✗ 错误，正确答案是: ${currentPinyin}`;
+      }
+      return '';
+    };
+
+    return (
+      <InputContainer>
+        <InputField
+          ref={ref}
+          type="text"
+          value={localValue}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder={getPlaceholder()}
+          disabled={disabled}
+          isCorrect={isCorrect}
+          flashResult={flashResult || null}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+        />
+        <FeedbackText isCorrect={isCorrect}>
+          {getFeedbackText()}
+        </FeedbackText>
+      </InputContainer>
+    );
+  }
+);
+
+PinyinInput.displayName = 'PinyinInput'; 

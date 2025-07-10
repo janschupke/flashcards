@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { PageContainer, Card, Header, Title, Subtitle } from './styled';
 import styled from 'styled-components';
 import { useFlashCard } from '../hooks/useFlashCard';
@@ -15,7 +15,7 @@ import { ModeToggleButtons } from './ModeToggleButtons';
 import { PreviousCharacter } from './PreviousCharacter';
 import { IncorrectAnswers } from './IncorrectAnswers';
 import { FlashCardProps } from '../types';
-import { getExpectedCharacter, getCharacterAtIndex } from '../utils/characterUtils';
+import { getExpectedCharacter, getCharacterAtIndex, getModeSpecificLimit } from '../utils/characterUtils';
 import data from '../data.json';
 
 const CardCompact = styled(Card)`
@@ -86,6 +86,17 @@ export const FlashCards: React.FC<FlashCardProps> = ({
 
   const currentCharacter = getCurrentCharacter();
 
+  // Get mode-specific limits
+  const getModeLimits = () => {
+    const maxLimit = getModeSpecificLimit(mode);
+    return {
+      minLimit: 50,
+      maxLimit: Math.min(maxLimit, mode === 'pinyin' ? 1500 : 539),
+    };
+  };
+
+  const { minLimit, maxLimit } = getModeLimits();
+
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
     onNext: getNext,
@@ -114,6 +125,19 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     return () => window.removeEventListener('keydown', handleArrow);
   }, [limit, handleLimitChange, mode]);
 
+  // Refs for focusing inputs
+  const pinyinInputRef = useRef<HTMLInputElement>(null);
+  const characterInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the relevant input after mode change
+  useEffect(() => {
+    if (mode === 'pinyin' && pinyinInputRef.current) {
+      pinyinInputRef.current.focus();
+    } else if ((mode === 'simplified' || mode === 'traditional') && characterInputRef.current) {
+      characterInputRef.current.focus();
+    }
+  }, [mode]);
+
   return (
     <PageContainer>
       <Card>
@@ -130,6 +154,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         <CharacterRangeInput
           currentLimit={limit}
           onLimitChange={handleLimitChange}
+          minLimit={minLimit}
+          maxLimit={maxLimit}
         />
 
         <ProgressBar progress={progress} />
@@ -142,6 +168,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
 
         {mode === 'pinyin' ? (
           <PinyinInput
+            ref={pinyinInputRef}
             value={pinyinInput}
             onChange={setPinyinInput}
             currentPinyin={currentCharacter?.pinyin || ''}
@@ -152,6 +179,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
           />
         ) : (
           <CharacterInput
+            ref={characterInputRef}
             value={characterInput}
             onChange={setCharacterInput}
             expectedCharacter={currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''}
