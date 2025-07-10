@@ -74,13 +74,13 @@ const InputField = styled.input`
   }
 `;
 
-const FeedbackText = styled.div<{ isCorrect: boolean | null }>`
+const FeedbackText = styled.div<{ $isCorrect: boolean | null }>`
   text-align: center;
   font-size: ${theme.typography.fontSize.sm};
   font-weight: ${theme.typography.fontWeight.medium};
   color: ${props => {
-    if (props.isCorrect === true) return theme.colors.feedback.success;
-    if (props.isCorrect === false) return theme.colors.feedback.error;
+    if (props.$isCorrect === true) return theme.colors.feedback.success;
+    if (props.$isCorrect === false) return theme.colors.feedback.error;
     return theme.colors.text.muted;
   }};
   min-height: ${theme.typography.fontSize.sm};
@@ -163,7 +163,7 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
             data-testid={`${mode}-input`}
           />
         </InputBorderWrapper>
-        <FeedbackText isCorrect={isCorrect}>
+        <FeedbackText $isCorrect={isCorrect}>
           {getFeedbackText()}
         </FeedbackText>
       </InputContainer>
