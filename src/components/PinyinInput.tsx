@@ -1,67 +1,26 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import styled from 'styled-components';
+import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from './styled';
 import { PinyinInputProps } from '../types';
-
-const InputContainer = styled.div`
-  margin: 0px;
-  margin-bottom: 10px;
-  text-align: center;
-`;
-
-const InputField = styled.input<{ isCorrect: boolean | null; flashResult: 'correct' | 'incorrect' | null }>`
-  width: 100%;
-  max-width: 300px;
-  padding: 16px 20px;
-  font-size: 24px;
-  text-align: center;
-  border: 3px solid ${props => {
-    if (props.flashResult === 'correct') return '#10b981';
-    if (props.flashResult === 'incorrect') return '#ef4444';
-    if (props.isCorrect === true) return '#10b981';
-    if (props.isCorrect === false) return '#ef4444';
-    return '#4a5568';
-  }};
-  border-radius: 12px;
-  background-color: #2d3748;
-  color: #ffffff;
-  transition: all 0.3s ease-in-out;
-  
-  &:focus {
-    outline: none;
-    border-color: #718096;
-    box-shadow: 0 0 0 3px rgba(113, 128, 150, 0.1);
-  }
-  
-  &:disabled {
-    background-color: #1a202c;
-    color: #718096;
-    cursor: not-allowed;
-  }
-  
-  &::placeholder {
-    color: #718096;
-  }
-`;
-
-const FeedbackText = styled.div<{ isCorrect: boolean | null }>`
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${props => {
-    if (props.isCorrect === true) return '#10b981';
-    if (props.isCorrect === false) return '#ef4444';
-    return '#6b7280';
-  }};
-  min-height: 20px;
-`;
 
 export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
   ({ value, onChange, currentPinyin, onSubmit, isCorrect, disabled = false, flashResult }, ref) => {
     const [localValue, setLocalValue] = useState(value);
+    const [isFlashing, setIsFlashing] = useState(false);
 
     useEffect(() => {
       setLocalValue(value);
     }, [value]);
+
+    // Handle flash result changes
+    useEffect(() => {
+      if (flashResult) {
+        setIsFlashing(true);
+        const timer = setTimeout(() => {
+          setIsFlashing(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }, [flashResult]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
@@ -89,22 +48,26 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
 
     return (
       <InputContainer>
-        <InputField
-          ref={ref}
-          type="text"
-          value={localValue}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder={getPlaceholder()}
-          disabled={disabled}
-          isCorrect={isCorrect}
-          flashResult={flashResult || null}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          spellCheck="false"
-        />
-        <FeedbackText isCorrect={isCorrect}>
+        <InputBorderWrapper
+          $isCorrect={isFlashing ? null : isCorrect}
+          $flashResult={flashResult || null}
+          $isFlashing={isFlashing}
+        >
+          <InputField
+            ref={ref}
+            type="text"
+            value={localValue}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder={getPlaceholder()}
+            disabled={disabled}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+        </InputBorderWrapper>
+        <FeedbackText isCorrect={isCorrect} data-testid="feedback-text">
           {getFeedbackText()}
         </FeedbackText>
       </InputContainer>

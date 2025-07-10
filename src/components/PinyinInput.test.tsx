@@ -74,7 +74,7 @@ describe('PinyinInput', () => {
   });
 
   it('shows no feedback when isCorrect is null', () => {
-    const { container } = render(
+    render(
       <ControlledPinyinInput
         currentPinyin="ni3"
         onSubmit={mockOnSubmit}
@@ -82,8 +82,8 @@ describe('PinyinInput', () => {
       />
     );
 
-    // Find the feedback div by looking for the styled component class
-    const feedbackElement = container.querySelector('div[class*="sc-fhHczv"]');
+    // The feedback div should exist but be empty
+    const feedbackElement = screen.getByTestId('feedback-text');
     expect(feedbackElement).toBeInTheDocument();
     expect(feedbackElement).toHaveTextContent('');
   });
@@ -141,9 +141,8 @@ describe('PinyinInput', () => {
       />
     );
 
-    const input = screen.getByRole('textbox');
-    // Check that the input has the correct border color by checking the styled-component class
-    expect(input).toHaveStyle({ borderColor: '#10b981' });
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
   });
 
   it('shows red border when flashResult is incorrect', () => {
@@ -156,9 +155,8 @@ describe('PinyinInput', () => {
       />
     );
 
-    const input = screen.getByRole('textbox');
-    // Check that the input has the correct border color by checking the styled-component class
-    expect(input).toHaveStyle({ borderColor: '#ef4444' });
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#ef4444' });
   });
 
   it('shows default border when flashResult is null', () => {
@@ -171,8 +169,99 @@ describe('PinyinInput', () => {
       />
     );
 
-    const input = screen.getByRole('textbox');
-    // Check that the input has the default border color
-    expect(input).toHaveStyle({ borderColor: '#4a5568' });
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
+  });
+
+  // Additional border highlighting tests
+  it('prioritizes flashResult over isCorrect for border color', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={false}
+        flashResult="correct"
+      />
+    );
+
+    const wrapper = screen.getByRole('textbox').parentElement;
+    // Should show green (flashResult) instead of red (isCorrect)
+    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+  });
+
+  it('shows green border when isCorrect is true and no flashResult', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={true}
+        flashResult={null}
+      />
+    );
+
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+  });
+
+  it('shows red border when isCorrect is false and no flashResult', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={false}
+        flashResult={null}
+      />
+    );
+
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#ef4444' });
+  });
+
+  it('shows neutral border when isCorrect is null and no flashResult', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult={null}
+      />
+    );
+
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
+  });
+
+  it('transitions from flash to neutral border after flash timeout', async () => {
+    vi.useFakeTimers();
+    
+    const { rerender } = render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult="correct"
+      />
+    );
+
+    const wrapper = screen.getByRole('textbox').parentElement;
+    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+
+    // Clear flashResult and advance timers
+    rerender(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
+        onSubmit={mockOnSubmit}
+        isCorrect={null}
+        flashResult={null}
+      />
+    );
+
+    // Advance timers to trigger the flash timeout
+    await vi.runAllTimersAsync();
+    
+    // Should now show neutral border
+    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
+    
+    vi.useRealTimers();
   });
 }); 
