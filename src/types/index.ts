@@ -1,16 +1,16 @@
 export interface Character {
-  chinese: string;
+  simplified: string;
+  traditional: string;
   pinyin: string;
   english: string;
-  traditional?: string; // Add traditional field
 }
 
 export interface IncorrectAnswer {
   characterIndex: number;
   submittedPinyin: string;
   correctPinyin: string;
-  chinese: string;
-  traditional?: string;
+  simplified: string;
+  traditional: string;
   english: string;
 }
 
@@ -72,8 +72,9 @@ export const DEFAULT_CONFIG = {
 
 // New types for traditional character feature
 export interface PinyinInputProps {
+  value: string;
+  onChange: (value: string) => void;
   currentPinyin: string; // Correct pinyin for current character
-  currentIndex: number;
   onSubmit: (input: string) => void;
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;

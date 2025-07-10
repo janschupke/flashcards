@@ -1,7 +1,7 @@
 {
   "name": "chinese",
   "version": "1.0.0",
-  "description": "Flashcards for Simplified Chinese",
+  "description": "Flashcards for Chinese Characters",
   "main": "index.html",
   "scripts": {
     "dev": "vite",

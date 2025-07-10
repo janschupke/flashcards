@@ -5,9 +5,9 @@ import { HINT_TYPES } from '../types'
 // Mock the data import
 vi.mock('../data.json', () => ({
   default: [
-    { chinese: '一', pinyin: 'yī', english: 'one' },
-    { chinese: '二', pinyin: 'èr', english: 'two' },
-    { chinese: '三', pinyin: 'sān', english: 'three' },
+    { simplified: '一', traditional: '一', pinyin: 'yī', english: 'one' },
+    { simplified: '二', traditional: '二', pinyin: 'èr', english: 'two' },
+    { simplified: '三', traditional: '三', pinyin: 'sān', english: 'three' },
   ]
 }))
 
@@ -15,7 +15,7 @@ describe('characterUtils', () => {
   describe('getCharacterByIndex', () => {
     it('returns character at valid index', () => {
       const character = getCharacterByIndex(1)
-      expect(character).toEqual({ chinese: '二', pinyin: 'èr', english: 'two' })
+      expect(character).toEqual({ simplified: '二', traditional: '二', pinyin: 'èr', english: 'two' })
     })
 
     it('returns null for invalid index', () => {
@@ -30,7 +30,7 @@ describe('characterUtils', () => {
   })
 
   describe('getHintText', () => {
-    const mockCharacter = { chinese: '一', pinyin: 'yī', english: 'one' }
+    const mockCharacter = { simplified: '一', traditional: '一', pinyin: 'yī', english: 'one' }
 
     it('returns default message when no hint is active', () => {
       const text = getHintText(mockCharacter, HINT_TYPES.NONE)

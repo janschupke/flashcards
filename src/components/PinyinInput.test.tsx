@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { PinyinInput } from './PinyinInput';
+import React from 'react';
 
 describe('PinyinInput', () => {
   const mockOnSubmit = vi.fn();
@@ -9,11 +10,21 @@ describe('PinyinInput', () => {
     vi.clearAllMocks();
   });
 
+  function ControlledPinyinInput(props: any) {
+    const [value, setValue] = React.useState(props.value || '');
+    return (
+      <PinyinInput
+        {...props}
+        value={value}
+        onChange={setValue}
+      />
+    );
+  }
+
   it('renders input field', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -24,24 +35,21 @@ describe('PinyinInput', () => {
 
   it('has autofocus attribute', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
     );
 
     const input = screen.getByRole('textbox');
-    // Instead of checking the attribute, check if the input is focused
     expect(document.activeElement).toBe(input);
   });
 
   it('calls onSubmit when input changes', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -55,9 +63,8 @@ describe('PinyinInput', () => {
 
   it('shows correct feedback when pinyin is correct', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={true}
       />
@@ -68,9 +75,8 @@ describe('PinyinInput', () => {
 
   it('shows incorrect feedback when pinyin is wrong', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={false}
       />
@@ -81,9 +87,8 @@ describe('PinyinInput', () => {
 
   it('shows no feedback when isCorrect is null', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -95,9 +100,8 @@ describe('PinyinInput', () => {
 
   it('is disabled when disabled prop is true', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         disabled={true}
@@ -108,11 +112,10 @@ describe('PinyinInput', () => {
     expect(input).toBeDisabled();
   });
 
-  it('clears input when currentIndex changes', () => {
-    const { rerender } = render(
-      <PinyinInput
+  it('updates value when onChange is called', () => {
+    render(
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
@@ -121,26 +124,26 @@ describe('PinyinInput', () => {
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'test' } });
     expect(input).toHaveValue('test');
+  });
 
-    // Change the currentIndex prop
-    rerender(
-      <PinyinInput
-        currentPinyin="wo3"
-        currentIndex={1}
+  it('calls onSubmit when input value changes', () => {
+    render(
+      <ControlledPinyinInput
+        currentPinyin="ni3"
         onSubmit={mockOnSubmit}
         isCorrect={null}
       />
     );
 
-    // Input should be cleared
-    expect(input).toHaveValue('');
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'test' } });
+    expect(mockOnSubmit).toHaveBeenCalledWith('test');
   });
 
   it('flashes green when flashResult is correct', async () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult="correct"
@@ -149,8 +152,6 @@ describe('PinyinInput', () => {
 
     const input = screen.getByRole('textbox');
     expect(input).toHaveClass('flash-correct');
-
-    // Wait for animation to complete
     await waitFor(() => {
       expect(input).not.toHaveClass('flash-correct');
     }, { timeout: 1100 });
@@ -158,9 +159,8 @@ describe('PinyinInput', () => {
 
   it('flashes red when flashResult is incorrect', async () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult="incorrect"
@@ -169,8 +169,6 @@ describe('PinyinInput', () => {
 
     const input = screen.getByRole('textbox');
     expect(input).toHaveClass('flash-incorrect');
-
-    // Wait for animation to complete
     await waitFor(() => {
       expect(input).not.toHaveClass('flash-incorrect');
     }, { timeout: 1100 });
@@ -178,9 +176,8 @@ describe('PinyinInput', () => {
 
   it('does not flash when flashResult is null', () => {
     render(
-      <PinyinInput
+      <ControlledPinyinInput
         currentPinyin="ni3"
-        currentIndex={0}
         onSubmit={mockOnSubmit}
         isCorrect={null}
         flashResult={null}

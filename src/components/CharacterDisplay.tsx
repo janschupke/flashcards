@@ -2,7 +2,6 @@ import React from 'react';
 import { CharacterSection, ChineseCharacter, HintSection, HintText } from './styled';
 import { getCharacterByIndex, getHintText } from '../utils/characterUtils';
 import { HintType, HINT_TYPES } from '../types';
-import { getTraditionalCharacter } from '../utils/traditionalMapping';
 import styled from 'styled-components';
 
 interface CharacterDisplayProps {
@@ -28,8 +27,8 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
   const character = getCharacterByIndex(currentIndex);
   const hintText = getHintText(character, hintType);
   
-  const simplifiedChar = character?.chinese || '?';
-  const traditionalChar = character?.traditional || getTraditionalCharacter(simplifiedChar);
+  const simplifiedChar = character?.simplified || '?';
+  const traditionalChar = character?.traditional || '?';
 
   return (
     <CharacterSection>

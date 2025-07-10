@@ -8,14 +8,16 @@ describe('IncorrectAnswers', () => {
       characterIndex: 0,
       submittedPinyin: 'wo',
       correctPinyin: 'wǒ',
-      chinese: '我',
+      simplified: '我',
+      traditional: '我',
       english: 'I ; me',
     },
     {
       characterIndex: 1,
       submittedPinyin: '(empty)',
       correctPinyin: 'de',
-      chinese: '的',
+      simplified: '的',
+      traditional: '的',
       english: 'possessive p.',
     },
   ];

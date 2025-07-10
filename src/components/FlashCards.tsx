@@ -39,6 +39,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({
     toggleHint,
     updateLimit,
     setPinyinInput,
+    pinyinInput,
   } = useFlashCard({ initialCurrent, initialLimit });
 
   const handleTogglePinyin = useCallback(() => {
@@ -105,8 +106,9 @@ export const FlashCards: React.FC<FlashCardProps> = ({
         />
 
         <PinyinInput
+          value={pinyinInput}
+          onChange={setPinyinInput}
           currentPinyin={data[current]?.pinyin || ''}
-          currentIndex={current}
           onSubmit={handlePinyinSubmit}
           isCorrect={isPinyinCorrect}
           disabled={false}
