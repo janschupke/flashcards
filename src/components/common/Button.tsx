@@ -1,54 +1,28 @@
-import styled from 'styled-components';
-import { theme } from '../../theme';
+import React from 'react';
 
-interface ButtonProps {
-  $variant?: 'primary' | 'secondary';
-  $size?: 'sm' | 'md' | 'lg';
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export const Button = styled.button<ButtonProps>`
-  padding: ${props => {
-    switch (props.$size) {
-      case 'sm': return `${theme.spacing.sm} ${theme.spacing.md}`;
-      case 'lg': return `${theme.spacing.lg} ${theme.spacing.xl}`;
-      default: return `${theme.spacing.md} ${theme.spacing.xl}`;
-    }
-  }};
-  border: none;
-  border-radius: ${theme.borderRadius.md};
-  font-size: ${theme.typography.fontSize.base};
-  font-weight: ${theme.typography.fontWeight.semibold};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  min-width: ${theme.spacing.xxl};
-  
-  ${props => props.$variant === 'primary' ? `
-    background: linear-gradient(135deg, ${theme.colors.primary.main}, ${theme.colors.primary.dark});
-    color: ${theme.colors.text.primary};
-    
-    &:hover {
-      transform: translateY(-2px);
-    }
-  ` : `
-    background: ${theme.colors.secondary.main};
-    color: ${theme.colors.text.secondary};
-    border: 2px solid ${theme.colors.background.secondary};
-    
-    &:hover {
-      background: ${theme.colors.background.secondary};
-      border-color: ${theme.colors.primary.main};
-      transform: translateY(-1px);
-    }
-  `}
-  
-  &:active {
-    transform: translateY(0);
+const sizeClass = (size?: ButtonProps['size']) => {
+  switch (size) {
+    case 'sm':
+      return 'px-4 py-2';
+    case 'lg':
+      return 'px-6 py-5';
+    default:
+      return 'px-6 py-4';
   }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`; 
+};
+
+export const Button: React.FC<ButtonProps> = ({ variant = 'secondary', size = 'md', className = '', ...props }) => {
+  const base = 'rounded-xl text-base font-semibold transition-all min-w-[160px]';
+  const variantCls =
+    variant === 'primary'
+      ? 'text-white bg-gradient-to-br from-primary to-primary-dark hover:-translate-y-0.5 active:translate-y-0'
+      : 'bg-secondary text-textc-secondary border-2 border-secondary-dark hover:bg-secondary-dark hover:border-primary';
+  return (
+    <button className={`${base} ${sizeClass(size)} ${variantCls} ${className}`} {...props} />
+  );
+}; 

@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+/* Tailwind v4 design tokens */
+@theme {
+  /* brand */
+  --color-primary: #dc2626;
+  --color-primary-dark: #b91c1c;
+  /* neutrals */
+  --color-secondary: #4a5568;
+  --color-secondary-dark: #2d3748;
+  --color-secondary-light: #718096;
+  /* surfaces */
+  --color-background-primary: #0f172a; /* slate-950-ish */
+  --color-background-secondary: #1f2937; /* gray-800-ish */
+  --color-background-card: #1f2937;
+  /* text */
+  --color-textc-primary: #f8fafc; /* slate-50 */
+  --color-textc-secondary: #e2e8f0; /* slate-200 */
+  --color-textc-muted: #9ca3af; /* gray-400 */
+}
+
+/* Base styles */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+button, input { font-family: inherit; }
+
+@layer base {
+  body { @apply bg-background-primary text-textc-secondary font-sans antialiased; }
+}
+
+@layer components {
+  .app-card { @apply bg-background-card rounded-3xl border border-white/10; }
+  .app-section { @apply w-full bg-background-card rounded-3xl border border-white/10 p-6 md:p-10 text-left; }
+
+  .btn { @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-semibold transition-all select-none; }
+  .btn-primary { @apply text-white bg-gradient-to-br from-primary to-primary-dark hover:-translate-y-0.5 active:translate-y-0 focus:outline-none; }
+  .btn-secondary { @apply bg-secondary text-textc-secondary border-2 border-secondary-dark hover:bg-secondary-dark hover:border-primary; }
+}

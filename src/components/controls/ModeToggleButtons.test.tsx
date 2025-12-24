@@ -43,7 +43,7 @@ describe('ModeToggleButtons', () => {
     );
 
     const simplifiedButton = screen.getByText('简体 (F2)');
-    expect(simplifiedButton).toHaveStyle('background-color: rgb(220, 38, 38)');
+    expect(simplifiedButton).toHaveClass(/bg-primary/);
   });
 
   it('calls onModeChange when a different mode is clicked', () => {

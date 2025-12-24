@@ -1,60 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
 import data from '../../data/characters.json';
 
 interface PreviousCharacterProps {
   previousCharacterIndex: number | null;
 }
-
-const PreviousCharacterContainer = styled.div`
-  margin-top: 2rem;
-  padding: 1rem;
-  background: #2d3748;
-  border-radius: 12px;
-  border: 1px solid #4a5568;
-`;
-
-const PreviousLabel = styled.div`
-  font-size: 0.75rem;
-  color: #718096;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-const CharacterInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: #e2e8f0;
-`;
-
-const InfoItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-`;
-
-const Label = styled.div`
-  font-size: 0.625rem;
-  color: #718096;
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-const Value = styled.div`
-  font-size: 1rem;
-  font-weight: 500;
-  color: #a0aec0;
-`;
-
-const TraditionalValue = styled(Value)`
-  color: #a0aec0;
-`;
 
 const PLACEHOLDER = '—';
 
@@ -71,26 +20,26 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({
   }
 
   return (
-    <PreviousCharacterContainer>
-      <PreviousLabel>Previous Character</PreviousLabel>
-      <CharacterInfo>
-        <InfoItem>
-          <Label>Simplified</Label>
-          <Value>{character ? character.simplified : PLACEHOLDER}</Value>
-        </InfoItem>
-        <InfoItem>
-          <Label>Traditional</Label>
-          <TraditionalValue>{character ? character.traditional : PLACEHOLDER}</TraditionalValue>
-        </InfoItem>
-        <InfoItem>
-          <Label>Pinyin</Label>
-          <Value>{character ? character.pinyin : PLACEHOLDER}</Value>
-        </InfoItem>
-        <InfoItem>
-          <Label>English</Label>
-          <Value>{character ? character.english : PLACEHOLDER}</Value>
-        </InfoItem>
-      </CharacterInfo>
-    </PreviousCharacterContainer>
+    <div className="mt-8 p-4 bg-secondary-dark rounded-xl border border-secondary">
+      <div className="text-[0.75rem] text-secondary-light mb-2 uppercase tracking-wider">Previous Character</div>
+      <div className="flex justify-between items-center gap-4 text-sm text-textc-secondary">
+        <div className="flex flex-col items-center flex-1">
+          <div className="text-[0.625rem] text-secondary-light mb-1 uppercase tracking-wider">Simplified</div>
+          <div className="text-base font-medium text-textc-muted">{character ? character.simplified : PLACEHOLDER}</div>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <div className="text-[0.625rem] text-secondary-light mb-1 uppercase tracking-wider">Traditional</div>
+          <div className="text-base font-medium text-textc-muted">{character ? character.traditional : PLACEHOLDER}</div>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <div className="text-[0.625rem] text-secondary-light mb-1 uppercase tracking-wider">Pinyin</div>
+          <div className="text-base font-medium text-textc-muted">{character ? character.pinyin : PLACEHOLDER}</div>
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <div className="text-[0.625rem] text-secondary-light mb-1 uppercase tracking-wider">English</div>
+          <div className="text-base font-medium text-textc-muted">{character ? character.english : PLACEHOLDER}</div>
+        </div>
+      </div>
+    </div>
   );
 }; 

@@ -1,9 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { SettingsSection, SettingsLabel } from '../styled';
 import { validateLimit } from '../../utils/characterUtils';
 import { APP_LIMITS, UI_CONSTANTS, CHINESE_TEXT } from '../../constants';
 import data from '../../data/characters.json';
-import styled from 'styled-components';
 
 interface CharacterRangeInputProps {
   currentLimit: number;
@@ -11,29 +9,6 @@ interface CharacterRangeInputProps {
   minLimit?: number;
   maxLimit?: number;
 }
-
-const RangeInput = styled.input`
-  width: 100%;
-  max-width: 200px;
-  padding: 12px 16px;
-  border: 2px solid #4a5568;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: border-color 0.3s ease;
-  outline: none;
-  background: #2d3748;
-  color: #ffffff;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
-  }
-
-  &::placeholder {
-    color: #718096;
-  }
-`;
 
 export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   currentLimit,
@@ -89,11 +64,14 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   }, [currentLimit]);
 
   return (
-    <SettingsSection>
-      <SettingsLabel htmlFor="limit">{CHINESE_TEXT.LABELS.CHARACTER_RANGE(minLimit, maxLimit)}</SettingsLabel>
-      <RangeInput
+    <div className="mb-7 p-5 bg-primary/10 rounded-2xl border border-primary/20">
+      <label htmlFor="limit" className="block text-[0.9rem] font-semibold text-textc-secondary mb-2 uppercase tracking-[0.5px]">
+        {CHINESE_TEXT.LABELS.CHARACTER_RANGE(minLimit, maxLimit)}
+      </label>
+      <input
         id="limit"
         type="number"
+        className="w-full max-w-[200px] px-4 py-3 border-2 border-secondary rounded-xl text-base bg-secondary-dark text-white outline-none focus:shadow-[0_0_0_3px_rgba(74,85,104,0.1)] placeholder:text-secondary-light"
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
@@ -103,6 +81,6 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
         autoFocus
         data-testid="range-input"
       />
-    </SettingsSection>
+    </div>
   );
 }; 

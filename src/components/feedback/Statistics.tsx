@@ -1,5 +1,4 @@
 import React from 'react';
-import { Stats, StatItem, StatValue, StatLabel } from '../styled';
 
 interface StatisticsProps {
   current: number;
@@ -15,19 +14,19 @@ export const Statistics: React.FC<StatisticsProps> = ({
   correctAnswers,
 }) => {
   return (
-    <Stats>
-      <StatItem>
-        <StatValue data-testid="stat-current">{current + 1}</StatValue>
-        <StatLabel>Current</StatLabel>
-      </StatItem>
-      <StatItem>
-        <StatValue data-testid="stat-answers">{correctAnswers} / {totalSeen}</StatValue>
-        <StatLabel>Answers</StatLabel>
-      </StatItem>
-      <StatItem>
-        <StatValue data-testid="stat-total">{limit}</StatValue>
-        <StatLabel>Total</StatLabel>
-      </StatItem>
-    </Stats>
+    <div className="grid grid-cols-3 gap-4 mt-5 p-4 bg-background-secondary rounded-xl text-[0.9rem] text-textc-secondary border border-secondary">
+      <div className="text-center">
+        <div className="font-bold text-primary text-[1.1rem]" data-testid="stat-current">{current + 1}</div>
+        <div className="text-[0.8rem] uppercase tracking-[0.5px] mt-1 text-textc-muted">Current</div>
+      </div>
+      <div className="text-center">
+        <div className="font-bold text-primary text-[1.1rem]" data-testid="stat-answers">{correctAnswers} / {totalSeen}</div>
+        <div className="text-[0.8rem] uppercase tracking-[0.5px] mt-1 text-textc-muted">Answers</div>
+      </div>
+      <div className="text-center">
+        <div className="font-bold text-primary text-[1.1rem]" data-testid="stat-total">{limit}</div>
+        <div className="text-[0.8rem] uppercase tracking-[0.5px] mt-1 text-textc-muted">Total</div>
+      </div>
+    </div>
   );
-}; 
+};

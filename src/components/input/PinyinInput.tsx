@@ -1,5 +1,4 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { InputContainer, InputBorderWrapper, InputField, FeedbackText } from '../styled';
 import { PinyinInputProps } from '../../types';
 import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../../constants';
 
@@ -41,14 +40,22 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
       return '';
     };
 
+    const borderColor = ((flash: typeof flashResult, correct: typeof isCorrect) => {
+      if (flash) {
+        return flash === 'correct' ? '#10b981' : '#ef4444';
+      }
+      if (correct === true) return '#10b981';
+      if (correct === false) return '#ef4444';
+      return '#4a5568';
+    })(flashResult, isCorrect);
+
     return (
-      <InputContainer>
-        <InputBorderWrapper
-          $isCorrect={isFlashing ? null : isCorrect}
-          $flashResult={flashResult || null}
-          $isFlashing={isFlashing}
-        >
-          <InputField
+      <div className="m-0 text-center">
+        <div style={{ borderColor }} className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-secondary-dark border-2 ${
+          isFlashing ? (flashResult === 'correct' ? 'border-emerald-500' : 'border-rose-500')
+          : (isCorrect === true ? 'border-emerald-500' : isCorrect === false ? 'border-rose-500' : 'border-secondary')
+        }`}>
+          <input
             ref={ref}
             type="text"
             value={value}
@@ -60,12 +67,13 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
+            className="w-full px-5 py-4 text-2xl text-center bg-transparent text-white outline-none disabled:bg-background-primary disabled:text-secondary-light disabled:cursor-not-allowed placeholder:text-secondary-light"
           />
-        </InputBorderWrapper>
-        <FeedbackText $isCorrect={isCorrect} data-testid="feedback-text">
+        </div>
+        <div className={`mt-2 text-sm font-medium min-h-[20px] ${isCorrect === true ? 'text-emerald-500' : isCorrect === false ? 'text-rose-500' : 'text-gray-500'}`} data-testid="feedback-text">
           {getFeedbackText()}
-        </FeedbackText>
-      </InputContainer>
+        </div>
+      </div>
     );
   }
 );

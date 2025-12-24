@@ -1,83 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { IncorrectAnswer, FlashcardMode } from '../../types';
 
 interface IncorrectAnswersProps {
   incorrectAnswers: IncorrectAnswer[];
 }
-
-const Container = styled.div`
-  margin-top: 0;
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 8px 0;
-  user-select: none;
-  
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const Title = styled.h3`
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #a0aec0;
-`;
-
-const ToggleIcon = styled.span<{ $isExpanded: boolean }>`
-  font-size: 1.2rem;
-  color: #a0aec0;
-  transition: transform 0.2s ease;
-  transform: rotate(${props => props.$isExpanded ? '90deg' : '0deg'});
-`;
-
-const Content = styled.div<{ $isExpanded: boolean }>`
-  max-height: ${props => props.$isExpanded ? '500px' : '0'};
-  overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  opacity: ${props => props.$isExpanded ? '1' : '0'};
-  padding: 8px 0;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-`;
-
-const Th = styled.th`
-  color: #a0aec0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 8px 6px;
-  border-bottom: 1px solid #4a5568;
-  text-align: left;
-`;
-
-const Td = styled.td`
-  color: #a0aec0;
-  font-size: 0.95rem;
-  padding: 8px 6px;
-  border-bottom: 1px solid #2d3748;
-  vertical-align: middle;
-`;
-
-const SubmittedTd = styled(Td)<{ $isCorrect: boolean }>`
-  color: ${props => props.$isCorrect ? '#48bb78' : '#f56565'};
-`;
-
-const EmptyMessage = styled.div`
-  text-align: center;
-  color: #718096;
-  font-style: italic;
-  padding: 20px;
-`;
 
 export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
   incorrectAnswers,
@@ -109,23 +35,23 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
     
     if (hasCharacterModes) {
       return (
-        <tr>
-          <Th>Simplified</Th>
-          <Th>Traditional</Th>
-          <Th>Expected</Th>
-          <Th>Submitted</Th>
-          <Th>English</Th>
-        </tr>
+       <tr>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Simplified</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Traditional</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Expected</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Submitted</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">English</th>
+       </tr>
       );
     } else {
       return (
-        <tr>
-          <Th>Simplified</Th>
-          <Th>Traditional</Th>
-          <Th>Pinyin</Th>
-          <Th>Submitted</Th>
-          <Th>English</Th>
-        </tr>
+       <tr>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Simplified</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Traditional</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Pinyin</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">Submitted</th>
+         <th className="text-left text-textc-muted text-[0.95rem] font-semibold px-1.5 py-2 border-b border-secondary">English</th>
+       </tr>
       );
     }
   };
@@ -135,51 +61,49 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({
     
     if (hasCharacterModes) {
       return (
-        <tr key={answer.characterIndex}>
-          <Td>{answer.simplified}</Td>
-          <Td>{answer.traditional}</Td>
-          <Td>{getCorrectColumn(answer)}</Td>
-          <SubmittedTd $isCorrect={false}>{getSubmittedColumn(answer)}</SubmittedTd>
-          <Td>{answer.english}</Td>
-        </tr>
+       <tr key={answer.characterIndex}>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.simplified}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.traditional}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{getCorrectColumn(answer)}</td>
+         <td className="text-emerald-500 text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{getSubmittedColumn(answer)}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.english}</td>
+       </tr>
       );
     } else {
       return (
-        <tr key={answer.characterIndex}>
-          <Td>{answer.simplified}</Td>
-          <Td>{answer.traditional}</Td>
-          <Td>{answer.correctPinyin}</Td>
-          <SubmittedTd $isCorrect={false}>{answer.submittedPinyin}</SubmittedTd>
-          <Td>{answer.english}</Td>
-        </tr>
+       <tr key={answer.characterIndex}>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.simplified}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.traditional}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.correctPinyin}</td>
+         <td className="text-rose-500 text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.submittedPinyin}</td>
+         <td className="text-textc-muted text-[0.95rem] px-1.5 py-2 border-b border-background-secondary align-middle">{answer.english}</td>
+       </tr>
       );
     }
   };
 
   return (
-    <Container>
-      <Header onClick={toggleExpanded}>
-        <Title>
-          Incorrect Answers ({incorrectAnswers.length})
-        </Title>
-        <ToggleIcon $isExpanded={isExpanded}>▶</ToggleIcon>
-      </Header>
-      <Content data-testid="incorrect-answers-content" $isExpanded={isExpanded}>
+    <div>
+      <div onClick={toggleExpanded} className="flex items-center justify-between cursor-pointer py-2 select-none hover:opacity-80">
+        <h3 className="m-0 text-[1.1rem] font-semibold text-textc-muted">Incorrect Answers ({incorrectAnswers.length})</h3>
+        <span className={`text-[1.2rem] text-textc-muted transition-transform ${isExpanded ? 'rotate-90' : 'rotate-0'}`}>▶</span>
+      </div>
+      <div data-testid="incorrect-answers-content" className={`overflow-hidden transition-[max-height,opacity] duration-300 py-2 ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
         {incorrectAnswers.length === 0 ? (
-          <EmptyMessage>
+          <div className="text-center text-secondary-light italic p-5">
             No incorrect answers yet. Keep practicing!
-          </EmptyMessage>
+          </div>
         ) : (
-          <Table>
+          <table className="w-full border-collapse mt-2">
             <thead>
               {getColumnHeaders()}
             </thead>
             <tbody>
               {incorrectAnswers.map(renderTableRow)}
             </tbody>
-          </Table>
+          </table>
         )}
-      </Content>
-    </Container>
+      </div>
+    </div>
   );
 }; 

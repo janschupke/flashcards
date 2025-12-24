@@ -1,25 +1,12 @@
 import React from 'react';
-import { CharacterSection, ChineseCharacter, HintSection, HintText } from '../styled';
 import { getCharacterByIndex, getHintText, getDisplayCharacter } from '../../utils/characterUtils';
 import { HintType, HINT_TYPES, FlashcardMode } from '../../types';
-import styled from 'styled-components';
 
 interface CharacterDisplayProps {
   currentIndex: number;
   hintType: HintType;
   mode: FlashcardMode;
 }
-
-const CharacterContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-`;
-
-const TraditionalCharacter = styled(ChineseCharacter)`
-  color: #6f42c1;
-`;
 
 export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
   currentIndex,
@@ -36,37 +23,33 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
   const traditionalChar = displayChars.traditional || '?';
 
   return (
-    <CharacterSection>
-      <CharacterContainer>
+    <div className="animate-slideIn">
+      <div className="flex items-center justify-center gap-8">
         {mode === 'pinyin' ? (
           <>
-            <ChineseCharacter data-testid="simplified-character">
+            <div className="text-[6rem] font-bold text-white mb-5 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] animate-pulseCard leading-none" data-testid="simplified-character">
               {simplifiedChar}
-            </ChineseCharacter>
-            <TraditionalCharacter data-testid="traditional-character">
+            </div>
+            <div className="text-[6rem] font-bold text-[#6f42c1] mb-5 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] animate-pulseCard leading-none" data-testid="traditional-character">
               {traditionalChar}
-            </TraditionalCharacter>
+            </div>
           </>
         ) : mode === 'simplified' ? (
-          <TraditionalCharacter data-testid="traditional-character">
+          <div className="text-[6rem] font-bold text-[#6f42c1] mb-5 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] animate-pulseCard leading-none" data-testid="traditional-character">
             {traditionalChar}
-          </TraditionalCharacter>
+          </div>
         ) : (
-          <ChineseCharacter data-testid="simplified-character">
+          <div className="text-[6rem] font-bold text-white mb-5 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] animate-pulseCard leading-none" data-testid="simplified-character">
             {simplifiedChar}
-          </ChineseCharacter>
+          </div>
         )}
-      </CharacterContainer>
-      
-      <HintSection>
-        <HintText 
-          $visible={hintType !== HINT_TYPES.NONE}
-          $isDefault={hintType === HINT_TYPES.NONE}
-          data-testid="hint-text"
-        >
+      </div>
+
+      <div className="min-h-[60px] flex items-center justify-center">
+        <div className="text-[1.5rem] text-secondary-light font-medium transition-all duration-300 opacity-100 px-4 py-3 bg-transparent rounded-xl border-2 border-transparent" data-testid="hint-text">
           {hintText}
-        </HintText>
-      </HintSection>
-    </CharacterSection>
+        </div>
+      </div>
+    </div>
   );
 }; 

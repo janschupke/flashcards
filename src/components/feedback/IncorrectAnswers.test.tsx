@@ -44,15 +44,15 @@ describe('IncorrectAnswers', () => {
     
     // Use test id to select the collapsible content
     const content = screen.getByTestId('incorrect-answers-content');
-    expect(content).toHaveStyle('opacity: 0');
+    expect(content?.className).toMatch(/opacity-0/);
     
     // Click to expand
     fireEvent.click(header!);
-    expect(content).toHaveStyle('opacity: 1');
+    expect(content).toHaveClass(/opacity-100/);
     
     // Click to collapse
     fireEvent.click(header!);
-    expect(content).toHaveStyle('opacity: 0');
+    expect(content?.className).toMatch(/opacity-0/);
   });
 
   it('displays correct answer information when expanded', () => {

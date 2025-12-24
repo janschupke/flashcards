@@ -115,12 +115,12 @@ describe('FlashCards', () => {
       fireEvent.keyDown(window, { key: 'ArrowRight' });
       currentModeIndex = i;
       // The button for the current mode should be active
-      expect(screen.getByText(MODES[currentModeIndex].label)).toHaveStyle('background-color: #dc2626');
+      expect(screen.getByText(MODES[currentModeIndex].label)).toHaveClass(/bg-primary/);
     }
     // Try to go past the last mode
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     // Should still be at the last mode
-    expect(screen.getByText(MODES[MODES.length - 1].label)).toHaveStyle('background-color: #dc2626');
+    expect(screen.getByText(MODES[MODES.length - 1].label)).toHaveClass(/bg-primary/);
   });
 
   it('switches mode with left arrow key, and does not go past first mode', () => {
@@ -132,10 +132,10 @@ describe('FlashCards', () => {
     // Now move left through all modes
     for (let i = MODES.length - 2; i >= 0; i--) {
       fireEvent.keyDown(window, { key: 'ArrowLeft' });
-      expect(screen.getByText(MODES[i].label)).toHaveStyle('background-color: #dc2626');
+      expect(screen.getByText(MODES[i].label)).toHaveClass(/bg-primary/);
     }
     // Try to go past the first mode
     fireEvent.keyDown(window, { key: 'ArrowLeft' });
-    expect(screen.getByText(MODES[0].label)).toHaveStyle('background-color: #dc2626');
+    expect(screen.getByText(MODES[0].label)).toHaveClass(/bg-primary/);
   });
 }); 

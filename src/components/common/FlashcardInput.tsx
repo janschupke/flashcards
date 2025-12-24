@@ -1,6 +1,4 @@
 import React, { forwardRef, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { theme } from '../../theme';
 import { CHINESE_TEXT } from '../../constants';
 import { FlashResult } from '../../types';
 
@@ -15,18 +13,18 @@ interface FlashcardInputProps {
   expectedValue: string;
 }
 
-const InputContainer = styled.div`
+// Tailwind-based implementation replacing styled-components
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing.sm};
   width: 100%;
 `;
 
-const InputBorderWrapper = styled.div<{
+// removed InputBorderWrapper styled component {
   $isCorrect: boolean | null;
   $flashResult: FlashResult | null;
   $isFlashing: boolean;
-}>`
+} // end removed styled wrapper
   position: relative;
   border-radius: ${theme.borderRadius.md};
   padding: 2px;
@@ -47,7 +45,7 @@ const InputBorderWrapper = styled.div<{
   transition: all 0.3s ease;
 `;
 
-const InputField = styled.input`
+// removed styled input
   width: 100%;
   padding: ${theme.spacing.md} ${theme.spacing.lg};
   background: ${theme.colors.background.card};
@@ -74,7 +72,7 @@ const InputField = styled.input`
   }
 `;
 
-const FeedbackText = styled.div<{ $isCorrect: boolean | null }>`
+// removed styled feedback
   text-align: center;
   font-size: ${theme.typography.fontSize.sm};
   font-weight: ${theme.typography.fontWeight.medium};
@@ -85,7 +83,6 @@ const FeedbackText = styled.div<{ $isCorrect: boolean | null }>`
   }};
   min-height: ${theme.typography.fontSize.sm};
   transition: color 0.3s ease;
-`;
 
 export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
   ({
@@ -146,13 +143,19 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
     };
 
     return (
-      <InputContainer>
-        <InputBorderWrapper
-          $isCorrect={isCorrect}
-          $flashResult={flashResult || null}
-          $isFlashing={isFlashing}
-        >
-          <InputField
+      <div className="flex flex-col gap-2 w-full">
+        <div className={`relative rounded-xl p-0.5 transition-all ${
+          isFlashing
+            ? (flashResult === FlashResult.CORRECT
+                ? 'bg-gradient-to-br from-emerald-500 to-emerald-500/60'
+                : 'bg-gradient-to-br from-rose-500 to-rose-500/60')
+            : isCorrect === true
+              ? 'bg-gradient-to-br from-emerald-500 to-emerald-500/60'
+              : isCorrect === false
+                ? 'bg-gradient-to-br from-rose-500 to-rose-500/60'
+                : 'bg-gradient-to-br from-white/10 to-primary/20'
+        }`}>
+          <input
             ref={ref}
             type="text"
             value={value}
@@ -161,12 +164,15 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
             placeholder={getPlaceholder()}
             disabled={disabled}
             data-testid={`${mode}-input`}
+            className="w-full px-6 py-4 bg-background-card text-textc-primary rounded-lg text-lg font-medium text-center outline-none placeholder:text-textc-muted disabled:opacity-60 disabled:cursor-not-allowed focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)]"
           />
-        </InputBorderWrapper>
-        <FeedbackText $isCorrect={isCorrect}>
+        </div>
+        <div className={`text-center text-sm font-medium transition-colors min-h-[1rem] ${
+          isCorrect === true ? 'text-emerald-500' : isCorrect === false ? 'text-rose-500' : 'text-textc-muted'
+        }`}>
           {getFeedbackText()}
-        </FeedbackText>
-      </InputContainer>
+        </div>
+      </div>
     );
   }
 ); 
