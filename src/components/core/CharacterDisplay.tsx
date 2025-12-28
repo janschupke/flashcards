@@ -7,10 +7,7 @@ interface CharacterDisplayProps {
   mode: FlashcardMode;
 }
 
-export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
-  currentIndex,
-  mode,
-}) => {
+export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ currentIndex, mode }) => {
   const character = getCharacterByIndex(currentIndex);
 
   // Get display characters based on mode
@@ -55,7 +52,6 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({
           </div>
         )}
       </div>
-
     </div>
   );
 };

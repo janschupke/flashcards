@@ -65,13 +65,16 @@ export interface FlashCardState {
   mode: FlashcardMode;
   characterInput: string; // New field for character modes
   isCharacterCorrect: boolean | null; // New field for character validation
+  // Adaptive learning fields
+  adaptiveRange: number;
+  answersSinceLastCheck: number;
 }
 
 export interface FlashCardActions {
   getNext: () => void;
   toggleHint: (hintType: HintType) => void;
-  updateLimit: (newLimit: number) => void;
   reset: () => void;
+  resetStatistics: () => void;
   // New actions for traditional character feature
   setDisplayMode: (mode: 'simplified' | 'traditional' | 'both') => void;
   setPinyinInput: (input: string) => void;

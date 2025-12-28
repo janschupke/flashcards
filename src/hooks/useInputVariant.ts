@@ -37,4 +37,3 @@ export const useInputVariant = (
 
   return { variant, borderClass, feedbackClass };
 };
-

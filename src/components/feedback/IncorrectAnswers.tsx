@@ -9,7 +9,6 @@ interface IncorrectAnswersProps {
 }
 
 export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }) => {
-
   // Reverse order to show newest first
   const reversedAnswers = [...allAnswers].reverse();
 

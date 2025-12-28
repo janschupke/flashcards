@@ -57,7 +57,11 @@ describe('tableUtils', () => {
 
     it('applies correct color class to submitted column', () => {
       const correctAnswer: Answer = { ...mockPinyinAnswer, isCorrect: true };
-      const incorrectAnswer: Answer = { ...mockPinyinAnswer, isCorrect: false, submittedPinyin: 'wrong' };
+      const incorrectAnswer: Answer = {
+        ...mockPinyinAnswer,
+        isCorrect: false,
+        submittedPinyin: 'wrong',
+      };
 
       const rows = generateAnswerTableRows([correctAnswer, incorrectAnswer], false);
 
@@ -75,4 +79,3 @@ describe('tableUtils', () => {
     });
   });
 });
-

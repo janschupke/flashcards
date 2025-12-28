@@ -13,4 +13,3 @@ export const MODES: { mode: FlashcardMode; label: string; title: string }[] = [
     title: '繁体模式 - Traditional Mode (F3)',
   },
 ];
-

@@ -15,31 +15,41 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  [ButtonVariant.PRIMARY]: 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active',
+  [ButtonVariant.PRIMARY]:
+    'bg-primary text-text-on-primary hover:bg-primary-hover active:bg-primary-active',
   [ButtonVariant.SECONDARY]:
     'bg-surface-secondary text-text-secondary border-2 border-border-secondary hover:bg-surface-tertiary hover:border-primary',
   [ButtonVariant.TERTIARY]:
     'bg-transparent text-text-secondary border border-border-primary hover:bg-surface-secondary',
   [ButtonVariant.GHOST]: 'bg-transparent text-text-secondary hover:bg-surface-secondary',
+  [ButtonVariant.ERROR]: 'bg-error text-text-on-error hover:opacity-90 active:opacity-80',
 };
 
-export const Button: React.FC<ButtonProps> = ({
-  variant = ButtonVariant.SECONDARY,
-  size = ButtonSize.MD,
-  fullWidth = false,
-  className = '',
-  ...props
-}) => {
-  const baseClasses =
-    'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus';
-  const widthClass = fullWidth ? 'w-full' : '';
-  const minWidthStyle = { minWidth: `${COMPONENT_CONSTANTS.BUTTON_MIN_WIDTH}px` };
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      variant = ButtonVariant.SECONDARY,
+      size = ButtonSize.MD,
+      fullWidth = false,
+      className = '',
+      ...props
+    },
+    ref
+  ) => {
+    const baseClasses =
+      'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus';
+    const widthClass = fullWidth ? 'w-full' : '';
+    const minWidthStyle = { minWidth: `${COMPONENT_CONSTANTS.BUTTON_MIN_WIDTH}px` };
 
-  return (
-    <button
-      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${widthClass} ${className}`}
-      style={!fullWidth ? minWidthStyle : undefined}
-      {...props}
-    />
-  );
-};
+    return (
+      <button
+        ref={ref}
+        className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${widthClass} ${className}`}
+        style={!fullWidth ? minWidthStyle : undefined}
+        {...props}
+      />
+    );
+  }
+);
+
+Button.displayName = 'Button';

@@ -20,7 +20,16 @@ interface FlashcardInputProps {
  */
 export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
   (
-    { value, onChange, onSubmit, placeholder, feedbackText, isCorrect, flashResult, disabled = false },
+    {
+      value,
+      onChange,
+      onSubmit,
+      placeholder,
+      feedbackText,
+      isCorrect,
+      flashResult,
+      disabled = false,
+    },
     ref
   ) => {
     const isFlashing = useFlashAnimation(flashResult);
@@ -69,4 +78,3 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
 );
 
 FlashcardInput.displayName = 'FlashcardInput';
-

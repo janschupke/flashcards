@@ -85,4 +85,3 @@ describe('useFlashAnimation', () => {
     expect(result.current).toBe(true);
   });
 });
-

@@ -1,6 +1,6 @@
 # 汉字 Flashcards
 
-A modern flashcard web app for practicing Chinese characters. This project helps learners master the 1,500 most common 汉字 (Chinese characters) with pinyin and English meanings.
+A modern adaptive learning flashcard web app for practicing Chinese characters. This project helps learners master the 1,500 most common 汉字 (Chinese characters) with pinyin and English meanings through an intelligent adaptive learning system.
 
 **Live Demo:** [https://flashcards.schupke.io](https://flashcards.schupke.io)
 
@@ -8,44 +8,94 @@ A modern flashcard web app for practicing Chinese characters. This project helps
 
 ## Features
 
+### Core Learning Features
 - **Three Flashcard Modes:**
-  - **拼音 (Pinyin):** Show characters and type pinyin (default mode)
-  - **简体 (Simplified):** Show traditional characters and type simplified characters
-  - **繁体 (Traditional):** Show simplified characters and type traditional characters
-- **Interactive Flashcards:** Practice Chinese characters with instant feedback.
-- **Pinyin Input & Evaluation:** Type pinyin and get instant feedback on accuracy.
-- **Character Input & Evaluation:** Type Chinese characters and get instant feedback.
-- **Hint System:** Toggle pinyin and English hints for each character.
-- **Progress Tracking:** See your progress and statistics as you learn.
-- **Keyboard Shortcuts:** Quickly reveal hints, switch modes, or move to the next card.
-- **Custom Range:** Choose how many characters to study in a session (dynamic ranges per mode).
-- **Traditional Character Support:** View traditional characters alongside simplified.
-- **Incorrect Answers Tracking:** Review your mistakes and learn from them.
-- **Previous Character Display:** See the last character you studied.
-- **Responsive Design:** Works great on desktop and mobile.
+  - **拼音 (Pinyin) - F1:** Show characters and type pinyin (default mode)
+  - **简体 (Simplified) - F2:** Show traditional characters and type simplified characters
+  - **繁体 (Traditional) - F3:** Show simplified characters and type traditional characters
+- **Interactive Flashcards:** Practice Chinese characters with instant feedback
+- **Pinyin Input & Evaluation:** Type pinyin and get instant feedback on accuracy
+- **Character Input & Evaluation:** Type Chinese characters and get instant feedback
+- **Hint System:** Toggle pinyin and English hints for each character (buttons in top panel)
+- **Keyboard Shortcuts:** Quickly reveal hints, switch modes, or move to the next card
+
+### Adaptive Learning System
+- **Intelligent Character Selection:** The app uses a weighted algorithm that shows characters you're struggling with more often, while ensuring no character appears more than 50% of the time
+- **Progressive Range Expansion:** Starts with the first 100 characters and automatically expands your practice range as you improve (every 10 answers, expands by 10 if success rate ≥80%)
+- **Performance Tracking:** Tracks correct/incorrect answers for each character individually
+- **Adaptive Range Display:** Shows current practice range (e.g., "1-100") on the main page
+
+### Statistics & Progress
+- **Per-Character Statistics:** View detailed performance data for each character you've practiced
+- **Success Rate Tracking:** See which characters you've mastered (≥80%), are learning (50-79%), or struggling with (<50%)
+- **Color-Coded Statistics:** Green for mastered, yellow for learning, red for struggling
+- **Sortable Statistics:** Sort by character, correct count, total attempts, or success rate
+- **Filterable Statistics:** Filter to show all, struggling, or mastered characters
+- **Answer History:** Review your last 100 answers with color-coded correct/incorrect status
+- **Previous Answer Display:** See the last character you studied with your submitted answer
+
+### Data Persistence
+- **Local Storage:** All progress, statistics, and history are saved locally in your browser
+- **Cross-Session Persistence:** Your data persists across page refreshes and browser sessions
+- **Reset Functionality:** Reset all statistics with confirmation modal (keeps current character/mode)
+
+### User Interface
+- **Responsive Design:** Works great on desktop and mobile devices
+- **Toast Notifications:** Visual feedback when your practice range expands
+- **About Section:** Comprehensive documentation explaining the app and adaptive algorithm
+- **Tab Navigation:** Easy access to Flashcards, History, Statistics, and About sections
 
 ---
 
 ## Keyboard Shortcuts
 
-- **Enter:** Move to next character
+- **Enter:** Submit answer and move to next character
 - **F1:** Switch to Pinyin mode
-- **F2:** Switch to Simplified mode  
+- **F2:** Switch to Simplified mode
 - **F3:** Switch to Traditional mode
 - **Left Arrow:** Switch to previous mode
 - **Right Arrow:** Switch to next mode
 - **Comma (,):** Toggle pinyin hint
 - **Period (.):** Toggle English hint
-- **Arrow Up/Down:** Adjust character range
+
+---
+
+## Adaptive Learning System Explained
+
+### Character Selection Algorithm
+The app uses a weighted random selection algorithm that:
+- Prioritizes untested characters in the active set (configurable percentage, default 40%)
+- Calculates success rate for each tested character in your current practice range
+- Weights characters with lower success rates more heavily (they need more practice)
+- Ensures no character has more than 50% selection probability (maximum)
+- Ensures no character has less than 10% selection probability (minimum)
+- Falls back to random selection if there's not enough performance data
+
+**Configuration:**
+- Minimum selection chance: 10%
+- Maximum selection chance: 50%
+- Weight multiplier: 2.0x
+- Minimum attempts for adaptive: 3
+- Untested priority: 40% (characters with no attempts get higher priority)
+
+### Range Expansion
+The app automatically expands your practice range as you improve:
+- **Starting Range:** First 100 characters
+- **Expansion Check:** Every 10 answers
+- **Expansion Criteria:** ≥80% success rate with at least 10 attempts
+- **Expansion Amount:** +10 characters per expansion
+- **Maximum Range:** 1,500 characters (full dataset)
+
+When your range expands, you'll see a toast notification at the top of the screen.
 
 ---
 
 ## Data Source
 
-- Contains the 1,500 most common Chinese characters.
-- Each entry includes: 汉字 (simplified), pinyin, English meaning, and traditional character mapping.
-- Traditional characters are automatically generated using a comprehensive mapping system.
-- **Mode-specific filtering:** Simplified and Traditional modes only use characters where simplified ≠ traditional (539 characters).
+- Contains the 1,500 most common Chinese characters
+- Each entry includes: 汉字 (simplified), traditional character, pinyin, and English meaning
+- All modes support the full 1,500 character dataset
+- Traditional characters are included for all entries
 
 ---
 
@@ -79,7 +129,11 @@ npm run test
 ```
 - Uses [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/).
 - Comprehensive test coverage including components, hooks, and utilities.
-- 120+ tests covering all major functionality including new flashcard modes.
+
+Run tests with coverage:
+```bash
+npm run coverage
+```
 
 ### Linting & Formatting
 ```bash
@@ -88,6 +142,11 @@ npm run lint
 
 # Auto-fix lint errors
 npm run fix
+```
+
+### Type Checking
+```bash
+npm run typecheck
 ```
 
 ---
@@ -126,18 +185,69 @@ npm run build
 npm run preview
 ```
 
-#### Troubleshooting
-- Check build logs in the Vercel dashboard if deployment fails.
-- Verify TypeScript compilation locally: `npm run build`
-- Check for linting errors: `npm run lint`
-- Ensure all dependencies are in `package.json`
-
 ---
 
 ## Tech Stack
 - **React 19.1.0**
 - **Vite 7.0.2**
 - **TypeScript 5.8.3**
-- **styled-components 6.1.19** (React 19+ compatible)
+- **Tailwind CSS** (styling)
 - **Vitest 3.2.4** (unit testing)
 - **Testing Library** (React component testing)
+
+---
+
+## Configuration
+
+All adaptive learning parameters can be configured in `src/constants/adaptive.ts`:
+
+```typescript
+export const ADAPTIVE_CONFIG = {
+  // Character Selection
+  MIN_SELECTION_CHANCE: 0.1,        // Minimum probability for any character
+  MAX_SELECTION_CHANCE: 0.5,        // Maximum probability (never over 50%)
+  WEIGHT_MULTIPLIER: 2.0,           // How much to favor struggling characters
+  MIN_ATTEMPTS_FOR_ADAPTIVE: 3,     // Attempts needed before adaptive kicks in
+
+  // Range Expansion
+  INITIAL_RANGE: 100,                // Starting character count
+  EXPANSION_INTERVAL: 10,            // Check every N answers
+  EXPANSION_AMOUNT: 10,              // Add N characters when expanding
+  SUCCESS_THRESHOLD: 0.8,            // 80% success rate required
+  MIN_ATTEMPTS_FOR_EXPANSION: 10,    // Minimum attempts before checking
+
+  // Storage
+  MAX_HISTORY_ENTRIES: 100,          // Maximum history entries to store
+} as const;
+```
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── common/         # Reusable components (Button, Table, Toast, etc.)
+│   ├── controls/       # Control components (ModeButtonGroup, etc.)
+│   ├── feedback/       # Feedback components (PreviousCharacter, Statistics, About, etc.)
+│   ├── input/          # Input components (PinyinInput, CharacterInput, etc.)
+│   ├── layout/         # Layout components (AppLayout, Navigation, etc.)
+│   └── core/           # Core components (FlashCards, CharacterDisplay, etc.)
+├── contexts/           # React contexts (ToastContext)
+├── constants/          # Configuration constants
+├── hooks/              # Custom React hooks
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+│   ├── adaptiveUtils.ts    # Adaptive selection algorithm
+│   ├── storageUtils.ts    # Local storage utilities
+│   ├── characterUtils.ts   # Character-related utilities
+│   └── ...
+└── data/               # Data files (characters.json)
+```
+
+---
+
+## License
+
+MIT

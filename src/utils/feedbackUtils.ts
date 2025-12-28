@@ -18,9 +18,11 @@ export const getPinyinFeedbackText = (isCorrect: boolean | null, correctPinyin: 
  * @param correctCharacter - The correct character value
  * @returns Feedback message string
  */
-export const getCharacterFeedbackText = (isCorrect: boolean | null, correctCharacter: string): string => {
+export const getCharacterFeedbackText = (
+  isCorrect: boolean | null,
+  correctCharacter: string
+): string => {
   if (isCorrect === true) return CHINESE_TEXT.FEEDBACK.CORRECT;
   if (isCorrect === false) return CHINESE_TEXT.FEEDBACK.INCORRECT_CHARACTER(correctCharacter);
   return '';
 };
-

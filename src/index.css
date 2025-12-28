@@ -45,6 +45,13 @@
   --color-text-disabled: #9ca3af;
   --color-text-inverse: #ffffff;
 
+  /* Inverse Text Colors (for colored backgrounds) */
+  --color-text-on-primary: #ffffff;
+  --color-text-on-success: #ffffff;
+  --color-text-on-error: #ffffff;
+  --color-text-on-warning: #ffffff;
+  --color-text-on-info: #ffffff;
+
   /* Border Colors - Light Theme */
   --color-border-primary: #e5e7eb;
   --color-border-secondary: #d1d5db;
@@ -102,7 +109,8 @@ input {
 @layer utilities {
   /* Slow pulsating animation for characters */
   @keyframes slowPulse {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {

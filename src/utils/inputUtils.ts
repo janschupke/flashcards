@@ -18,4 +18,3 @@ export const getPlaceholder = (mode: FlashcardMode): string => {
       return '输入字符';
   }
 };
-

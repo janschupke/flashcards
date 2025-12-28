@@ -2,6 +2,7 @@ import React from 'react';
 import { AppTab } from '../../types/layout';
 import { Navigation } from './Navigation';
 import { FlashcardMode, HintType } from '../../types';
+import { ToastContainer } from '../common/ToastContainer';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,15 +11,13 @@ interface AppLayoutProps {
   // Top controls props (only used in Flashcards tab)
   currentMode?: FlashcardMode;
   onModeChange?: (mode: FlashcardMode) => void;
-  currentLimit?: number;
-  minLimit?: number;
-  maxLimit?: number;
-  onLimitChange?: (newLimit: number) => void;
+  adaptiveRange?: number;
   correctAnswers?: number;
   totalSeen?: number;
   currentHint?: HintType;
   onTogglePinyin?: () => void;
   onToggleEnglish?: () => void;
+  onReset?: () => void;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -27,15 +26,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   onTabChange,
   currentMode,
   onModeChange,
-  currentLimit,
-  minLimit,
-  maxLimit,
-  onLimitChange,
+  adaptiveRange,
   correctAnswers,
   totalSeen,
   currentHint,
   onTogglePinyin,
   onToggleEnglish,
+  onReset,
 }) => {
   return (
     <div className="h-screen flex flex-col">
@@ -44,17 +41,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         onTabChange={onTabChange}
         currentMode={currentMode}
         onModeChange={onModeChange}
-        currentLimit={currentLimit}
-        minLimit={minLimit}
-        maxLimit={maxLimit}
-        onLimitChange={onLimitChange}
+        adaptiveRange={adaptiveRange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
         currentHint={currentHint}
         onTogglePinyin={onTogglePinyin}
         onToggleEnglish={onToggleEnglish}
+        onReset={onReset}
       />
       <main className="flex-1 overflow-hidden bg-surface-primary">{children}</main>
+      <ToastContainer />
     </div>
   );
 };

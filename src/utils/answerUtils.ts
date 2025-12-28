@@ -7,9 +7,13 @@ import { Answer, FlashcardMode } from '../types';
  */
 export const getSubmittedText = (answer: Answer): string => {
   if (answer.mode === FlashcardMode.PINYIN) {
-    return answer.submittedPinyin || '(empty)';
+    return answer.submittedPinyin && answer.submittedPinyin.trim() !== ''
+      ? answer.submittedPinyin
+      : '(empty)';
   }
-  return answer.submittedCharacter || '(empty)';
+  return answer.submittedCharacter && answer.submittedCharacter.trim() !== ''
+    ? answer.submittedCharacter
+    : '(empty)';
 };
 
 /**
@@ -23,4 +27,3 @@ export const getCorrectText = (answer: Answer): string => {
   }
   return answer.correctCharacter ?? '';
 };
-

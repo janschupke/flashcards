@@ -41,4 +41,3 @@ describe('CharacterInfoColumn', () => {
     expect(value).toHaveTextContent('Value');
   });
 });
-

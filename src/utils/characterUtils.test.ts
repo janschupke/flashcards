@@ -164,7 +164,6 @@ describe('characterUtils', () => {
     });
   });
 
-
   describe('getExpectedCharacter', () => {
     const mockCharacter = {
       item: '7',

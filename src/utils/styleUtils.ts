@@ -20,4 +20,3 @@ export const getBorderColorClass = (variant: InputVariant): string => {
   if (variant === InputVariant.ERROR) return 'border-error';
   return 'border-border-secondary';
 };
-

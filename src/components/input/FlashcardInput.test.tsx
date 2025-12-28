@@ -152,4 +152,3 @@ describe('FlashcardInput', () => {
     expect(screen.getByText('Incorrect')).toHaveClass('text-error');
   });
 });
-

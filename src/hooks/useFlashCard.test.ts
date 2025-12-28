@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useFlashCard } from './useFlashCard';
 // APP_LIMITS is used in test comments and assertions
 import { FlashcardMode, HintType } from '../types';
+import { clearAllStorage } from '../utils/storageUtils';
 
 // Mock the data import
 vi.mock('../data/characters.json', () => ({
@@ -17,12 +18,15 @@ vi.mock('../data/characters.json', () => ({
 
 describe('useFlashCard', () => {
   beforeEach(() => {
+    // Clear storage before each test to ensure clean state
+    clearAllStorage();
     // Mock Math.random to return 0 for predictable testing
     vi.spyOn(Math, 'random').mockReturnValue(0);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    clearAllStorage();
   });
 
   describe('initialization', () => {
@@ -39,24 +43,12 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() =>
         useFlashCard({
           initialCurrent: 2,
-          initialLimit: 3,
         })
       );
 
       expect(result.current.current).toBe(2);
-      expect(result.current.limit).toBe(3);
       expect(result.current.hint).toBe('NONE');
       expect(result.current.totalSeen).toBe(0);
-    });
-
-    it('caps initial limit to available data length', () => {
-      const { result } = renderHook(() =>
-        useFlashCard({
-          initialLimit: 100,
-        })
-      );
-
-      expect(result.current.limit).toBe(5); // data.length is 5
     });
   });
 
@@ -65,7 +57,6 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() =>
         useFlashCard({
           initialCurrent: 0,
-          initialLimit: 5,
         })
       );
 
@@ -89,7 +80,6 @@ describe('useFlashCard', () => {
       const { result } = renderHook(() =>
         useFlashCard({
           initialCurrent: 0,
-          initialLimit: 5,
         })
       );
 
@@ -135,49 +125,13 @@ describe('useFlashCard', () => {
     });
   });
 
-  describe('updateLimit', () => {
-    it('updates limit and resets state', () => {
-      const { result } = renderHook(() =>
-        useFlashCard({
-          initialCurrent: 0,
-          initialLimit: 5,
-        })
-      );
-
-      // First, increment seen count
-      act(() => {
-        result.current.getNext();
-      });
-      expect(result.current.totalSeen).toBe(1);
-
-      // Update limit
-      act(() => {
-        result.current.updateLimit(3);
-      });
-
-      expect(result.current.limit).toBe(3);
-      expect(result.current.current).toBe(0); // Math.random returns 0
-      expect(result.current.totalSeen).toBe(1); // Should NOT reset
-      expect(result.current.hint).toBe('NONE'); // Should reset
-    });
-
-    it('caps limit to available data length', () => {
-      const { result } = renderHook(() => useFlashCard());
-
-      act(() => {
-        result.current.updateLimit(100);
-      });
-
-      expect(result.current.limit).toBe(5); // data.length is 5
-    });
-  });
+  // updateLimit removed - using adaptive range expansion instead
 
   describe('reset', () => {
-    it('resets hint but keeps limit', () => {
+    it('resets hint and statistics', () => {
       const { result } = renderHook(() =>
         useFlashCard({
           initialCurrent: 0,
-          initialLimit: 5,
         })
       );
 
@@ -197,13 +151,12 @@ describe('useFlashCard', () => {
 
       expect(result.current.totalSeen).toBe(0);
       expect(result.current.hint).toBe('NONE');
-      expect(result.current.limit).toBe(5); // Should remain unchanged
       expect(result.current.current).toBe(0); // Math.random returns 0
     });
   });
 
   it('should reset statistics when mode changes', () => {
-    const { result } = renderHook(() => useFlashCard({ initialLimit: 100 }));
+    const { result } = renderHook(() => useFlashCard());
 
     // Set some initial state
     act(() => {
@@ -222,38 +175,5 @@ describe('useFlashCard', () => {
     expect(result.current.correctAnswers).toBe(0);
     expect(result.current.totalAttempted).toBe(0);
     expect(result.current.incorrectAnswers).toEqual([]);
-  });
-
-  it('should set appropriate default limits when switching modes', () => {
-    const { result } = renderHook(() => useFlashCard({ initialLimit: 100 }));
-
-    // Start in pinyin mode - all modes support 1500 characters
-    expect(result.current.mode).toBe('pinyin');
-    // Limit should be preserved when switching modes (up to 1500)
-    const initialLimit = result.current.limit;
-
-    // Switch to simplified mode - limit should be preserved
-    act(() => {
-      result.current.setMode(FlashcardMode.SIMPLIFIED);
-    });
-
-    expect(result.current.mode).toBe('simplified');
-    expect(result.current.limit).toBe(initialLimit);
-
-    // Switch back to pinyin mode - limit should be preserved
-    act(() => {
-      result.current.setMode(FlashcardMode.PINYIN);
-    });
-
-    expect(result.current.mode).toBe('pinyin');
-    expect(result.current.limit).toBe(initialLimit);
-
-    // Switch to traditional mode - limit should be preserved
-    act(() => {
-      result.current.setMode(FlashcardMode.TRADITIONAL);
-    });
-
-    expect(result.current.mode).toBe('traditional');
-    expect(result.current.limit).toBe(initialLimit);
   });
 });

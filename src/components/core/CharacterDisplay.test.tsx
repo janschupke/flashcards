@@ -4,33 +4,21 @@ import { FlashcardMode } from '../../types';
 
 describe('CharacterDisplay', () => {
   it('should display both simplified and traditional characters in pinyin mode', () => {
-    render(
-      <CharacterDisplay currentIndex={0} mode={FlashcardMode.PINYIN} />
-    );
+    render(<CharacterDisplay currentIndex={0} mode={FlashcardMode.PINYIN} />);
 
     expect(screen.getByTestId('simplified-character')).toBeInTheDocument();
     expect(screen.getByTestId('traditional-character')).toBeInTheDocument();
   });
 
   it('should display only traditional character in simplified mode', () => {
-    render(
-      <CharacterDisplay
-        currentIndex={0}
-        mode={FlashcardMode.SIMPLIFIED}
-      />
-    );
+    render(<CharacterDisplay currentIndex={0} mode={FlashcardMode.SIMPLIFIED} />);
 
     expect(screen.getByTestId('traditional-character')).toBeInTheDocument();
     expect(screen.queryByTestId('simplified-character')).not.toBeInTheDocument();
   });
 
   it('should display only simplified character in traditional mode', () => {
-    render(
-      <CharacterDisplay
-        currentIndex={0}
-        mode={FlashcardMode.TRADITIONAL}
-      />
-    );
+    render(<CharacterDisplay currentIndex={0} mode={FlashcardMode.TRADITIONAL} />);
 
     expect(screen.getByTestId('simplified-character')).toBeInTheDocument();
     expect(screen.queryByTestId('traditional-character')).not.toBeInTheDocument();

@@ -22,6 +22,7 @@ export enum ButtonVariant {
   SECONDARY = 'secondary',
   TERTIARY = 'tertiary',
   GHOST = 'ghost',
+  ERROR = 'error',
 }
 
 export enum ButtonSize {

@@ -51,4 +51,3 @@ describe('useModeToggle', () => {
     expect(mockOnModeChange).toHaveBeenCalledTimes(1);
   });
 });
-

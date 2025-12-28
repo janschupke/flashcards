@@ -1,10 +1,16 @@
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { Statistics } from './Statistics';
 
-describe('Statistics', () => {
-  it('displays statistics correctly', () => {
-    render(<Statistics totalSeen={10} correctAnswers={7} />);
+// Mock storage utilities
+vi.mock('../../utils/storageUtils', () => ({
+  getAllCharacterPerformance: vi.fn(() => []),
+}));
 
-    expect(screen.getByTestId('stat-answers')).toHaveTextContent('7 / 10');
+describe('Statistics', () => {
+  it('displays empty state when no statistics', () => {
+    render(<Statistics />);
+
+    expect(screen.getByText(/No statistics yet/i)).toBeInTheDocument();
   });
 });

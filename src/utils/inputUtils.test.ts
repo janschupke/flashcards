@@ -10,12 +10,15 @@ describe('inputUtils', () => {
     });
 
     it('returns simplified placeholder for SIMPLIFIED mode', () => {
-      expect(getPlaceholder(FlashcardMode.SIMPLIFIED)).toBe(CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER);
+      expect(getPlaceholder(FlashcardMode.SIMPLIFIED)).toBe(
+        CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER
+      );
     });
 
     it('returns traditional placeholder for TRADITIONAL mode', () => {
-      expect(getPlaceholder(FlashcardMode.TRADITIONAL)).toBe(CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER);
+      expect(getPlaceholder(FlashcardMode.TRADITIONAL)).toBe(
+        CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER
+      );
     });
   });
 });
-

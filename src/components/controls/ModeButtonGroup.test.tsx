@@ -20,7 +20,9 @@ describe('ModeButtonGroup', () => {
   });
 
   it('highlights current mode with primary variant', () => {
-    render(<ModeButtonGroup currentMode={FlashcardMode.SIMPLIFIED} onModeChange={mockOnModeChange} />);
+    render(
+      <ModeButtonGroup currentMode={FlashcardMode.SIMPLIFIED} onModeChange={mockOnModeChange} />
+    );
 
     const simplifiedButton = screen.getByText('简体 (F2)').closest('button');
     expect(simplifiedButton).toHaveClass('bg-primary');
@@ -46,7 +48,11 @@ describe('ModeButtonGroup', () => {
 
   it('applies custom size prop', () => {
     const { container } = render(
-      <ModeButtonGroup currentMode={FlashcardMode.PINYIN} onModeChange={mockOnModeChange} size={ButtonSize.SM} />
+      <ModeButtonGroup
+        currentMode={FlashcardMode.PINYIN}
+        onModeChange={mockOnModeChange}
+        size={ButtonSize.SM}
+      />
     );
 
     const buttons = container.querySelectorAll('button');
@@ -68,4 +74,3 @@ describe('ModeButtonGroup', () => {
     expect(buttonGroup).toHaveClass('custom-class');
   });
 });
-

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FlashResult } from '../types';
 import { ANIMATION_TIMINGS } from '../constants';
 
@@ -8,22 +8,47 @@ import { ANIMATION_TIMINGS } from '../constants';
  * @returns Boolean indicating if the component should be in flashing state
  */
 export const useFlashAnimation = (flashResult: FlashResult | null): boolean => {
-  const [isFlashing, setIsFlashing] = useState(false);
+  // Initialize state based on flashResult to handle immediate updates
+  const [isFlashing, setIsFlashing] = useState(
+    () => flashResult !== null && flashResult !== undefined
+  );
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevFlashResultRef = useRef<FlashResult | null>(null); // Initialize to null so first effect always runs
 
   useEffect(() => {
-    if (flashResult !== null && flashResult !== undefined) {
-      setIsFlashing(true);
-      const timer = setTimeout(() => {
-        setIsFlashing(false);
-      }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
-      return () => clearTimeout(timer);
-    } else {
-      // Reset immediately when flashResult becomes null
-      setIsFlashing(false);
+    // Only update if flashResult actually changed
+    if (prevFlashResultRef.current === flashResult) {
+      return undefined;
     }
-    return undefined;
+    prevFlashResultRef.current = flashResult;
+
+    // Clear any existing timer
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (flashResult !== null && flashResult !== undefined) {
+      // For animation feedback, immediate state update is acceptable
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsFlashing(true);
+      // Schedule reset after animation duration
+      timerRef.current = setTimeout(() => {
+        setIsFlashing(false);
+        timerRef.current = null;
+      }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
+      return () => {
+        if (timerRef.current !== null) {
+          clearTimeout(timerRef.current);
+          timerRef.current = null;
+        }
+      };
+    } else {
+      // Reset when flashResult becomes null
+      setIsFlashing(false);
+      return undefined;
+    }
   }, [flashResult]);
 
   return isFlashing;
 };
-

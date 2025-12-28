@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useFlashCard } from '../../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useModeNavigation } from '../../hooks/useModeNavigation';
-import { useRangeNavigation } from '../../hooks/useRangeNavigation';
+import { useToastContext } from '../../contexts/ToastContext';
 import { HINT_TYPES, FlashcardMode } from '../../types';
 import { AppTab } from '../../types/layout';
 import { CharacterDisplay } from './CharacterDisplay';
@@ -11,19 +11,20 @@ import { PinyinInput } from '../input/PinyinInput';
 import { CharacterInput } from '../input/CharacterInput';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
 import { IncorrectAnswers } from '../feedback/IncorrectAnswers';
+import { Statistics } from '../feedback/Statistics';
+import { About } from '../feedback/About';
 import { FlashCardProps } from '../../types';
 import { getExpectedCharacter, getCharacterAtIndex, getHintText } from '../../utils/characterUtils';
-import { getModeLimits } from '../../utils/flashcardUtils';
 import { AppLayout } from '../layout/AppLayout';
 import { TabPanel } from '../layout/TabPanel';
 import data from '../../data/characters.json';
 
-export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLimit }) => {
+export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent }) => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.FLASHCARDS);
+  const { showToast } = useToastContext();
 
   const {
     current,
-    limit,
     hint,
     totalSeen,
     isPinyinCorrect,
@@ -35,9 +36,10 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
     mode,
     pinyinInput,
     characterInput,
+    adaptiveRange,
     getNext,
     toggleHint,
-    updateLimit,
+    resetStatistics,
     setPinyinInput,
     setCharacterInput,
     setMode,
@@ -45,15 +47,20 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
     setCharacterFlashResult,
   } = useFlashCard({
     initialCurrent,
-    initialLimit,
   });
+
+  // Show toast when range expands
+  const prevRangeRef = React.useRef<number | null>(null);
+  useEffect(() => {
+    if (prevRangeRef.current !== null && adaptiveRange > prevRangeRef.current) {
+      showToast(`Range expanded! Now practicing characters 1-${adaptiveRange}`, 'success');
+    }
+    prevRangeRef.current = adaptiveRange;
+  }, [adaptiveRange, showToast]);
 
   // Get current character based on mode
   const currentCharacter =
     mode === FlashcardMode.PINYIN ? (data[current] ?? null) : getCharacterAtIndex(current, mode);
-
-  // Get mode-specific limits
-  const { minLimit, maxLimit } = getModeLimits(mode);
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
@@ -65,9 +72,6 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
 
   // Mode navigation with arrow keys
   useModeNavigation({ currentMode: mode, onModeChange: setMode });
-
-  // Range navigation with arrow keys
-  useRangeNavigation({ currentLimit: limit, mode, onLimitChange: updateLimit });
 
   // Refs for focusing inputs
   const pinyinInputRef = useRef<HTMLInputElement>(null);
@@ -91,15 +95,13 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
       onTabChange={setActiveTab}
       currentMode={mode}
       onModeChange={setMode}
-      currentLimit={limit}
-      minLimit={minLimit}
-      maxLimit={maxLimit}
-      onLimitChange={updateLimit}
+      adaptiveRange={adaptiveRange}
       correctAnswers={correctAnswers}
       totalSeen={totalSeen}
       currentHint={hint}
       onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
       onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
+      onReset={resetStatistics}
     >
       <TabPanel tab={AppTab.FLASHCARDS} activeTab={activeTab}>
         <div className="h-full flex flex-col">
@@ -154,6 +156,18 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
       <TabPanel tab={AppTab.HISTORY} activeTab={activeTab}>
         <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl">
           <IncorrectAnswers allAnswers={allAnswers} />
+        </div>
+      </TabPanel>
+
+      <TabPanel tab={AppTab.STATISTICS} activeTab={activeTab}>
+        <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl">
+          <Statistics />
+        </div>
+      </TabPanel>
+
+      <TabPanel tab={AppTab.ABOUT} activeTab={activeTab}>
+        <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl">
+          <About />
         </div>
       </TabPanel>
     </AppLayout>

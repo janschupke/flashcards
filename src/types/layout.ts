@@ -1,4 +1,6 @@
 export enum AppTab {
   FLASHCARDS = 'FLASHCARDS',
   HISTORY = 'HISTORY',
+  STATISTICS = 'STATISTICS',
+  ABOUT = 'ABOUT',
 }

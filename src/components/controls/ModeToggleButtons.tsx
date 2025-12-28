@@ -7,11 +7,18 @@ import { ModeButtonGroup } from './ModeButtonGroup';
  * Kept for backward compatibility with tests
  * @deprecated Consider using ModeButtonGroup directly
  */
-export const ModeToggleButtons: React.FC<ModeToggleButtonsProps> = ({ currentMode, onModeChange }) => {
+export const ModeToggleButtons: React.FC<ModeToggleButtonsProps> = ({
+  currentMode,
+  onModeChange,
+}) => {
   return (
     <div className="mb-3">
       <h3 className="mb-2 text-sm font-semibold text-text-tertiary text-center">Flashcard Mode</h3>
-      <ModeButtonGroup currentMode={currentMode} onModeChange={onModeChange} className="flex gap-2 w-full" />
+      <ModeButtonGroup
+        currentMode={currentMode}
+        onModeChange={onModeChange}
+        className="flex gap-2 w-full"
+      />
     </div>
   );
 };

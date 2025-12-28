@@ -9,59 +9,76 @@ import {
   Character,
 } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
-import {
-  getRandomCharacterIndex,
-  getCharacterAtIndex,
-} from '../utils/characterUtils';
+import { getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
 import {
   evaluatePinyinAnswer,
   evaluateCharacterAnswer,
   createIncorrectAnswer,
   createAnswer,
 } from '../utils/flashcardUtils';
+import {
+  loadHistory,
+  saveHistory,
+  loadCounters,
+  saveCounters,
+  loadPreviousAnswer,
+  savePreviousAnswer,
+  loadAdaptiveRange,
+  saveAdaptiveRange,
+  updateCharacterPerformance,
+  getAllCharacterPerformance,
+} from '../utils/storageUtils';
+import { ADAPTIVE_CONFIG } from '../constants/adaptive';
+import { selectAdaptiveCharacter } from '../utils/adaptiveUtils';
 import data from '../data/characters.json';
 
 interface UseFlashCardProps {
   initialCurrent?: number;
-  initialLimit?: number;
 }
 
-export const useFlashCard = ({
-  initialCurrent,
-  initialLimit,
-}: UseFlashCardProps = {}): FlashCardState & FlashCardActions => {
-  const defaultLimit =
-    initialLimit !== undefined ? Math.min(initialLimit, data.length) : Math.min(1500, data.length);
+export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashCardState &
+  FlashCardActions => {
+  // Load data from storage on initialization
+  const storedHistory = loadHistory();
+  const storedCounters = loadCounters();
+  const storedPreviousAnswer = loadPreviousAnswer();
+  const storedAdaptiveRange = loadAdaptiveRange();
+
+  const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
+  const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
 
   // Initialize current index - use useState initializer to avoid Math.random in render
   const [initialCurrentIndex] = useState<number>(() => {
-    return initialCurrent ?? Math.floor(Math.random() * defaultLimit);
+    return initialCurrent ?? Math.floor(Math.random() * effectiveLimit);
   });
 
   const [state, setState] = useState<FlashCardState>({
     current: initialCurrentIndex,
-    limit: defaultLimit,
+    limit: effectiveLimit,
     hint: HINT_TYPES.NONE,
-    totalSeen: 0,
+    totalSeen: storedCounters?.totalSeen ?? 0,
     // New state for traditional character feature
     displayMode: 'simplified',
     pinyinInput: '',
     isPinyinCorrect: null,
-    correctAnswers: 0,
-    totalAttempted: 0,
+    correctAnswers: storedCounters?.correctAnswers ?? 0,
+    totalAttempted: storedCounters?.totalAttempted ?? 0,
     flashResult: null,
     // Previous character tracking
     previousCharacter: null,
     // Previous answer tracking
-    previousAnswer: null,
+    previousAnswer: storedPreviousAnswer ?? null,
     // Incorrect answers tracking
     incorrectAnswers: [],
     // All answers tracking
-    allAnswers: [],
+    allAnswers: storedHistory,
     // New fields for flashcard modes
     mode: FlashcardMode.PINYIN,
     characterInput: '',
     isCharacterCorrect: null,
+    // Adaptive learning fields
+    adaptiveRange: initialAdaptiveRange,
+    answersSinceLastCheck: 0,
   });
 
   // Get current character based on mode
@@ -98,34 +115,92 @@ export const useFlashCard = ({
         isCorrect
       );
 
+      // Update character performance in storage
+      if (hasInput) {
+        updateCharacterPerformance(prev.current, isCorrect);
+      }
+
       // Add to incorrect answers if wrong or empty input
       const newIncorrectAnswers = [...prev.incorrectAnswers];
       if (!isCorrect) {
-        newIncorrectAnswers.push(createIncorrectAnswer(currentCharacter, prev.mode, submittedInput, prev.current));
+        newIncorrectAnswers.push(
+          createIncorrectAnswer(currentCharacter, prev.mode, submittedInput, prev.current)
+        );
       }
 
       // Add to all answers (both correct and incorrect)
       const newAllAnswers = [...prev.allAnswers, answer];
 
-      // Get new random index
-      const newIndex = getRandomCharacterIndex(prev.limit);
+      // Update counters
+      const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
+      const newTotalAttempted = hasInput ? prev.totalAttempted + 1 : prev.totalAttempted;
+      const newTotalSeen = prev.totalSeen + 1;
+
+      // Save counters to storage
+      saveCounters({
+        correctAnswers: newCorrectAnswers,
+        totalSeen: newTotalSeen,
+        totalAttempted: newTotalAttempted,
+      });
+
+      // Save history to storage
+      saveHistory(newAllAnswers);
+
+      // Save previous answer to storage
+      savePreviousAnswer(answer);
+
+      // Update adaptive range expansion tracking
+      const newAnswersSinceLastCheck = prev.answersSinceLastCheck + 1;
+      let newAdaptiveRange = prev.adaptiveRange;
+      let shouldExpand = false;
+
+      // Check if we should expand the range
+      if (
+        newAnswersSinceLastCheck >= ADAPTIVE_CONFIG.EXPANSION_INTERVAL &&
+        newTotalAttempted >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION
+      ) {
+        // Calculate success rate for current range
+        const successRate = newTotalAttempted > 0 ? newCorrectAnswers / newTotalAttempted : 0;
+
+        if (successRate >= ADAPTIVE_CONFIG.SUCCESS_THRESHOLD) {
+          // Expand range
+          const maxRange = Math.min(
+            prev.adaptiveRange + ADAPTIVE_CONFIG.EXPANSION_AMOUNT,
+            data.length
+          );
+          newAdaptiveRange = maxRange;
+          shouldExpand = true;
+        }
+      }
+
+      // Save adaptive range to storage
+      saveAdaptiveRange(newAdaptiveRange);
+
+      // Get new character index using adaptive selection
+      const effectiveLimit = Math.min(newAdaptiveRange, data.length);
+      const charactersInRange = Array.from({ length: effectiveLimit }, (_, i) => i);
+      const performance = getAllCharacterPerformance();
+      const newIndex = selectAdaptiveCharacter(charactersInRange, performance);
 
       return {
         ...prev,
         previousCharacter: prev.current,
         previousAnswer: answer,
         current: newIndex,
+        limit: effectiveLimit,
         hint: HINT_TYPES.NONE,
-        totalSeen: prev.totalSeen + 1,
+        totalSeen: newTotalSeen,
         pinyinInput: '',
         isPinyinCorrect: null,
         characterInput: '',
         isCharacterCorrect: null,
-        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-        totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
+        correctAnswers: newCorrectAnswers,
+        totalAttempted: newTotalAttempted,
         flashResult: hasInput ? (isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT) : null,
         incorrectAnswers: newIncorrectAnswers,
         allAnswers: newAllAnswers,
+        adaptiveRange: newAdaptiveRange,
+        answersSinceLastCheck: shouldExpand ? 0 : newAnswersSinceLastCheck,
       };
     });
   }, [getCurrentCharacter]);
@@ -136,26 +211,6 @@ export const useFlashCard = ({
       hint: prev.hint === hintType ? HINT_TYPES.NONE : hintType,
     }));
   }, []);
-
-  const updateLimit = useCallback(
-    (newLimit: number) => {
-      // All modes support up to 1500 characters
-      const maxLimit = Math.min(newLimit, data.length);
-      setState((prev) => ({
-        ...prev,
-        limit: maxLimit,
-        // Don't reset current character or totalSeen
-        // Don't reset scoring
-        hint: HINT_TYPES.NONE,
-        pinyinInput: '',
-        isPinyinCorrect: null,
-        characterInput: '',
-        isCharacterCorrect: null,
-        flashResult: null,
-      }));
-    },
-    []
-  );
 
   const reset = useCallback(() => {
     setState((prev) => ({
@@ -175,6 +230,28 @@ export const useFlashCard = ({
       previousAnswer: null,
       allAnswers: [],
       incorrectAnswers: [],
+    }));
+  }, []);
+
+  const resetStatistics = useCallback(() => {
+    // Reset to initial adaptive range
+    const initialRange = ADAPTIVE_CONFIG.INITIAL_RANGE;
+    saveAdaptiveRange(initialRange);
+
+    setState((prev) => ({
+      ...prev,
+      // Reset statistics
+      totalSeen: 0,
+      correctAnswers: 0,
+      totalAttempted: 0,
+      // Reset answer tracking
+      previousAnswer: null,
+      allAnswers: [],
+      incorrectAnswers: [],
+      // Reset adaptive range
+      adaptiveRange: initialRange,
+      answersSinceLastCheck: 0,
+      // Keep current character and mode
     }));
   }, []);
 
@@ -333,8 +410,8 @@ export const useFlashCard = ({
     ...state,
     getNext,
     toggleHint,
-    updateLimit,
     reset,
+    resetStatistics,
     setDisplayMode,
     setPinyinInput,
     evaluatePinyin,

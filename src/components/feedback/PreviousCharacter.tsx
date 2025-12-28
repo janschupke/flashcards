@@ -12,7 +12,9 @@ const PLACEHOLDER = '—';
 
 export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({ previousAnswer }) => {
   const submittedText = previousAnswer ? getSubmittedText(previousAnswer) : PLACEHOLDER;
-  const submittedColorClass = previousAnswer ? getAnswerColorClass(previousAnswer.isCorrect) : 'text-text-secondary';
+  const submittedColorClass = previousAnswer
+    ? getAnswerColorClass(previousAnswer.isCorrect)
+    : 'text-text-secondary';
 
   return (
     <div>
@@ -32,8 +34,15 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({ previousAn
           label="Pinyin"
           value={previousAnswer ? previousAnswer.correctPinyin : PLACEHOLDER}
         />
-        <CharacterInfoColumn label="English" value={previousAnswer ? previousAnswer.english : PLACEHOLDER} />
-        <CharacterInfoColumn label="Submitted" value={submittedText} valueClassName={submittedColorClass} />
+        <CharacterInfoColumn
+          label="English"
+          value={previousAnswer ? previousAnswer.english : PLACEHOLDER}
+        />
+        <CharacterInfoColumn
+          label="Submitted"
+          value={submittedText}
+          valueClassName={submittedColorClass}
+        />
       </div>
     </div>
   );

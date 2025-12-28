@@ -1,18 +1,11 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
-import { APP_LIMITS } from '../../constants';
+import { ToastProvider } from '../../contexts/ToastContext';
 // FlashcardMode is used in test assertions via MODES
 import { MODES } from '../../constants/modes';
 import { CHINESE_TEXT } from '../../constants';
-
-// Helper function to get input value safely
-const getInputValue = (element: HTMLElement): number => {
-  if (element instanceof HTMLInputElement) {
-    return Number(element.value);
-  }
-  throw new Error('Element is not an HTMLInputElement');
-};
 
 // Mock the data
 vi.mock('../../data/characters.json', () => ({
@@ -25,71 +18,22 @@ vi.mock('../../data/characters.json', () => ({
   ],
 }));
 
+const renderWithToast = (component: React.ReactElement): ReturnType<typeof render> => {
+  return render(<ToastProvider>{component}</ToastProvider>);
+};
+
 describe('FlashCards', () => {
   it('renders without crashing', () => {
-    render(<FlashCards />);
+    renderWithToast(<FlashCards />);
     // Title appears in both Navigation and FlashCards content
     const titles = screen.getAllByText(CHINESE_TEXT.APP_TITLE);
     expect(titles.length).toBeGreaterThan(0);
   });
 
-  it('responds to global arrow keys when pinyin input is focused', () => {
-    render(<FlashCards />);
-
-    // Get initial limit value (mocked data has 5 items)
-    const rangeInput = screen.getByTestId('range-input');
-    const initialValue = getInputValue(rangeInput);
-
-    // Focus on pinyin input
-    const pinyinInput = screen.getByRole('textbox');
-    pinyinInput.focus();
-
-    // Press up arrow key
-    fireEvent.keyDown(window, { key: 'ArrowUp' });
-
-    // The limit should change (either increase or clamp to max)
-    const newValue = getInputValue(rangeInput);
-    expect(newValue).toBeGreaterThanOrEqual(initialValue);
-  });
-
-  it('responds to global arrow keys when pinyin input is focused - down arrow', () => {
-    render(<FlashCards />);
-
-    // Get initial limit value
-    const rangeInput = screen.getByTestId('range-input');
-    const initialValue = getInputValue(rangeInput);
-
-    // Focus on pinyin input
-    const pinyinInput = screen.getByRole('textbox');
-    pinyinInput.focus();
-
-    // Press down arrow key
-    fireEvent.keyDown(window, { key: 'ArrowDown' });
-
-    // The limit should change (either decrease or clamp to min)
-    const newValue = getInputValue(rangeInput);
-    expect(newValue).toBeLessThanOrEqual(initialValue);
-  });
-
-  it('does not respond to global arrow keys when range input is focused', () => {
-    render(<FlashCards />);
-
-    // Get initial limit value
-    const rangeInput = screen.getByTestId('range-input');
-    const initialValue = getInputValue(rangeInput);
-
-    // Focus on range input
-    rangeInput.focus();
-
-    // Press up arrow key
-    fireEvent.keyDown(window, { key: 'ArrowUp' });
-
-    // The limit should not change (range input handles its own arrow keys)
-    expect(rangeInput).toHaveValue(initialValue);
-  });
+  // Range input tests removed - range input was removed in favor of adaptive range
 
   it('clears pinyin input when transitioning to next character', async () => {
-    render(<FlashCards />);
+    renderWithToast(<FlashCards />);
 
     const pinyinInput = screen.getByRole('textbox');
     // Use regex to match the Next button
@@ -107,39 +51,8 @@ describe('FlashCards', () => {
     expect(pinyinInput).toHaveValue('');
   });
 
-  it('should update character range when switching modes', () => {
-    render(<FlashCards />);
-
-    // Initially should show pinyin mode with max based on available data
-    const rangeInput = screen.getByTestId('range-input');
-    expect(rangeInput).toHaveAttribute(
-      'max',
-      APP_LIMITS.PINYIN_MODE_MAX.toString()
-    );
-
-    // Switch to simplified mode
-    const simplifiedButton = screen.getByText(CHINESE_TEXT.MODES.SIMPLIFIED.LABEL);
-    fireEvent.click(simplifiedButton);
-
-    // All modes should support 1500 characters
-    expect(rangeInput).toHaveAttribute(
-      'max',
-      APP_LIMITS.PINYIN_MODE_MAX.toString()
-    );
-
-    // Switch back to pinyin mode
-    const pinyinButton = screen.getByText(CHINESE_TEXT.MODES.PINYIN.LABEL);
-    fireEvent.click(pinyinButton);
-
-    // Should show pinyin mode with max again
-    expect(rangeInput).toHaveAttribute(
-      'max',
-      APP_LIMITS.PINYIN_MODE_MAX.toString()
-    );
-  });
-
   it('switches mode with right arrow key, and does not go past last mode', () => {
-    render(<FlashCards />);
+    renderWithToast(<FlashCards />);
     // Start at first mode
     let currentModeIndex = 0;
     for (let i = 1; i < MODES.length; i++) {
@@ -161,7 +74,7 @@ describe('FlashCards', () => {
   });
 
   it('switches mode with left arrow key, and does not go past first mode', () => {
-    render(<FlashCards />);
+    renderWithToast(<FlashCards />);
     // Move to last mode first
     for (let i = 1; i < MODES.length; i++) {
       fireEvent.keyDown(window, { key: 'ArrowRight' });

@@ -20,21 +20,56 @@ export const generateAnswerTableRows = (
 
     if (hasCharacterModes) {
       return [
-        React.createElement('span', { key: 'simplified', className: 'text-text-secondary' }, answer.simplified),
-        React.createElement('span', { key: 'traditional', className: 'text-text-secondary' }, answer.traditional),
+        React.createElement(
+          'span',
+          { key: 'simplified', className: 'text-text-secondary' },
+          answer.simplified
+        ),
+        React.createElement(
+          'span',
+          { key: 'traditional', className: 'text-text-secondary' },
+          answer.traditional
+        ),
         React.createElement('span', { key: 'correct', className: 'text-text-secondary' }, correct),
-        React.createElement('span', { key: 'submitted', className: submittedColorClass }, submitted),
-        React.createElement('span', { key: 'english', className: 'text-text-secondary' }, answer.english),
+        React.createElement(
+          'span',
+          { key: 'submitted', className: submittedColorClass },
+          submitted
+        ),
+        React.createElement(
+          'span',
+          { key: 'english', className: 'text-text-secondary' },
+          answer.english
+        ),
       ];
     } else {
       return [
-        React.createElement('span', { key: 'simplified', className: 'text-text-secondary' }, answer.simplified),
-        React.createElement('span', { key: 'traditional', className: 'text-text-secondary' }, answer.traditional),
-        React.createElement('span', { key: 'pinyin', className: 'text-text-secondary' }, answer.correctPinyin),
-        React.createElement('span', { key: 'submitted', className: submittedColorClass }, submitted),
-        React.createElement('span', { key: 'english', className: 'text-text-secondary' }, answer.english),
+        React.createElement(
+          'span',
+          { key: 'simplified', className: 'text-text-secondary' },
+          answer.simplified
+        ),
+        React.createElement(
+          'span',
+          { key: 'traditional', className: 'text-text-secondary' },
+          answer.traditional
+        ),
+        React.createElement(
+          'span',
+          { key: 'pinyin', className: 'text-text-secondary' },
+          answer.correctPinyin
+        ),
+        React.createElement(
+          'span',
+          { key: 'submitted', className: submittedColorClass },
+          submitted
+        ),
+        React.createElement(
+          'span',
+          { key: 'english', className: 'text-text-secondary' },
+          answer.english
+        ),
       ];
     }
   });
 };
-
