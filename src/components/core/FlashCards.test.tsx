@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
-import { getModeSpecificLimit } from '../../utils/characterUtils';
-import { FlashcardMode } from '../../types';
+import { APP_LIMITS } from '../../constants';
+// FlashcardMode is used in test assertions via MODES
 import { MODES } from '../controls/ModeToggleButtons';
 import { CHINESE_TEXT } from '../../constants';
 
@@ -114,17 +114,17 @@ describe('FlashCards', () => {
     const rangeInput = screen.getByTestId('range-input');
     expect(rangeInput).toHaveAttribute(
       'max',
-      getModeSpecificLimit(FlashcardMode.PINYIN).toString()
+      APP_LIMITS.PINYIN_MODE_MAX.toString()
     );
 
     // Switch to simplified mode
     const simplifiedButton = screen.getByText(CHINESE_TEXT.MODES.SIMPLIFIED.LABEL);
     fireEvent.click(simplifiedButton);
 
-    // Should now show simplified mode with max based on available data
+    // All modes should support 1500 characters
     expect(rangeInput).toHaveAttribute(
       'max',
-      getModeSpecificLimit(FlashcardMode.SIMPLIFIED).toString()
+      APP_LIMITS.PINYIN_MODE_MAX.toString()
     );
 
     // Switch back to pinyin mode
@@ -134,7 +134,7 @@ describe('FlashCards', () => {
     // Should show pinyin mode with max again
     expect(rangeInput).toHaveAttribute(
       'max',
-      getModeSpecificLimit(FlashcardMode.PINYIN).toString()
+      APP_LIMITS.PINYIN_MODE_MAX.toString()
     );
   });
 

@@ -10,7 +10,6 @@ import {
 } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import {
-  getModeSpecificLimit,
   getRandomCharacterIndex,
   getCharacterAtIndex,
 } from '../utils/characterUtils';
@@ -18,6 +17,7 @@ import {
   evaluatePinyinAnswer,
   evaluateCharacterAnswer,
   createIncorrectAnswer,
+  createAnswer,
 } from '../utils/flashcardUtils';
 import data from '../data/characters.json';
 
@@ -52,8 +52,12 @@ export const useFlashCard = ({
     flashResult: null,
     // Previous character tracking
     previousCharacter: null,
+    // Previous answer tracking
+    previousAnswer: null,
     // Incorrect answers tracking
     incorrectAnswers: [],
+    // All answers tracking
+    allAnswers: [],
     // New fields for flashcard modes
     mode: FlashcardMode.PINYIN,
     characterInput: '',
@@ -83,22 +87,33 @@ export const useFlashCard = ({
 
       const { isCorrect, hasInput } = evaluation;
 
+      // Create answer object for tracking
+      const submittedInput =
+        prev.mode === FlashcardMode.PINYIN ? prev.pinyinInput : prev.characterInput;
+      const answer = createAnswer(
+        currentCharacter,
+        prev.mode,
+        submittedInput,
+        prev.current,
+        isCorrect
+      );
+
       // Add to incorrect answers if wrong or empty input
       const newIncorrectAnswers = [...prev.incorrectAnswers];
       if (!isCorrect) {
-        const submittedInput =
-          prev.mode === FlashcardMode.PINYIN ? prev.pinyinInput : prev.characterInput;
-        newIncorrectAnswers.push(
-          createIncorrectAnswer(currentCharacter, prev.mode, submittedInput, prev.current)
-        );
+        newIncorrectAnswers.push(createIncorrectAnswer(currentCharacter, prev.mode, submittedInput, prev.current));
       }
 
-      // Get new random index based on current mode
-      const newIndex = getRandomCharacterIndex(prev.mode, prev.limit);
+      // Add to all answers (both correct and incorrect)
+      const newAllAnswers = [...prev.allAnswers, answer];
+
+      // Get new random index
+      const newIndex = getRandomCharacterIndex(prev.limit);
 
       return {
         ...prev,
         previousCharacter: prev.current,
+        previousAnswer: answer,
         current: newIndex,
         hint: HINT_TYPES.NONE,
         totalSeen: prev.totalSeen + 1,
@@ -110,6 +125,7 @@ export const useFlashCard = ({
         totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
         flashResult: hasInput ? (isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT) : null,
         incorrectAnswers: newIncorrectAnswers,
+        allAnswers: newAllAnswers,
       };
     });
   }, [getCurrentCharacter]);
@@ -123,7 +139,8 @@ export const useFlashCard = ({
 
   const updateLimit = useCallback(
     (newLimit: number) => {
-      const maxLimit = Math.min(newLimit, getModeSpecificLimit(state.mode));
+      // All modes support up to 1500 characters
+      const maxLimit = Math.min(newLimit, data.length);
       setState((prev) => ({
         ...prev,
         limit: maxLimit,
@@ -137,13 +154,13 @@ export const useFlashCard = ({
         flashResult: null,
       }));
     },
-    [state.mode]
+    []
   );
 
   const reset = useCallback(() => {
     setState((prev) => ({
       ...prev,
-      current: getRandomCharacterIndex(prev.mode, prev.limit),
+      current: getRandomCharacterIndex(prev.limit),
       totalSeen: 0,
       hint: HINT_TYPES.NONE,
       // Reset scoring
@@ -154,6 +171,10 @@ export const useFlashCard = ({
       characterInput: '',
       isCharacterCorrect: null,
       flashResult: null,
+      // Reset answer tracking
+      previousAnswer: null,
+      allAnswers: [],
+      incorrectAnswers: [],
     }));
   }, []);
 
@@ -205,14 +226,15 @@ export const useFlashCard = ({
   // New actions for flashcard modes
   const setMode = useCallback((mode: FlashcardMode) => {
     setState((prev) => {
-      const newMaxLimit = getModeSpecificLimit(mode);
-      // Always use the max available for the mode as the default limit
-      const newLimit = newMaxLimit;
+      // Preserve current limit (all modes support up to 1500)
+      // Only clamp if current limit exceeds max (shouldn't happen, but safety check)
+      const maxLimit = data.length; // 1500
+      const newLimit = Math.min(prev.limit, maxLimit);
       return {
         ...prev,
         mode,
         limit: newLimit,
-        current: getRandomCharacterIndex(mode, newLimit),
+        current: getRandomCharacterIndex(newLimit),
         totalSeen: 0,
         correctAnswers: 0,
         totalAttempted: 0,
@@ -223,6 +245,8 @@ export const useFlashCard = ({
         isCharacterCorrect: null,
         flashResult: null,
         incorrectAnswers: [], // Reset incorrect answers on mode change
+        allAnswers: [], // Reset all answers on mode change
+        previousAnswer: null, // Reset previous answer on mode change
       };
     });
   }, []);

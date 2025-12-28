@@ -11,7 +11,7 @@ export const getHintText = (character: Character | null, hintType: HintType): st
 
   switch (hintType) {
     case HINT_TYPES.NONE:
-      return 'Tap a button below to reveal';
+      return 'Use buttons in top panel to reveal';
     case HINT_TYPES.PINYIN:
       return character.pinyin;
     case HINT_TYPES.ENGLISH:
@@ -66,16 +66,6 @@ export const getFilteredCharacters = (mode: FlashcardMode): Character[] => {
 };
 
 /**
- * Gets the maximum available limit for a given mode
- * @param mode - Current flashcard mode
- * @returns Maximum number of characters available for the mode
- */
-export const getModeSpecificLimit = (mode: FlashcardMode): number => {
-  const filteredCharacters = getFilteredCharacters(mode);
-  return filteredCharacters.length;
-};
-
-/**
  * Gets the expected character for the current mode
  * @param character - Current character data
  * @param mode - Current flashcard mode
@@ -115,13 +105,14 @@ export const getDisplayCharacter = (
 };
 
 /**
- * Gets a random character index from the filtered character list
- * @param mode - Current flashcard mode
- * @param limit - Current limit
+ * Gets a random character index from the dataset
+ * @param limit - Maximum index to use (capped at dataset length)
  * @returns Random character index within the limit
  */
-export const getRandomCharacterIndex = (mode: FlashcardMode, limit: number): number => {
-  const maxIndex = Math.min(limit, getModeSpecificLimit(mode));
+export const getRandomCharacterIndex = (limit: number): number => {
+  // All modes support the full dataset (1500 characters)
+  // The limit is the maximum index to use
+  const maxIndex = Math.min(limit, data.length);
   return Math.floor(Math.random() * maxIndex);
 };
 

@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { CharacterDisplay } from './CharacterDisplay';
-import { FlashcardMode, HINT_TYPES } from '../../types';
+import { FlashcardMode } from '../../types';
 
 describe('CharacterDisplay', () => {
   it('should display both simplified and traditional characters in pinyin mode', () => {
     render(
-      <CharacterDisplay currentIndex={0} hintType={HINT_TYPES.NONE} mode={FlashcardMode.PINYIN} />
+      <CharacterDisplay currentIndex={0} mode={FlashcardMode.PINYIN} />
     );
 
     expect(screen.getByTestId('simplified-character')).toBeInTheDocument();
@@ -16,7 +16,6 @@ describe('CharacterDisplay', () => {
     render(
       <CharacterDisplay
         currentIndex={0}
-        hintType={HINT_TYPES.NONE}
         mode={FlashcardMode.SIMPLIFIED}
       />
     );
@@ -29,20 +28,11 @@ describe('CharacterDisplay', () => {
     render(
       <CharacterDisplay
         currentIndex={0}
-        hintType={HINT_TYPES.NONE}
         mode={FlashcardMode.TRADITIONAL}
       />
     );
 
     expect(screen.getByTestId('simplified-character')).toBeInTheDocument();
     expect(screen.queryByTestId('traditional-character')).not.toBeInTheDocument();
-  });
-
-  it('should show hint text when hint is provided', () => {
-    render(
-      <CharacterDisplay currentIndex={0} hintType={HINT_TYPES.PINYIN} mode={FlashcardMode.PINYIN} />
-    );
-
-    expect(screen.getByTestId('hint-text')).toBeInTheDocument();
   });
 });

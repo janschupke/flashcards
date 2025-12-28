@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useFlashCard } from './useFlashCard';
-import { getModeSpecificLimit } from '../utils/characterUtils';
+// APP_LIMITS is used in test comments and assertions
 import { FlashcardMode, HintType } from '../types';
 
 // Mock the data import
@@ -227,32 +227,33 @@ describe('useFlashCard', () => {
   it('should set appropriate default limits when switching modes', () => {
     const { result } = renderHook(() => useFlashCard({ initialLimit: 100 }));
 
-    // Start in pinyin mode - limit will be capped to available data
+    // Start in pinyin mode - all modes support 1500 characters
     expect(result.current.mode).toBe('pinyin');
-    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.PINYIN));
+    // Limit should be preserved when switching modes (up to 1500)
+    const initialLimit = result.current.limit;
 
-    // Switch to simplified mode
+    // Switch to simplified mode - limit should be preserved
     act(() => {
       result.current.setMode(FlashcardMode.SIMPLIFIED);
     });
 
     expect(result.current.mode).toBe('simplified');
-    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.SIMPLIFIED));
+    expect(result.current.limit).toBe(initialLimit);
 
-    // Switch back to pinyin mode
+    // Switch back to pinyin mode - limit should be preserved
     act(() => {
       result.current.setMode(FlashcardMode.PINYIN);
     });
 
     expect(result.current.mode).toBe('pinyin');
-    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.PINYIN));
+    expect(result.current.limit).toBe(initialLimit);
 
-    // Switch to traditional mode
+    // Switch to traditional mode - limit should be preserved
     act(() => {
       result.current.setMode(FlashcardMode.TRADITIONAL);
     });
 
     expect(result.current.mode).toBe('traditional');
-    expect(result.current.limit).toBe(getModeSpecificLimit(FlashcardMode.TRADITIONAL));
+    expect(result.current.limit).toBe(initialLimit);
   });
 });

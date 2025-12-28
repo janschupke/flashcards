@@ -13,6 +13,8 @@ interface TopControlsProps {
   onLimitChange: (newLimit: number) => void;
   correctAnswers: number;
   totalSeen: number;
+  onTogglePinyin?: () => void;
+  onToggleEnglish?: () => void;
 }
 
 export const TopControls: React.FC<TopControlsProps> = ({
@@ -24,6 +26,8 @@ export const TopControls: React.FC<TopControlsProps> = ({
   onLimitChange,
   correctAnswers,
   totalSeen,
+  onTogglePinyin,
+  onToggleEnglish,
 }) => {
   const handleModeChange = (mode: FlashcardMode): void => {
     if (mode !== currentMode) {
@@ -52,7 +56,7 @@ export const TopControls: React.FC<TopControlsProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-surface-secondary border-b border-border-primary">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-2 py-1.5 sm:px-4 sm:py-2 bg-surface-secondary border-b border-border-primary">
       {/* Mode buttons */}
       <div className="flex gap-1">
         {MODES.map(({ mode, label, title }) => {
@@ -72,6 +76,30 @@ export const TopControls: React.FC<TopControlsProps> = ({
         })}
       </div>
 
+      {/* Hint toggle buttons */}
+      {onTogglePinyin && onToggleEnglish && (
+        <div className="flex gap-1">
+          <Button
+            type="button"
+            onClick={onTogglePinyin}
+            variant={ButtonVariant.SECONDARY}
+            size={ButtonSize.SM}
+            className="text-xs"
+          >
+            Pinyin (,)
+          </Button>
+          <Button
+            type="button"
+            onClick={onToggleEnglish}
+            variant={ButtonVariant.SECONDARY}
+            size={ButtonSize.SM}
+            className="text-xs"
+          >
+            English (.)
+          </Button>
+        </div>
+      )}
+
       {/* Range input */}
       <div className="flex items-center gap-2">
         <label htmlFor="limit" className="text-xs text-text-tertiary whitespace-nowrap">
@@ -80,7 +108,7 @@ export const TopControls: React.FC<TopControlsProps> = ({
         <input
           id="limit"
           type="number"
-          className="w-20 px-2 py-1 border border-border-secondary rounded text-sm bg-surface-primary text-text-primary outline-none focus:ring-1 focus:ring-border-focus"
+          className="w-16 sm:w-20 px-2 py-1 border border-border-secondary rounded text-sm bg-surface-primary text-text-primary outline-none focus:ring-1 focus:ring-border-focus"
           value={currentLimit}
           onChange={handleLimitChange}
           onBlur={handleLimitBlur}
@@ -92,7 +120,7 @@ export const TopControls: React.FC<TopControlsProps> = ({
 
       {/* Answer counter */}
       <div className="flex items-center gap-2 ml-auto">
-        <span className="text-xs text-text-tertiary whitespace-nowrap">Score:</span>
+        <span className="text-xs text-text-tertiary whitespace-nowrap">Answers:</span>
         <span className="text-sm font-bold text-primary" data-testid="stat-answers">
           {correctAnswers} / {totalSeen}
         </span>

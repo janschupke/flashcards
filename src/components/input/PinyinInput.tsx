@@ -84,11 +84,11 @@ export const PinyinInput = forwardRef<HTMLInputElement, PinyinInputProps>(
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
-            className="w-full px-4 py-3 text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary focus:ring-2 focus:ring-border-focus"
+            className="w-full px-3 py-1.5 text-xl sm:text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary"
           />
         </div>
         <div
-          className={`mt-2 text-sm font-medium min-h-[20px] ${feedbackClass}`}
+          className={`mt-2 text-xs sm:text-sm font-medium min-h-[20px] ${feedbackClass}`}
           data-testid="feedback-text"
         >
           {getFeedbackText()}

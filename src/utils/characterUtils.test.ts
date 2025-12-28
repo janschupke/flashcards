@@ -6,7 +6,6 @@ import {
   getRandomIndex,
   validateCharacterInput,
   getFilteredCharacters,
-  getModeSpecificLimit,
   getExpectedCharacter,
   getDisplayCharacter,
   getRandomCharacterIndex,
@@ -165,19 +164,6 @@ describe('characterUtils', () => {
     });
   });
 
-  describe('getModeSpecificLimit', () => {
-    it('returns total count for pinyin mode', () => {
-      expect(getModeSpecificLimit(FlashcardMode.PINYIN)).toBe(9);
-    });
-
-    it('returns filtered count for simplified mode', () => {
-      expect(getModeSpecificLimit(FlashcardMode.SIMPLIFIED)).toBe(3);
-    });
-
-    it('returns filtered count for traditional mode', () => {
-      expect(getModeSpecificLimit(FlashcardMode.TRADITIONAL)).toBe(3);
-    });
-  });
 
   describe('getExpectedCharacter', () => {
     const mockCharacter = {
@@ -227,16 +213,16 @@ describe('characterUtils', () => {
   });
 
   describe('getRandomCharacterIndex', () => {
-    it('returns index within mode-specific limit', () => {
-      const result = getRandomCharacterIndex(FlashcardMode.PINYIN, 4);
+    it('returns index within limit', () => {
+      const result = getRandomCharacterIndex(4);
       expect(result).toBeGreaterThanOrEqual(0);
       expect(result).toBeLessThan(4);
     });
 
-    it('caps to mode-specific maximum', () => {
-      const result = getRandomCharacterIndex(FlashcardMode.SIMPLIFIED, 10);
+    it('caps to dataset maximum', () => {
+      const result = getRandomCharacterIndex(10);
       expect(result).toBeGreaterThanOrEqual(0);
-      expect(result).toBeLessThan(3); // Only 3 characters have different simplified/traditional
+      expect(result).toBeLessThan(10);
     });
   });
 

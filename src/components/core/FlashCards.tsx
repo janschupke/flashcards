@@ -12,7 +12,7 @@ import { CharacterInput } from '../input/CharacterInput';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
 import { IncorrectAnswers } from '../feedback/IncorrectAnswers';
 import { FlashCardProps } from '../../types';
-import { getExpectedCharacter, getCharacterAtIndex } from '../../utils/characterUtils';
+import { getExpectedCharacter, getCharacterAtIndex, getHintText } from '../../utils/characterUtils';
 import { getModeLimits } from '../../utils/flashcardUtils';
 import { AppLayout } from '../layout/AppLayout';
 import { TabPanel } from '../layout/TabPanel';
@@ -30,8 +30,8 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
     isCharacterCorrect,
     correctAnswers,
     flashResult,
-    previousCharacter,
-    incorrectAnswers,
+    previousAnswer,
+    allAnswers,
     mode,
     pinyinInput,
     characterInput,
@@ -97,12 +97,14 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
       onLimitChange={updateLimit}
       correctAnswers={correctAnswers}
       totalSeen={totalSeen}
+      onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
+      onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
     >
       <TabPanel tab={AppTab.FLASHCARDS} activeTab={activeTab}>
         <div className="h-full flex flex-col">
           {/* Character + Input section centered vertically */}
           <div className="flex-1 flex flex-col items-center justify-center">
-            <CharacterDisplay currentIndex={current} hintType={hint} mode={mode} />
+            <CharacterDisplay currentIndex={current} mode={mode} />
 
             {mode === FlashcardMode.PINYIN ? (
               <PinyinInput
@@ -131,27 +133,26 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
               />
             )}
 
-            <div className="mt-6">
-              <ControlButtons
-                onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
-                onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
-                onNext={getNext}
-              />
+            <div className="mt-4 sm:mt-6">
+              <ControlButtons onNext={getNext} />
+            </div>
+            <div className="mt-2 text-sm sm:text-base text-text-tertiary font-medium">
+              {getHintText(currentCharacter, hint)}
             </div>
           </div>
 
           {/* Previous character at bottom with separator */}
-          <div className="flex-shrink-0 pb-4 px-4 border-t border-border-primary pt-4">
+          <div className="flex-shrink-0 pb-3 pt-3 sm:pb-4 sm:pt-4 px-2 sm:px-4 border-t border-border-primary">
             <div className="max-w-2xl mx-auto">
-              <PreviousCharacter previousCharacterIndex={previousCharacter} />
+              <PreviousCharacter previousAnswer={previousAnswer} />
             </div>
           </div>
         </div>
       </TabPanel>
 
       <TabPanel tab={AppTab.HISTORY} activeTab={activeTab}>
-        <div className="container mx-auto px-4 py-4 max-w-screen-xl">
-          <IncorrectAnswers incorrectAnswers={incorrectAnswers} />
+        <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl">
+          <IncorrectAnswers allAnswers={allAnswers} />
         </div>
       </TabPanel>
     </AppLayout>

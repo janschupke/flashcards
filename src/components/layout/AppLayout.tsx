@@ -16,6 +16,8 @@ interface AppLayoutProps {
   onLimitChange?: (newLimit: number) => void;
   correctAnswers?: number;
   totalSeen?: number;
+  onTogglePinyin?: () => void;
+  onToggleEnglish?: () => void;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -30,6 +32,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   onLimitChange,
   correctAnswers,
   totalSeen,
+  onTogglePinyin,
+  onToggleEnglish,
 }) => {
   return (
     <div className="h-screen flex flex-col">
@@ -44,6 +48,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         onLimitChange={onLimitChange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
+        onTogglePinyin={onTogglePinyin}
+        onToggleEnglish={onToggleEnglish}
       />
       <main className="flex-1 overflow-hidden bg-surface-primary">{children}</main>
     </div>

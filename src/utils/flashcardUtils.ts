@@ -1,7 +1,6 @@
-import { FlashcardMode, Character, IncorrectAnswer } from '../types';
+import { FlashcardMode, Character, IncorrectAnswer, Answer } from '../types';
 import { evaluatePinyinInput } from './pinyinUtils';
 import { validateCharacterInput } from './characterUtils';
-import { getModeSpecificLimit } from './characterUtils';
 import { APP_LIMITS } from '../constants';
 
 export interface EvaluationResult {
@@ -65,15 +64,25 @@ export const createIncorrectAnswer = (
   };
 };
 
-export const getModeLimits = (mode: FlashcardMode): { minLimit: number; maxLimit: number } => {
-  const maxLimit = getModeSpecificLimit(mode);
+export const createAnswer = (
+  character: Character,
+  mode: FlashcardMode,
+  submittedInput: string,
+  characterIndex: number,
+  isCorrect: boolean
+): Answer => {
+  const incorrectAnswer = createIncorrectAnswer(character, mode, submittedInput, characterIndex);
+  return {
+    ...incorrectAnswer,
+    isCorrect,
+  };
+};
+
+export const getModeLimits = (_mode: FlashcardMode): { minLimit: number; maxLimit: number } => {
+  // All modes should support all 1500 characters
+  // The difference is in what's displayed/expected, not in available character count
   return {
     minLimit: APP_LIMITS.MIN_LIMIT,
-    maxLimit: Math.min(
-      maxLimit,
-      mode === FlashcardMode.PINYIN
-        ? APP_LIMITS.PINYIN_MODE_MAX
-        : APP_LIMITS.SIMPLIFIED_TRADITIONAL_MAX
-    ),
+    maxLimit: APP_LIMITS.PINYIN_MODE_MAX, // 1500 for all modes
   };
 };

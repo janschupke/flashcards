@@ -1,14 +1,14 @@
 import React from 'react';
-import { IncorrectAnswer, FlashcardMode } from '../../types';
+import { Answer, FlashcardMode } from '../../types';
 import { Table } from '../common/Table';
 import { TableVariant } from '../../types/components';
 
 interface IncorrectAnswersProps {
-  incorrectAnswers: IncorrectAnswer[];
+  allAnswers: Answer[];
 }
 
-export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAnswers }) => {
-  const getSubmittedColumn = (answer: IncorrectAnswer): string => {
+export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }) => {
+  const getSubmittedColumn = (answer: Answer): string => {
     if (answer.mode === FlashcardMode.PINYIN) {
       return answer.submittedPinyin;
     } else {
@@ -16,7 +16,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAns
     }
   };
 
-  const getCorrectColumn = (answer: IncorrectAnswer): string => {
+  const getCorrectColumn = (answer: Answer): string => {
     if (answer.mode === FlashcardMode.PINYIN) {
       return answer.correctPinyin;
     } else {
@@ -24,15 +24,19 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAns
     }
   };
 
-  const hasCharacterModes = incorrectAnswers.some((answer) => answer.mode !== FlashcardMode.PINYIN);
+  // Reverse order to show newest first
+  const reversedAnswers = [...allAnswers].reverse();
+
+  const hasCharacterModes = allAnswers.some((answer) => answer.mode !== FlashcardMode.PINYIN);
 
   const headers = hasCharacterModes
     ? ['Simplified', 'Traditional', 'Expected', 'Submitted', 'English']
     : ['Simplified', 'Traditional', 'Pinyin', 'Submitted', 'English'];
 
-  const rows = incorrectAnswers.map((answer) => {
+  const rows = reversedAnswers.map((answer) => {
     const submitted = getSubmittedColumn(answer);
     const correct = getCorrectColumn(answer);
+    const submittedColorClass = answer.isCorrect ? 'text-success' : 'text-error';
 
     if (hasCharacterModes) {
       return [
@@ -45,7 +49,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAns
         <span key="correct" className="text-text-secondary">
           {correct}
         </span>,
-        <span key="submitted" className="text-success">
+        <span key="submitted" className={submittedColorClass}>
           {submitted}
         </span>,
         <span key="english" className="text-text-secondary">
@@ -63,8 +67,8 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAns
         <span key="pinyin" className="text-text-secondary">
           {answer.correctPinyin}
         </span>,
-        <span key="submitted" className="text-error">
-          {answer.submittedPinyin}
+        <span key="submitted" className={submittedColorClass}>
+          {submitted}
         </span>,
         <span key="english" className="text-text-secondary">
           {answer.english}
@@ -73,10 +77,10 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ incorrectAns
     }
   });
 
-  if (incorrectAnswers.length === 0) {
+  if (allAnswers.length === 0) {
     return (
-      <div className="text-center text-text-tertiary text-sm py-4">
-        No incorrect answers yet. Keep practicing!
+      <div className="text-center text-text-tertiary text-sm sm:text-base py-4 px-2 sm:px-4">
+        No answers yet. Start practicing!
       </div>
     );
   }

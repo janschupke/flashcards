@@ -18,6 +18,11 @@ export interface IncorrectAnswer {
   mode: FlashcardMode; // Track which mode the answer was given in
 }
 
+// Answer type that includes correct/incorrect status
+export interface Answer extends IncorrectAnswer {
+  isCorrect: boolean;
+}
+
 // Add new enums
 export enum FlashcardMode {
   PINYIN = 'pinyin',
@@ -50,8 +55,12 @@ export interface FlashCardState {
   flashResult: FlashResult | null;
   // Previous character tracking
   previousCharacter: number | null;
+  // Previous answer tracking (includes submitted answer and correct/incorrect status)
+  previousAnswer: Answer | null;
   // Incorrect answers tracking
   incorrectAnswers: IncorrectAnswer[];
+  // All answers tracking (correct and incorrect)
+  allAnswers: Answer[];
   // New fields for flashcard modes
   mode: FlashcardMode;
   characterInput: string; // New field for character modes

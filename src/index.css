@@ -97,6 +97,22 @@ input {
   .card {
     @apply rounded-xl border border-border-primary;
   }
+}
+
+@layer utilities {
+  /* Slow pulsating animation for characters */
+  @keyframes slowPulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+
+  .animate-slow-pulse {
+    animation: slowPulse 3s ease-in-out infinite;
+  }
 
   .card-default {
     @apply bg-surface-secondary;

@@ -17,6 +17,8 @@ interface NavigationProps {
   onLimitChange?: (newLimit: number) => void;
   correctAnswers?: number;
   totalSeen?: number;
+  onTogglePinyin?: () => void;
+  onToggleEnglish?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -30,6 +32,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   onLimitChange,
   correctAnswers,
   totalSeen,
+  onTogglePinyin,
+  onToggleEnglish,
 }) => {
   return (
     <div className="bg-surface-secondary border-b border-border-primary">
@@ -59,6 +63,8 @@ export const Navigation: React.FC<NavigationProps> = ({
             onLimitChange={onLimitChange}
             correctAnswers={correctAnswers}
             totalSeen={totalSeen}
+            onTogglePinyin={onTogglePinyin}
+            onToggleEnglish={onToggleEnglish}
           />
         )}
     </div>

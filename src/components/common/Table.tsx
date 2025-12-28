@@ -28,7 +28,7 @@ export const Table: React.FC<TableProps> = ({
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="text-left text-text-tertiary text-sm font-semibold px-3 py-2 border-b border-border-secondary"
+                className="text-left text-text-tertiary text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 border-b border-border-secondary"
               >
                 {header}
               </th>
@@ -41,7 +41,7 @@ export const Table: React.FC<TableProps> = ({
               {row.map((cell, cellIndex) => (
                 <td
                   key={cellIndex}
-                  className="text-text-secondary text-sm px-3 py-2 border-b border-border-secondary align-middle"
+                  className="text-text-secondary text-xs sm:text-sm px-2 sm:px-3 py-2 border-b border-border-secondary align-middle"
                 >
                   {cell}
                 </td>
