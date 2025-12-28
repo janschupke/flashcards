@@ -26,6 +26,15 @@ describe('pinyinUtils', () => {
       expect(normalizePinyin('lǜ')).toBe('lü');
     });
 
+    it('should convert v to ü (common alternative input)', () => {
+      expect(normalizePinyin('lv')).toBe('lü');
+      expect(normalizePinyin('nv')).toBe('nü');
+      expect(normalizePinyin('jv')).toBe('jü');
+      expect(normalizePinyin('qv')).toBe('qü');
+      expect(normalizePinyin('xv')).toBe('xü');
+      expect(normalizePinyin('yv')).toBe('yü');
+    });
+
     it('should trim whitespace', () => {
       expect(normalizePinyin('  wǒ  ')).toBe('wo');
       expect(normalizePinyin('nǐ ')).toBe('ni');
@@ -60,6 +69,35 @@ describe('pinyinUtils', () => {
 
     it('should handle empty input', () => {
       expect(evaluatePinyinInput('', 'wǒ')).toBe(false);
+    });
+
+    it('should accept v as alternative to ü', () => {
+      // User types 'v' instead of 'ü'
+      expect(evaluatePinyinInput('lv', 'lǚ')).toBe(true);
+      expect(evaluatePinyinInput('nv', 'nǚ')).toBe(true);
+      expect(evaluatePinyinInput('jv', 'jǚ')).toBe(true);
+      expect(evaluatePinyinInput('qv', 'qǚ')).toBe(true);
+      expect(evaluatePinyinInput('xv', 'xǚ')).toBe(true);
+      expect(evaluatePinyinInput('yv', 'yǚ')).toBe(true);
+
+      // User types 'ü' when correct has 'ü'
+      expect(evaluatePinyinInput('lü', 'lǚ')).toBe(true);
+      expect(evaluatePinyinInput('nü', 'nǚ')).toBe(true);
+
+      // User types 'v' when correct has 'v' (if data uses v)
+      expect(evaluatePinyinInput('lv', 'lv')).toBe(true);
+      expect(evaluatePinyinInput('lü', 'lv')).toBe(true);
+
+      // Complex cases with multiple syllables
+      expect(evaluatePinyinInput('lvan', 'lüǎn')).toBe(true);
+      expect(evaluatePinyinInput('lüan', 'lüǎn')).toBe(true);
+      expect(evaluatePinyinInput('lvan', 'lvan')).toBe(true);
+    });
+
+    it('should handle v/ü in multiple readings', () => {
+      expect(evaluatePinyinInput('lv', 'lǚ/lv')).toBe(true);
+      expect(evaluatePinyinInput('lü', 'lǚ/lv')).toBe(true);
+      expect(evaluatePinyinInput('lv', 'lǚ;lv')).toBe(true);
     });
   });
 

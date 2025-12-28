@@ -31,6 +31,7 @@ export function normalizePinyin(pinyin: string): string {
     .replace(/ǘ/g, 'ü')
     .replace(/ǚ/g, 'ü')
     .replace(/ǜ/g, 'ü')
+    .replace(/v/g, 'ü') // Convert 'v' to 'ü' (common alternative input for ü)
     .replace(/ń/g, 'n')
     .replace(/ň/g, 'n')
     .replace(/ḿ/g, 'm')
@@ -50,6 +51,8 @@ export function evaluatePinyinInput(userInput: string, correctPinyin: string): b
   // Handle multiple pinyin readings (separated by semicolons or slashes)
   const correctReadings = normalizedCorrect.split(/[;/]/).map((r) => r.trim());
 
+  // Since normalizePinyin converts 'v' to 'ü', both user input 'v' and correct pinyin 'ü'
+  // (or vice versa) will be normalized to 'ü' and match correctly
   return correctReadings.includes(normalizedInput);
 }
 

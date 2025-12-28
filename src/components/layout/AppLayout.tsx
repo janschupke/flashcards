@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import { ToastContainer } from '../common/ToastContainer';
-import { useFlashCard } from '../../hooks/useFlashCard';
+import { useFlashCardContext } from '../../contexts/FlashCardContext';
 import { HINT_TYPES } from '../../types';
 import { AppTab } from '../../types/layout';
 
@@ -17,7 +17,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     toggleHint,
     setMode,
     resetStatistics,
-  } = useFlashCard();
+  } = useFlashCardContext();
 
   // Determine active tab from route
   const activeTab =

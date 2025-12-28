@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { FlashCardsContent } from './FlashCardsContent';
 import { ToastProvider } from '../../contexts/ToastContext';
+import { FlashCardProvider } from '../../contexts/FlashCardContext';
 
 // Mock the data
 vi.mock('../../data/characters.json', () => ({
@@ -20,7 +21,9 @@ import { BrowserRouter } from 'react-router-dom';
 const renderWithToast = (component: React.ReactElement): ReturnType<typeof render> => {
   return render(
     <BrowserRouter>
-      <ToastProvider>{component}</ToastProvider>
+      <ToastProvider>
+        <FlashCardProvider>{component}</FlashCardProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 };

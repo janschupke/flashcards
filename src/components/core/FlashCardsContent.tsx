@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useFlashCard } from '../../hooks/useFlashCard';
+import { useFlashCardContext } from '../../contexts/FlashCardContext';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useModeNavigation } from '../../hooks/useModeNavigation';
 import { useToastContext } from '../../contexts/ToastContext';
@@ -9,11 +9,10 @@ import { ControlButtons } from '../controls/ControlButtons';
 import { PinyinInput } from '../input/PinyinInput';
 import { CharacterInput } from '../input/CharacterInput';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
-import { FlashCardProps } from '../../types';
 import { getExpectedCharacter, getCharacterAtIndex, getHintText } from '../../utils/characterUtils';
 import data from '../../data/characters.json';
 
-export const FlashCardsContent: React.FC<FlashCardProps> = ({ initialCurrent }) => {
+export const FlashCardsContent: React.FC = () => {
   const {
     current,
     hint,
@@ -32,9 +31,7 @@ export const FlashCardsContent: React.FC<FlashCardProps> = ({ initialCurrent }) 
     setMode,
     setPinyinFlashResult,
     setCharacterFlashResult,
-  } = useFlashCard({
-    initialCurrent,
-  });
+  } = useFlashCardContext();
 
   // Show toast when range expands
   const { showToast } = useToastContext();

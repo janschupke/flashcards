@@ -123,6 +123,18 @@ input {
     animation: slowPulse 3s ease-in-out infinite;
   }
 
+  /* Rolldown animation for toasts */
+  @keyframes rolldown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   .card-default {
     @apply bg-surface-secondary;
   }
