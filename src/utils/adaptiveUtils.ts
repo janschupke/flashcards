@@ -18,8 +18,9 @@ export const getSuccessRate = (performance: CharacterPerformance | null): number
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data
  * @returns Array of weights (probabilities) for each character
+ * @internal Used internally by selectAdaptiveCharacter
  */
-export const calculateCharacterWeights = (
+const calculateCharacterWeights = (
   characters: number[],
   performance: CharacterPerformance[]
 ): number[] => {

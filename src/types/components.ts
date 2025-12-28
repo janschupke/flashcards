@@ -30,9 +30,3 @@ export enum ButtonSize {
   MD = 'md',
   LG = 'lg',
 }
-
-export enum TableVariant {
-  DEFAULT = 'default',
-  STRIPED = 'striped',
-  BORDERED = 'bordered',
-}

@@ -7,12 +7,7 @@ import { AppTab } from '../../types/layout';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const {
-    adaptiveRange,
-    correctAnswers,
-    totalSeen,
-    resetStatistics,
-  } = useFlashCardContext();
+  const { adaptiveRange, correctAnswers, totalSeen, resetStatistics } = useFlashCardContext();
 
   // Determine active tab from route
   const activeTab =

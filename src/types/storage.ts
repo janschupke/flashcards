@@ -11,7 +11,3 @@ export interface StoredCounters {
   totalAttempted: number;
   lastUpdated: number;
 }
-
-export interface StorageData {
-  characterPerformance: CharacterPerformance[];
-}

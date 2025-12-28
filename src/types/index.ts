@@ -89,11 +89,6 @@ export interface FlashCardActions {
   setCharacterFlashResult: (input: string) => void;
 }
 
-export interface FlashCardProps {
-  initialCurrent?: number;
-  initialLimit?: number;
-}
-
 // Update existing constants to use enums
 export const HINT_TYPES = {
   NONE: HintType.NONE,

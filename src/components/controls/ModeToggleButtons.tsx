@@ -22,6 +22,3 @@ export const ModeToggleButtons: React.FC<ModeToggleButtonsProps> = ({
     </div>
   );
 };
-
-// Re-export MODES for backward compatibility
-export { MODES } from '../../constants/modes';

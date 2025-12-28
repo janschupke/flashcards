@@ -20,7 +20,7 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "knip:fix:files": "knip --fix --allow-remove-files",
-    "check": "npm run typecheck && npm run test && npm run lint && npm run format && npm run build"
+    "check": "npm run knip && npm run typecheck && npm run test && npm run lint && npm run format && npm run build"
   },
   "author": "jan@schupke.io",
   "license": "MIT",
@@ -40,7 +40,6 @@
     "@types/node": "^24.0.10",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
     "@typescript-eslint/parser": "^8.50.1",
     "@vitejs/plugin-react": "^4.6.0",

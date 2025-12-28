@@ -25,11 +25,7 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
   return (
     <div className="flex items-center justify-between gap-2 sm:gap-3 px-2 py-2 sm:px-4 sm:py-3 w-full">
       {/* Mode buttons - left aligned */}
-      <ModeButtonGroup
-        currentMode={currentMode}
-        onModeChange={onModeChange}
-        size={ButtonSize.SM}
-      />
+      <ModeButtonGroup currentMode={currentMode} onModeChange={onModeChange} size={ButtonSize.SM} />
 
       {/* Hint toggle buttons - right aligned */}
       <div className="flex gap-1 ml-auto">
@@ -55,4 +51,3 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
     </div>
   );
 };
-

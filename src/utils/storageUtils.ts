@@ -1,5 +1,5 @@
 import { Answer } from '../types';
-import { CharacterPerformance, StoredCounters, StorageData } from '../types/storage';
+import { CharacterPerformance, StoredCounters } from '../types/storage';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { logger } from './logger';
 
@@ -12,17 +12,6 @@ const STORAGE_KEYS = {
 } as const;
 
 // Character Performance Functions
-export const getCharacterPerformance = (characterIndex: number): CharacterPerformance | null => {
-  try {
-    const data = window.localStorage.getItem(STORAGE_KEYS.PERFORMANCE);
-    if (!data) return null;
-
-    const performance = JSON.parse(data) as CharacterPerformance[];
-    return performance.find((p) => p.characterIndex === characterIndex) ?? null;
-  } catch {
-    return null;
-  }
-};
 
 export const getAllCharacterPerformance = (): CharacterPerformance[] => {
   try {
@@ -56,14 +45,6 @@ export const updateCharacterPerformance = (characterIndex: number, isCorrect: bo
     window.localStorage.setItem(STORAGE_KEYS.PERFORMANCE, JSON.stringify(performance));
   } catch (error) {
     logger.error('Failed to update character performance:', error);
-  }
-};
-
-export const clearCharacterPerformance = (): void => {
-  try {
-    window.localStorage.removeItem(STORAGE_KEYS.PERFORMANCE);
-  } catch (error) {
-    logger.error('Failed to clear character performance:', error);
   }
 };
 
@@ -164,23 +145,5 @@ export const clearAllStorage = (): void => {
     });
   } catch (error) {
     logger.error('Failed to clear all storage:', error);
-  }
-};
-
-// Storage Data Functions (for compatibility)
-export const getStorageData = (): StorageData => {
-  return {
-    characterPerformance: getAllCharacterPerformance(),
-  };
-};
-
-export const saveStorageData = (data: StorageData): void => {
-  try {
-    window.localStorage.setItem(
-      STORAGE_KEYS.PERFORMANCE,
-      JSON.stringify(data.characterPerformance)
-    );
-  } catch (error) {
-    logger.error('Failed to save storage data:', error);
   }
 };

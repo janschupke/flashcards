@@ -42,8 +42,6 @@ export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   }, [location.pathname]);
 
   return (
-    <div className={`h-full ${shouldFadeIn ? 'animate-fade-in' : 'opacity-0'}`}>
-      {children}
-    </div>
+    <div className={`h-full ${shouldFadeIn ? 'animate-fade-in' : 'opacity-0'}`}>{children}</div>
   );
 };
