@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppTab } from '../../types/layout';
 import { Navigation } from './Navigation';
-import { FlashcardMode } from '../../types';
+import { FlashcardMode, HintType } from '../../types';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -16,6 +16,7 @@ interface AppLayoutProps {
   onLimitChange?: (newLimit: number) => void;
   correctAnswers?: number;
   totalSeen?: number;
+  currentHint?: HintType;
   onTogglePinyin?: () => void;
   onToggleEnglish?: () => void;
 }
@@ -32,6 +33,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   onLimitChange,
   correctAnswers,
   totalSeen,
+  currentHint,
   onTogglePinyin,
   onToggleEnglish,
 }) => {
@@ -48,6 +50,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         onLimitChange={onLimitChange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
+        currentHint={currentHint}
         onTogglePinyin={onTogglePinyin}
         onToggleEnglish={onToggleEnglish}
       />

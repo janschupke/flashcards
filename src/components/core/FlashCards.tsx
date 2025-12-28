@@ -97,6 +97,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
       onLimitChange={updateLimit}
       correctAnswers={correctAnswers}
       totalSeen={totalSeen}
+      currentHint={hint}
       onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
       onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
     >

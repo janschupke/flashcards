@@ -3,7 +3,7 @@ import { AppTab } from '../../types/layout';
 import { NAVIGATION_CONSTANTS } from '../../constants/layout';
 import { TabNavigation } from './TabNavigation';
 import { TopControls } from './TopControls';
-import { FlashcardMode } from '../../types';
+import { FlashcardMode, HintType } from '../../types';
 
 interface NavigationProps {
   activeTab: AppTab;
@@ -17,6 +17,7 @@ interface NavigationProps {
   onLimitChange?: (newLimit: number) => void;
   correctAnswers?: number;
   totalSeen?: number;
+  currentHint?: HintType;
   onTogglePinyin?: () => void;
   onToggleEnglish?: () => void;
 }
@@ -32,6 +33,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onLimitChange,
   correctAnswers,
   totalSeen,
+  currentHint,
   onTogglePinyin,
   onToggleEnglish,
 }) => {
@@ -63,6 +65,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             onLimitChange={onLimitChange}
             correctAnswers={correctAnswers}
             totalSeen={totalSeen}
+            currentHint={currentHint}
             onTogglePinyin={onTogglePinyin}
             onToggleEnglish={onToggleEnglish}
           />

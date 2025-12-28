@@ -2,27 +2,13 @@ import React from 'react';
 import { Answer, FlashcardMode } from '../../types';
 import { Table } from '../common/Table';
 import { TableVariant } from '../../types/components';
+import { generateAnswerTableRows } from '../../utils/tableUtils';
 
 interface IncorrectAnswersProps {
   allAnswers: Answer[];
 }
 
 export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }) => {
-  const getSubmittedColumn = (answer: Answer): string => {
-    if (answer.mode === FlashcardMode.PINYIN) {
-      return answer.submittedPinyin;
-    } else {
-      return answer.submittedCharacter ?? '(empty)';
-    }
-  };
-
-  const getCorrectColumn = (answer: Answer): string => {
-    if (answer.mode === FlashcardMode.PINYIN) {
-      return answer.correctPinyin;
-    } else {
-      return answer.correctCharacter ?? '';
-    }
-  };
 
   // Reverse order to show newest first
   const reversedAnswers = [...allAnswers].reverse();
@@ -33,49 +19,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
     ? ['Simplified', 'Traditional', 'Expected', 'Submitted', 'English']
     : ['Simplified', 'Traditional', 'Pinyin', 'Submitted', 'English'];
 
-  const rows = reversedAnswers.map((answer) => {
-    const submitted = getSubmittedColumn(answer);
-    const correct = getCorrectColumn(answer);
-    const submittedColorClass = answer.isCorrect ? 'text-success' : 'text-error';
-
-    if (hasCharacterModes) {
-      return [
-        <span key="simplified" className="text-text-secondary">
-          {answer.simplified}
-        </span>,
-        <span key="traditional" className="text-text-secondary">
-          {answer.traditional}
-        </span>,
-        <span key="correct" className="text-text-secondary">
-          {correct}
-        </span>,
-        <span key="submitted" className={submittedColorClass}>
-          {submitted}
-        </span>,
-        <span key="english" className="text-text-secondary">
-          {answer.english}
-        </span>,
-      ];
-    } else {
-      return [
-        <span key="simplified" className="text-text-secondary">
-          {answer.simplified}
-        </span>,
-        <span key="traditional" className="text-text-secondary">
-          {answer.traditional}
-        </span>,
-        <span key="pinyin" className="text-text-secondary">
-          {answer.correctPinyin}
-        </span>,
-        <span key="submitted" className={submittedColorClass}>
-          {submitted}
-        </span>,
-        <span key="english" className="text-text-secondary">
-          {answer.english}
-        </span>,
-      ];
-    }
-  });
+  const rows = generateAnswerTableRows(reversedAnswers, hasCharacterModes);
 
   if (allAnswers.length === 0) {
     return (

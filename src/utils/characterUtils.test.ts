@@ -63,7 +63,7 @@ describe('characterUtils', () => {
 
     it('returns default message when no hint is active', () => {
       const text = getHintText(mockCharacter, HintType.NONE);
-      expect(text).toBe('Tap a button below to reveal');
+      expect(text).toBe('Use buttons in top panel to reveal');
     });
 
     it('returns pinyin when pinyin hint is active', () => {

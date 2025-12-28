@@ -53,15 +53,16 @@ describe('PreviousCharacter', () => {
     expect(screen.getByText('Submitted')).toBeInTheDocument();
 
     expect(screen.getAllByText('我')).toHaveLength(2); // Simplified and Traditional
-    expect(screen.getByText('wǒ')).toBeInTheDocument(); // Pinyin
+    expect(screen.getAllByText('wǒ')).toHaveLength(2); // Pinyin and Submitted (same as correct)
     expect(screen.getByText('I ; me')).toBeInTheDocument();
-    expect(screen.getByText('wǒ')).toBeInTheDocument(); // Submitted (same as correct)
   });
 
   it('displays correct answer with green color', () => {
-    render(<PreviousCharacter previousAnswer={mockCorrectAnswer} />);
-    const submittedElement = screen.getByText('wǒ');
-    expect(submittedElement).toHaveClass('text-success');
+    const { container } = render(<PreviousCharacter previousAnswer={mockCorrectAnswer} />);
+    // Find the Submitted column value (should have text-success class)
+    const submittedColumn = container.querySelector('.text-success');
+    expect(submittedColumn).toBeInTheDocument();
+    expect(submittedColumn).toHaveTextContent('wǒ');
   });
 
   it('displays incorrect answer with red color', () => {
@@ -89,7 +90,10 @@ describe('PreviousCharacter', () => {
       submittedPinyin: '',
       correctPinyin: '',
     };
-    render(<PreviousCharacter previousAnswer={characterAnswer} />);
-    expect(screen.getByText('我')).toBeInTheDocument(); // Submitted character
+    const { container } = render(<PreviousCharacter previousAnswer={characterAnswer} />);
+    // Find the Submitted column value (should have text-success class)
+    const submittedColumn = container.querySelector('.text-success');
+    expect(submittedColumn).toBeInTheDocument();
+    expect(submittedColumn).toHaveTextContent('我');
   });
 });

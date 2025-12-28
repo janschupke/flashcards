@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FlashcardMode } from '../types';
-import { MODES } from '../components/controls/ModeToggleButtons';
+import { MODES } from '../constants/modes';
 
 interface UseModeNavigationProps {
   currentMode: FlashcardMode;

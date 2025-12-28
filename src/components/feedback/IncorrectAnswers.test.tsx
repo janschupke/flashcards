@@ -50,8 +50,8 @@ describe('IncorrectAnswers', () => {
     expect(screen.getAllByText('的').length).toBeGreaterThan(0);
     expect(screen.getAllByText('我').length).toBeGreaterThan(0);
 
-    // Check submitted answers
-    expect(screen.getByText('yī')).toBeInTheDocument(); // Correct answer (green)
+    // Check submitted answers (yī appears in both Pinyin and Submitted columns)
+    expect(screen.getAllByText('yī').length).toBeGreaterThan(0); // Correct answer (green)
     expect(screen.getByText('wo')).toBeInTheDocument(); // Incorrect answer (red)
     expect(screen.getByText('(empty)')).toBeInTheDocument(); // Empty answer (red)
   });

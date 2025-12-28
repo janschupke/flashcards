@@ -1,0 +1,47 @@
+import React from 'react';
+import { FlashcardMode } from '../../types';
+import { Button } from '../common/Button';
+import { ButtonVariant, ButtonSize } from '../../types/components';
+import { MODES } from '../../constants/modes';
+import { useModeToggle } from '../../hooks/useModeToggle';
+
+interface ModeButtonGroupProps {
+  currentMode: FlashcardMode;
+  onModeChange: (mode: FlashcardMode) => void;
+  size?: ButtonSize;
+  className?: string;
+}
+
+/**
+ * Reusable component for rendering mode toggle buttons
+ * Extracted from TopControls and ModeToggleButtons to eliminate duplication
+ */
+export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
+  currentMode,
+  onModeChange,
+  size = ButtonSize.MD,
+  className = '',
+}) => {
+  const { handleModeChange } = useModeToggle(currentMode, onModeChange);
+
+  return (
+    <div className={`flex gap-1 ${className}`}>
+      {MODES.map(({ mode, label, title }) => {
+        const isActive = currentMode === mode;
+        return (
+          <Button
+            key={mode}
+            variant={isActive ? ButtonVariant.PRIMARY : ButtonVariant.SECONDARY}
+            onClick={() => handleModeChange(mode)}
+            title={title}
+            size={size}
+            className={size === ButtonSize.SM ? 'text-xs' : ''}
+          >
+            {label}
+          </Button>
+        );
+      })}
+    </div>
+  );
+};
+

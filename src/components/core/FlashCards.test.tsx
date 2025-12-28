@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { FlashCards } from './FlashCards';
 import { APP_LIMITS } from '../../constants';
 // FlashcardMode is used in test assertions via MODES
-import { MODES } from '../controls/ModeToggleButtons';
+import { MODES } from '../../constants/modes';
 import { CHINESE_TEXT } from '../../constants';
 
 // Helper function to get input value safely
