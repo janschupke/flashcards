@@ -21,7 +21,7 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ currentIndex
   return (
     <div className="animate-slideIn">
       <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8">
-        {mode === FlashcardMode.PINYIN ? (
+        {mode === FlashcardMode.BOTH ? (
           <>
             <div
               className="text-6xl sm:text-7xl md:text-8xl font-bold text-text-primary mb-3 sm:mb-4 md:mb-5 drop-shadow-lg leading-none animate-slow-pulse"
@@ -38,17 +38,17 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ currentIndex
           </>
         ) : mode === FlashcardMode.SIMPLIFIED ? (
           <div
-            className="text-6xl sm:text-7xl md:text-8xl font-bold text-accent mb-3 sm:mb-4 md:mb-5 drop-shadow-lg leading-none animate-slow-pulse"
-            data-testid="traditional-character"
-          >
-            {traditionalChar}
-          </div>
-        ) : (
-          <div
             className="text-6xl sm:text-7xl md:text-8xl font-bold text-text-primary mb-3 sm:mb-4 md:mb-5 drop-shadow-lg leading-none animate-slow-pulse"
             data-testid="simplified-character"
           >
             {simplifiedChar}
+          </div>
+        ) : (
+          <div
+            className="text-6xl sm:text-7xl md:text-8xl font-bold text-accent mb-3 sm:mb-4 md:mb-5 drop-shadow-lg leading-none animate-slow-pulse"
+            data-testid="traditional-character"
+          >
+            {traditionalChar}
           </div>
         )}
       </div>

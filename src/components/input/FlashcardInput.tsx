@@ -15,8 +15,7 @@ interface FlashcardInputProps {
 }
 
 /**
- * Unified flashcard input component that handles both pinyin and character inputs
- * Extracted common logic from PinyinInput and CharacterInput
+ * Common flashcard input component logic for pinyin input
  */
 export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
   (

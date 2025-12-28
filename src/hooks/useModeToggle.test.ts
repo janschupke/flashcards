@@ -6,7 +6,7 @@ import { FlashcardMode } from '../types';
 describe('useModeToggle', () => {
   it('calls onModeChange when mode is different from currentMode', () => {
     const mockOnModeChange = vi.fn();
-    const { result } = renderHook(() => useModeToggle(FlashcardMode.PINYIN, mockOnModeChange));
+    const { result } = renderHook(() => useModeToggle(FlashcardMode.BOTH, mockOnModeChange));
 
     act(() => {
       result.current.handleModeChange(FlashcardMode.SIMPLIFIED);
@@ -18,10 +18,10 @@ describe('useModeToggle', () => {
 
   it('does not call onModeChange when mode is same as currentMode', () => {
     const mockOnModeChange = vi.fn();
-    const { result } = renderHook(() => useModeToggle(FlashcardMode.PINYIN, mockOnModeChange));
+    const { result } = renderHook(() => useModeToggle(FlashcardMode.BOTH, mockOnModeChange));
 
     act(() => {
-      result.current.handleModeChange(FlashcardMode.PINYIN);
+      result.current.handleModeChange(FlashcardMode.BOTH);
     });
 
     expect(mockOnModeChange).not.toHaveBeenCalled();
@@ -32,7 +32,7 @@ describe('useModeToggle', () => {
     const { result, rerender } = renderHook(
       ({ currentMode }) => useModeToggle(currentMode, mockOnModeChange),
       {
-        initialProps: { currentMode: FlashcardMode.PINYIN },
+        initialProps: { currentMode: FlashcardMode.BOTH },
       }
     );
 

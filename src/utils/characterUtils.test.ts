@@ -4,12 +4,8 @@ import {
   getHintText,
   validateLimit,
   getRandomIndex,
-  validateCharacterInput,
-  getFilteredCharacters,
-  getExpectedCharacter,
   getDisplayCharacter,
   getRandomCharacterIndex,
-  getCharacterAtIndex,
 } from './characterUtils';
 import { FlashcardMode, HintType } from '../types';
 
@@ -130,62 +126,6 @@ describe('characterUtils', () => {
     });
   });
 
-  describe('validateCharacterInput', () => {
-    it('returns true for exact match', () => {
-      expect(validateCharacterInput('们', '们')).toBe(true);
-      expect(validateCharacterInput('們', '們')).toBe(true);
-    });
-
-    it('returns false for different characters', () => {
-      expect(validateCharacterInput('们', '們')).toBe(false);
-      expect(validateCharacterInput('个', '们')).toBe(false);
-    });
-
-    it('handles whitespace correctly', () => {
-      expect(validateCharacterInput(' 们 ', '们')).toBe(true);
-      expect(validateCharacterInput('', '们')).toBe(false);
-    });
-  });
-
-  describe('getFilteredCharacters', () => {
-    it('returns all characters for pinyin mode', () => {
-      const characters = getFilteredCharacters(FlashcardMode.PINYIN);
-      expect(characters).toHaveLength(9);
-    });
-
-    it('returns only different characters for simplified mode', () => {
-      const characters = getFilteredCharacters(FlashcardMode.SIMPLIFIED);
-      expect(characters).toHaveLength(3); // 们, 这, 个 have different simplified/traditional
-    });
-
-    it('returns only different characters for traditional mode', () => {
-      const characters = getFilteredCharacters(FlashcardMode.TRADITIONAL);
-      expect(characters).toHaveLength(3); // 们, 这, 个 have different simplified/traditional
-    });
-  });
-
-  describe('getExpectedCharacter', () => {
-    const mockCharacter = {
-      item: '7',
-      simplified: '们',
-      traditional: '們',
-      pinyin: 'men',
-      english: 'plural',
-    };
-
-    it('returns simplified for simplified mode', () => {
-      expect(getExpectedCharacter(mockCharacter, FlashcardMode.SIMPLIFIED)).toBe('们');
-    });
-
-    it('returns traditional for traditional mode', () => {
-      expect(getExpectedCharacter(mockCharacter, FlashcardMode.TRADITIONAL)).toBe('們');
-    });
-
-    it('returns simplified as fallback for pinyin mode', () => {
-      expect(getExpectedCharacter(mockCharacter, FlashcardMode.PINYIN)).toBe('们');
-    });
-  });
-
   describe('getDisplayCharacter', () => {
     const mockCharacter = {
       item: '7',
@@ -195,19 +135,19 @@ describe('characterUtils', () => {
       english: 'plural',
     };
 
-    it('returns both characters for pinyin mode', () => {
-      const result = getDisplayCharacter(mockCharacter, FlashcardMode.PINYIN);
+    it('returns both characters for BOTH mode', () => {
+      const result = getDisplayCharacter(mockCharacter, FlashcardMode.BOTH);
       expect(result).toEqual({ simplified: '们', traditional: '們' });
     });
 
-    it('returns only traditional for simplified mode', () => {
+    it('returns only simplified for SIMPLIFIED mode', () => {
       const result = getDisplayCharacter(mockCharacter, FlashcardMode.SIMPLIFIED);
-      expect(result).toEqual({ simplified: '', traditional: '們' });
+      expect(result).toEqual({ simplified: '们', traditional: '' });
     });
 
-    it('returns only simplified for traditional mode', () => {
+    it('returns only traditional for TRADITIONAL mode', () => {
       const result = getDisplayCharacter(mockCharacter, FlashcardMode.TRADITIONAL);
-      expect(result).toEqual({ simplified: '们', traditional: '' });
+      expect(result).toEqual({ simplified: '', traditional: '們' });
     });
   });
 
@@ -222,46 +162,6 @@ describe('characterUtils', () => {
       const result = getRandomCharacterIndex(10);
       expect(result).toBeGreaterThanOrEqual(0);
       expect(result).toBeLessThan(10);
-    });
-  });
-
-  describe('getCharacterAtIndex', () => {
-    it('returns character from filtered list for simplified mode', () => {
-      const character = getCharacterAtIndex(0, FlashcardMode.SIMPLIFIED);
-      expect(character).toEqual({
-        item: '7',
-        simplified: '们',
-        traditional: '們',
-        pinyin: 'men',
-        english: 'plural',
-      });
-    });
-
-    it('returns character from filtered list for traditional mode', () => {
-      const character = getCharacterAtIndex(0, FlashcardMode.TRADITIONAL);
-      expect(character).toEqual({
-        item: '7',
-        simplified: '们',
-        traditional: '們',
-        pinyin: 'men',
-        english: 'plural',
-      });
-    });
-
-    it('returns character from full list for pinyin mode', () => {
-      const character = getCharacterAtIndex(0, FlashcardMode.PINYIN);
-      expect(character).toEqual({
-        item: '1',
-        simplified: '一',
-        traditional: '一',
-        pinyin: 'yī',
-        english: 'one',
-      });
-    });
-
-    it('returns null for out of bounds index', () => {
-      const character = getCharacterAtIndex(10, FlashcardMode.SIMPLIFIED);
-      expect(character).toBeNull();
     });
   });
 });

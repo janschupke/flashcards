@@ -3,14 +3,13 @@ import { useFlashCardContext } from '../../contexts/FlashCardContext';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useModeNavigation } from '../../hooks/useModeNavigation';
 import { useToastContext } from '../../contexts/ToastContext';
-import { HINT_TYPES, FlashcardMode } from '../../types';
+import { HINT_TYPES } from '../../types';
 import { CharacterDisplay } from './CharacterDisplay';
 import { ControlButtons } from '../controls/ControlButtons';
 import { PinyinInput } from '../input/PinyinInput';
-import { CharacterInput } from '../input/CharacterInput';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
 import { FlashcardControls } from '../controls/FlashcardControls';
-import { getExpectedCharacter, getCharacterAtIndex, getHintText } from '../../utils/characterUtils';
+import { getHintText } from '../../utils/characterUtils';
 import data from '../../data/characters.json';
 
 export const FlashcardPage: React.FC = () => {
@@ -18,20 +17,16 @@ export const FlashcardPage: React.FC = () => {
     current,
     hint,
     isPinyinCorrect,
-    isCharacterCorrect,
     flashResult,
     previousAnswer,
     mode,
     pinyinInput,
-    characterInput,
     adaptiveRange,
     getNext,
     toggleHint,
     setPinyinInput,
-    setCharacterInput,
     setMode,
     setPinyinFlashResult,
-    setCharacterFlashResult,
   } = useFlashCardContext();
 
   // Show toast when range expands
@@ -44,9 +39,8 @@ export const FlashcardPage: React.FC = () => {
     prevRangeRef.current = adaptiveRange;
   }, [adaptiveRange, showToast]);
 
-  // Get current character based on mode
-  const currentCharacter =
-    mode === FlashcardMode.PINYIN ? (data[current] ?? null) : getCharacterAtIndex(current, mode);
+  // Get current character - always return full character (mode only affects display)
+  const currentCharacter = data[current] ?? null;
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
@@ -59,19 +53,13 @@ export const FlashcardPage: React.FC = () => {
   // Mode navigation with arrow keys
   useModeNavigation({ currentMode: mode, onModeChange: setMode });
 
-  // Refs for focusing inputs
+  // Ref for focusing pinyin input
   const pinyinInputRef = useRef<HTMLInputElement>(null);
-  const characterInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus the relevant input after mode change
+  // Focus pinyin input after mode change
   useEffect(() => {
-    if (mode === FlashcardMode.PINYIN && pinyinInputRef.current) {
+    if (pinyinInputRef.current) {
       pinyinInputRef.current.focus();
-    } else if (
-      (mode === FlashcardMode.SIMPLIFIED || mode === FlashcardMode.TRADITIONAL) &&
-      characterInputRef.current
-    ) {
-      characterInputRef.current.focus();
     }
   }, [mode]);
 
@@ -90,30 +78,16 @@ export const FlashcardPage: React.FC = () => {
       <div className="flex-1 flex flex-col items-center justify-center">
         <CharacterDisplay currentIndex={current} mode={mode} />
 
-        {mode === FlashcardMode.PINYIN ? (
-          <PinyinInput
-            ref={pinyinInputRef}
-            value={pinyinInput}
-            onChange={setPinyinInput}
-            currentPinyin={currentCharacter?.pinyin ?? ''}
-            onSubmit={setPinyinFlashResult}
-            isCorrect={isPinyinCorrect}
-            disabled={false}
-            flashResult={flashResult}
-          />
-        ) : (
-          <CharacterInput
-            ref={characterInputRef}
-            value={characterInput}
-            onChange={setCharacterInput}
-            expectedCharacter={currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''}
-            onSubmit={setCharacterFlashResult}
-            isCorrect={isCharacterCorrect}
-            disabled={false}
-            flashResult={flashResult}
-            mode={mode}
-          />
-        )}
+        <PinyinInput
+          ref={pinyinInputRef}
+          value={pinyinInput}
+          onChange={setPinyinInput}
+          currentPinyin={currentCharacter?.pinyin ?? ''}
+          onSubmit={setPinyinFlashResult}
+          isCorrect={isPinyinCorrect}
+          disabled={false}
+          flashResult={flashResult}
+        />
 
         <div className="mt-4 sm:mt-6">
           <ControlButtons onNext={getNext} />

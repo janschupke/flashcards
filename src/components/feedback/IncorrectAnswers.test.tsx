@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { IncorrectAnswers } from './IncorrectAnswers';
-import { Answer, FlashcardMode } from '../../types';
+import { Answer } from '../../types';
 
 describe('IncorrectAnswers', () => {
   const mockAllAnswers: Answer[] = [
@@ -11,7 +11,6 @@ describe('IncorrectAnswers', () => {
       simplified: '我',
       traditional: '我',
       english: 'I ; me',
-      mode: FlashcardMode.PINYIN,
       isCorrect: false,
     },
     {
@@ -21,7 +20,6 @@ describe('IncorrectAnswers', () => {
       simplified: '的',
       traditional: '的',
       english: 'possessive p.',
-      mode: FlashcardMode.PINYIN,
       isCorrect: false,
     },
     {
@@ -31,7 +29,6 @@ describe('IncorrectAnswers', () => {
       simplified: '一',
       traditional: '一',
       english: 'one',
-      mode: FlashcardMode.PINYIN,
       isCorrect: true,
     },
   ];

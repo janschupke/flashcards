@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { PreviousCharacter } from './PreviousCharacter';
-import { Answer, FlashcardMode } from '../../types';
+import { Answer } from '../../types';
 
 describe('PreviousCharacter', () => {
   const mockCorrectAnswer: Answer = {
@@ -10,7 +10,6 @@ describe('PreviousCharacter', () => {
     simplified: '我',
     traditional: '我',
     english: 'I ; me',
-    mode: FlashcardMode.PINYIN,
     isCorrect: true,
   };
 
@@ -21,7 +20,6 @@ describe('PreviousCharacter', () => {
     simplified: '我',
     traditional: '我',
     english: 'I ; me',
-    mode: FlashcardMode.PINYIN,
     isCorrect: false,
   };
 
@@ -32,7 +30,6 @@ describe('PreviousCharacter', () => {
     simplified: '好',
     traditional: '好',
     english: 'good',
-    mode: FlashcardMode.PINYIN,
     isCorrect: false,
   };
 
@@ -75,25 +72,5 @@ describe('PreviousCharacter', () => {
     render(<PreviousCharacter previousAnswer={mockEmptyAnswer} />);
     const submittedElement = screen.getByText('(empty)');
     expect(submittedElement).toHaveClass('text-error');
-  });
-
-  it('displays submitted character for character modes', () => {
-    const characterAnswer: Answer = {
-      characterIndex: 0,
-      submittedCharacter: '我',
-      correctCharacter: '我',
-      simplified: '我',
-      traditional: '我',
-      english: 'I ; me',
-      mode: FlashcardMode.SIMPLIFIED,
-      isCorrect: true,
-      submittedPinyin: '',
-      correctPinyin: '',
-    };
-    const { container } = render(<PreviousCharacter previousAnswer={characterAnswer} />);
-    // Find the Submitted column value (should have text-success class)
-    const submittedColumn = container.querySelector('.text-success');
-    expect(submittedColumn).toBeInTheDocument();
-    expect(submittedColumn).toHaveTextContent('我');
   });
 });

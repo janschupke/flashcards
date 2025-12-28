@@ -155,7 +155,7 @@ describe('useFlashCard', () => {
     });
   });
 
-  it('should reset statistics when mode changes', () => {
+  it('should only change display mode without resetting statistics', () => {
     const { result } = renderHook(() => useFlashCard());
 
     // Set some initial state
@@ -165,15 +165,18 @@ describe('useFlashCard', () => {
 
     expect(result.current.totalSeen).toBe(1);
 
-    // Change mode
+    // Change mode - should only affect display, not reset statistics
     act(() => {
       result.current.setMode(FlashcardMode.SIMPLIFIED);
     });
 
     expect(result.current.mode).toBe('simplified');
-    expect(result.current.totalSeen).toBe(0);
-    expect(result.current.correctAnswers).toBe(0);
-    expect(result.current.totalAttempted).toBe(0);
-    expect(result.current.incorrectAnswers).toEqual([]);
+    // Statistics should NOT be reset when changing display mode
+    expect(result.current.totalSeen).toBe(1);
+    expect(result.current.correctAnswers).toBeGreaterThanOrEqual(0);
+    expect(result.current.totalAttempted).toBeGreaterThanOrEqual(0);
+    // Input should be cleared
+    expect(result.current.pinyinInput).toBe('');
+    expect(result.current.isPinyinCorrect).toBeNull();
   });
 });

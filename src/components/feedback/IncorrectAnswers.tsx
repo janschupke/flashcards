@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Answer, FlashcardMode } from '../../types';
+import { Answer } from '../../types';
 import { PaginatedTable } from '../common/PaginatedTable';
 import { getSubmittedText, getCorrectText } from '../../utils/answerUtils';
 import { getAnswerColorClass } from '../../utils/styleUtils';
@@ -22,9 +22,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
   // Reverse order to show newest first
   const reversedAnswers = [...allAnswers].reverse();
 
-  const hasCharacterModes = allAnswers.some((answer) => answer.mode !== FlashcardMode.PINYIN);
-
-  // Transform data for table
+  // Transform data for table (always pinyin now)
   const tableData = useMemo<AnswerRow[]>(() => {
     return reversedAnswers.map((answer) => {
       const submittedText = getSubmittedText(answer);
@@ -42,40 +40,8 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
     });
   }, [reversedAnswers]);
 
-  // Define columns based on mode
+  // Define columns (always pinyin)
   const columns = useMemo<ColumnDef<AnswerRow>[]>(() => {
-    if (hasCharacterModes) {
-      return [
-        {
-          header: 'Simplified',
-          accessorKey: 'simplified',
-          cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-        },
-        {
-          header: 'Traditional',
-          accessorKey: 'traditional',
-          cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-        },
-        {
-          header: 'Expected',
-          accessorKey: 'expected',
-          cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-        },
-        {
-          header: 'Submitted',
-          accessorKey: 'submitted',
-          cell: (info) => {
-            const row = info.row.original;
-            return <span className={row.submittedClass}>{row.submitted}</span>;
-          },
-        },
-        {
-          header: 'English',
-          accessorKey: 'english',
-          cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-        },
-      ];
-    }
     return [
       {
         header: 'Simplified',
@@ -106,7 +72,7 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
         cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
       },
     ];
-  }, [hasCharacterModes]);
+  }, []);
 
   if (allAnswers.length === 0) {
     return (

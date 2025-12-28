@@ -22,19 +22,32 @@ export const About: React.FC = () => {
         <h3 className="text-xl font-bold text-text-primary mb-3">How to Use</h3>
         <div className="space-y-3 text-text-secondary">
           <div>
-            <h4 className="font-semibold text-text-primary mb-1">Modes</h4>
+            <h4 className="font-semibold text-text-primary mb-1">Display Modes</h4>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>
-                <strong>Pinyin Mode (F1):</strong> Type the Pinyin pronunciation for the displayed
-                character
+                <strong>全部 (Both) - F1:</strong> Display both simplified and traditional
+                characters. Always type the pinyin pronunciation.
               </li>
               <li>
-                <strong>Simplified Mode (F2):</strong> Type the simplified character when shown the
-                traditional version
+                <strong>简体 (Simplified) - F2:</strong> Display only the simplified character.
+                Always type the pinyin pronunciation.
               </li>
               <li>
-                <strong>Traditional Mode (F3):</strong> Type the traditional character when shown
-                the simplified version
+                <strong>繁体 (Traditional) - F3:</strong> Display only the traditional character.
+                Always type the pinyin pronunciation.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-text-primary mb-1">Input</h4>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>
+                <strong>Always type pinyin:</strong> Regardless of which display mode you&apos;re
+                in, you always type the pinyin pronunciation of the character
+              </li>
+              <li>
+                <strong>Alternative inputs:</strong> You can type &apos;u&apos; or &apos;v&apos;
+                instead of &apos;ü&apos; for convenience
               </li>
             </ul>
           </div>
@@ -56,7 +69,8 @@ export const About: React.FC = () => {
                 <strong>Enter:</strong> Submit your answer and move to the next character
               </li>
               <li>
-                <strong>F1/F2/F3:</strong> Switch between modes
+                <strong>F1/F2/F3:</strong> Switch between display modes (changes what characters are
+                shown)
               </li>
             </ul>
           </div>

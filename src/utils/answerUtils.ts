@@ -1,29 +1,21 @@
-import { Answer, FlashcardMode } from '../types';
+import { Answer } from '../types';
 
 /**
- * Gets the submitted text from an answer based on the mode
+ * Gets the submitted pinyin text from an answer
  * @param answer - The answer object
- * @returns The submitted text (pinyin or character) or '(empty)' if empty
+ * @returns The submitted pinyin text or '(empty)' if empty
  */
 export const getSubmittedText = (answer: Answer): string => {
-  if (answer.mode === FlashcardMode.PINYIN) {
-    return answer.submittedPinyin && answer.submittedPinyin.trim() !== ''
-      ? answer.submittedPinyin
-      : '(empty)';
-  }
-  return answer.submittedCharacter && answer.submittedCharacter.trim() !== ''
-    ? answer.submittedCharacter
+  return answer.submittedPinyin && answer.submittedPinyin.trim() !== ''
+    ? answer.submittedPinyin
     : '(empty)';
 };
 
 /**
- * Gets the correct text from an answer based on the mode
+ * Gets the correct pinyin text from an answer
  * @param answer - The answer object
- * @returns The correct text (pinyin or character)
+ * @returns The correct pinyin text
  */
 export const getCorrectText = (answer: Answer): string => {
-  if (answer.mode === FlashcardMode.PINYIN) {
-    return answer.correctPinyin;
-  }
-  return answer.correctCharacter ?? '';
+  return answer.correctPinyin;
 };

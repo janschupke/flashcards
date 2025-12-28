@@ -26,17 +26,14 @@ export const CHINESE_TEXT = {
   MODES: {
     PINYIN: {
       LABEL: '拼音 (F1)',
-      TITLE: '拼音模式 - Pinyin Mode (F1)',
       PLACEHOLDER: '输入拼音',
     },
     SIMPLIFIED: {
       LABEL: '简体 (F2)',
-      TITLE: '简体模式 - Simplified Mode (F2)',
       PLACEHOLDER: '输入简体字',
     },
     TRADITIONAL: {
       LABEL: '繁体 (F3)',
-      TITLE: '繁体模式 - Traditional Mode (F3)',
       PLACEHOLDER: '输入繁体字',
     },
   },

@@ -33,7 +33,7 @@ export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
             key={mode}
             variant={isActive ? ButtonVariant.PRIMARY : ButtonVariant.SECONDARY}
             onClick={() => handleModeChange(mode)}
-            title={title}
+            aria-label={title}
             size={size}
             className={size === ButtonSize.SM ? 'text-xs' : ''}
           >

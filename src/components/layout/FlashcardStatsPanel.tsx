@@ -85,6 +85,7 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               className="text-sm font-medium text-text-secondary cursor-help"
               data-testid="adaptive-range"
               data-tooltip-id="adaptive-range-tooltip"
+              aria-label={`Character range 1-${adaptiveRange}. The range automatically expands when you achieve ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate over ${ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION} attempts.`}
             >
               1-{adaptiveRange}
             </span>

@@ -9,15 +9,14 @@ A modern adaptive learning flashcard web app for practicing Chinese characters. 
 ## Features
 
 ### Core Learning Features
-- **Three Flashcard Modes:**
-  - **拼音 (Pinyin) - F1:** Show characters and type pinyin (default mode)
-  - **简体 (Simplified) - F2:** Show traditional characters and type simplified characters
-  - **繁体 (Traditional) - F3:** Show simplified characters and type traditional characters
+- **Three Display Modes:**
+  - **全部 (Both) - F1:** Show both simplified and traditional characters, type pinyin (default mode)
+  - **简体 (Simplified) - F2:** Show only simplified character, type pinyin
+  - **繁体 (Traditional) - F3:** Show only traditional character, type pinyin
 - **Interactive Flashcards:** Practice Chinese characters with instant feedback
-- **Pinyin Input & Evaluation:** Type pinyin and get instant feedback on accuracy
-- **Character Input & Evaluation:** Type Chinese characters and get instant feedback
+- **Pinyin Input & Evaluation:** Always type pinyin and get instant feedback on accuracy (regardless of display mode)
 - **Hint System:** Toggle pinyin and English hints for each character (buttons in top panel)
-- **Keyboard Shortcuts:** Quickly reveal hints, switch modes, or move to the next card
+- **Keyboard Shortcuts:** Quickly reveal hints, switch display modes, or move to the next card
 
 ### Adaptive Learning System
 - **Intelligent Character Selection:** The app uses a weighted algorithm that shows characters you're struggling with more often, while ensuring no character appears more than 50% of the time

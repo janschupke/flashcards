@@ -8,13 +8,13 @@ import { CHINESE_TEXT } from '../constants';
  */
 export const getPlaceholder = (mode: FlashcardMode): string => {
   switch (mode) {
-    case FlashcardMode.PINYIN:
-      return CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER;
+    case FlashcardMode.BOTH:
+      return CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER; // Use pinyin placeholder for both mode
     case FlashcardMode.SIMPLIFIED:
-      return CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER;
+      return CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER; // Always pinyin input
     case FlashcardMode.TRADITIONAL:
-      return CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER;
+      return CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER; // Always pinyin input
     default:
-      return '输入字符';
+      return '输入拼音';
   }
 };

@@ -10,12 +10,9 @@ export interface IncorrectAnswer {
   characterIndex: number;
   submittedPinyin: string;
   correctPinyin: string;
-  submittedCharacter?: string; // New field for character input modes
-  correctCharacter?: string; // New field for character input modes
   simplified: string;
   traditional: string;
   english: string;
-  mode: FlashcardMode; // Track which mode the answer was given in
 }
 
 // Answer type that includes correct/incorrect status
@@ -23,11 +20,11 @@ export interface Answer extends IncorrectAnswer {
   isCorrect: boolean;
 }
 
-// Add new enums
+// Display mode enum - controls what characters are shown, not input type
 export enum FlashcardMode {
-  PINYIN = 'pinyin',
-  SIMPLIFIED = 'simplified',
-  TRADITIONAL = 'traditional',
+  BOTH = 'both', // Show both simplified and traditional
+  SIMPLIFIED = 'simplified', // Show only simplified
+  TRADITIONAL = 'traditional', // Show only traditional
 }
 
 export enum HintType {
@@ -46,8 +43,6 @@ export interface FlashCardState {
   limit: number;
   hint: HintType;
   totalSeen: number;
-  // New fields for traditional character feature
-  displayMode: 'simplified' | 'traditional' | 'both';
   pinyinInput: string;
   isPinyinCorrect: boolean | null;
   correctAnswers: number;
@@ -61,10 +56,8 @@ export interface FlashCardState {
   incorrectAnswers: IncorrectAnswer[];
   // All answers tracking (correct and incorrect)
   allAnswers: Answer[];
-  // New fields for flashcard modes
+  // Display mode - controls what characters are shown
   mode: FlashcardMode;
-  characterInput: string; // New field for character modes
-  isCharacterCorrect: boolean | null; // New field for character validation
   // Adaptive learning fields
   adaptiveRange: number;
   answersSinceLastCheck: number;
@@ -75,18 +68,13 @@ export interface FlashCardActions {
   toggleHint: (hintType: HintType) => void;
   reset: () => void;
   resetStatistics: () => void;
-  // New actions for traditional character feature
-  setDisplayMode: (mode: 'simplified' | 'traditional' | 'both') => void;
   setPinyinInput: (input: string) => void;
   evaluatePinyin: () => void;
   resetScore: () => void;
-  // New actions for flashcard modes
+  // Display mode action - controls what characters are shown
   setMode: (mode: FlashcardMode) => void;
-  setCharacterInput: (input: string) => void;
-  validateCharacter: () => void;
-  // New actions for immediate flash result
+  // Pinyin input action
   setPinyinFlashResult: (input: string) => void;
-  setCharacterFlashResult: (input: string) => void;
 }
 
 // Update existing constants to use enums
@@ -100,7 +88,7 @@ export const KEYBOARD_SHORTCUTS = {
   NEXT: 'Enter',
   PINYIN: [','],
   ENGLISH: ['.'],
-  MODE_PINYIN: 'F1',
+  MODE_BOTH: 'F1',
   MODE_SIMPLIFIED: 'F2',
   MODE_TRADITIONAL: 'F3',
 } as const;
@@ -114,18 +102,6 @@ export interface PinyinInputProps {
   isCorrect: boolean | null; // null = not evaluated, true/false = result
   disabled?: boolean;
   flashResult?: FlashResult | null;
-}
-
-// New types for character input feature
-export interface CharacterInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  expectedCharacter: string; // Expected character for current mode
-  onSubmit: (input: string) => void;
-  isCorrect: boolean | null; // null = not evaluated, true/false = result
-  disabled?: boolean;
-  flashResult?: FlashResult | null;
-  mode: FlashcardMode;
 }
 
 // New types for mode toggle buttons

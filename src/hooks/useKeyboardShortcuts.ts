@@ -29,9 +29,9 @@ export const useKeyboardShortcuts = ({
           event.preventDefault();
           onToggleEnglish();
           break;
-        case KEYBOARD_SHORTCUTS.MODE_PINYIN:
+        case KEYBOARD_SHORTCUTS.MODE_BOTH:
           event.preventDefault();
-          onModeChange?.(FlashcardMode.PINYIN);
+          onModeChange?.(FlashcardMode.BOTH);
           break;
         case KEYBOARD_SHORTCUTS.MODE_SIMPLIFIED:
           event.preventDefault();
