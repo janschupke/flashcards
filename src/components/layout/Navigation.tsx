@@ -35,7 +35,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     <div className="bg-surface-secondary border-b border-border-primary">
       <nav className="h-12 flex items-center justify-between px-4">
         <div className="flex items-center">
-          <h1 className="text-base font-bold text-text-primary">
+          <h1 className="text-xl font-bold text-text-primary">
             {NAVIGATION_CONSTANTS.LOGO_TEXT}
           </h1>
         </div>

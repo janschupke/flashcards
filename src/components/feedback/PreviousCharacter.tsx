@@ -1,7 +1,5 @@
 import React from 'react';
 import data from '../../data/characters.json';
-import { Card } from '../common/Card';
-import { CardPadding } from '../../types/components';
 
 interface PreviousCharacterProps {
   previousCharacterIndex: number | null;
@@ -20,7 +18,7 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({ previousCh
   }
 
   return (
-    <Card padding={CardPadding.SM} className="mt-2">
+    <div>
       <div className="text-xs text-text-tertiary mb-1 uppercase tracking-wider">
         Previous Character
       </div>
@@ -52,6 +50,6 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({ previousCh
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

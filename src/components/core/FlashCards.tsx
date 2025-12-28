@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFlashCard } from '../../hooks/useFlashCard';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { useModeNavigation } from '../../hooks/useModeNavigation';
+import { useRangeNavigation } from '../../hooks/useRangeNavigation';
 import { HINT_TYPES, FlashcardMode } from '../../types';
 import { AppTab } from '../../types/layout';
 import { CharacterDisplay } from './CharacterDisplay';
@@ -9,29 +11,15 @@ import { PinyinInput } from '../input/PinyinInput';
 import { CharacterInput } from '../input/CharacterInput';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
 import { IncorrectAnswers } from '../feedback/IncorrectAnswers';
-import { FlashCardProps, Character } from '../../types';
-import {
-  getExpectedCharacter,
-  getCharacterAtIndex,
-  getModeSpecificLimit,
-} from '../../utils/characterUtils';
-import { APP_LIMITS, UI_CONSTANTS } from '../../constants';
+import { FlashCardProps } from '../../types';
+import { getExpectedCharacter, getCharacterAtIndex } from '../../utils/characterUtils';
+import { getModeLimits } from '../../utils/flashcardUtils';
 import { AppLayout } from '../layout/AppLayout';
 import { TabPanel } from '../layout/TabPanel';
-import { Card } from '../common/Card';
 import data from '../../data/characters.json';
-import { MODES } from '../controls/ModeToggleButtons';
 
 export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLimit }) => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.FLASHCARDS);
-
-  const flashCardProps: { initialCurrent?: number; initialLimit?: number } = {};
-  if (initialCurrent !== undefined) {
-    flashCardProps.initialCurrent = initialCurrent;
-  }
-  if (initialLimit !== undefined) {
-    flashCardProps.initialLimit = initialLimit;
-  }
 
   const {
     current,
@@ -55,129 +43,31 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
     setMode,
     setPinyinFlashResult,
     setCharacterFlashResult,
-  } = useFlashCard(flashCardProps);
-
-  const handleTogglePinyin = useCallback(() => {
-    toggleHint(HINT_TYPES.PINYIN);
-  }, [toggleHint]);
-
-  const handleToggleEnglish = useCallback(() => {
-    toggleHint(HINT_TYPES.ENGLISH);
-  }, [toggleHint]);
-
-  const handleLimitChange = useCallback(
-    (newLimit: number) => {
-      updateLimit(newLimit);
-    },
-    [updateLimit]
-  );
-
-  const handlePinyinSubmit = useCallback(
-    (input: string) => {
-      setPinyinFlashResult(input);
-    },
-    [setPinyinFlashResult]
-  );
-
-  const handleCharacterSubmit = useCallback(
-    (input: string) => {
-      setCharacterFlashResult(input);
-    },
-    [setCharacterFlashResult]
-  );
-
-  const handleModeChange = useCallback(
-    (newMode: FlashcardMode) => {
-      setMode(newMode);
-    },
-    [setMode]
-  );
-
-  const handleTabChange = useCallback((tab: AppTab) => {
-    setActiveTab(tab);
-  }, []);
+  } = useFlashCard({
+    initialCurrent,
+    initialLimit,
+  });
 
   // Get current character based on mode
-  const getCurrentCharacter = (): Character | null => {
-    if (mode === FlashcardMode.PINYIN) {
-      return data[current] ?? null;
-    }
-    return getCharacterAtIndex(current, mode);
-  };
-
-  const currentCharacter = getCurrentCharacter();
+  const currentCharacter =
+    mode === FlashcardMode.PINYIN ? (data[current] ?? null) : getCharacterAtIndex(current, mode);
 
   // Get mode-specific limits
-  const getModeLimits = (): { minLimit: number; maxLimit: number } => {
-    const maxLimit = getModeSpecificLimit(mode);
-    return {
-      minLimit: APP_LIMITS.MIN_LIMIT,
-      maxLimit: Math.min(
-        maxLimit,
-        mode === FlashcardMode.PINYIN
-          ? APP_LIMITS.PINYIN_MODE_MAX
-          : APP_LIMITS.SIMPLIFIED_TRADITIONAL_MAX
-      ),
-    };
-  };
-
-  const { minLimit, maxLimit } = getModeLimits();
+  const { minLimit, maxLimit } = getModeLimits(mode);
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
     onNext: getNext,
-    onTogglePinyin: handleTogglePinyin,
-    onToggleEnglish: handleToggleEnglish,
-    onModeChange: handleModeChange,
+    onTogglePinyin: () => toggleHint(HINT_TYPES.PINYIN),
+    onToggleEnglish: () => toggleHint(HINT_TYPES.ENGLISH),
+    onModeChange: setMode,
   });
 
-  // Add left/right arrow hotkeys for mode switching
-  useEffect(() => {
-    const handleArrowModeSwitch = (e: KeyboardEvent): void => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const modeIndex = MODES.findIndex((m: { mode: FlashcardMode }) => m.mode === mode);
-      if (modeIndex === -1) return;
-      if (e.key === 'ArrowLeft' && modeIndex > 0) {
-        const prevMode = MODES[modeIndex - 1];
-        if (prevMode) {
-          setMode(prevMode.mode);
-        }
-        e.preventDefault();
-      } else if (e.key === 'ArrowRight' && modeIndex < MODES.length - 1) {
-        const nextMode = MODES[modeIndex + 1];
-        if (nextMode) {
-          setMode(nextMode.mode);
-        }
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('keydown', handleArrowModeSwitch);
-    return () => window.removeEventListener('keydown', handleArrowModeSwitch);
-  }, [mode, setMode]);
+  // Mode navigation with arrow keys
+  useModeNavigation({ currentMode: mode, onModeChange: setMode });
 
-  // Global arrow key handler for range
-  useEffect(() => {
-    const handleArrow = (e: KeyboardEvent): void => {
-      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        // Only trigger if not focused on the range input
-        const active = document.activeElement;
-        if (active?.id === 'limit') return;
-        const increment =
-          e.key === 'ArrowUp' ? UI_CONSTANTS.INCREMENT_STEP : -UI_CONSTANTS.INCREMENT_STEP;
-        const minLimit = APP_LIMITS.MIN_LIMIT;
-        const maxLimit =
-          mode === FlashcardMode.PINYIN
-            ? Math.min(APP_LIMITS.PINYIN_MODE_MAX, data.length)
-            : APP_LIMITS.SIMPLIFIED_TRADITIONAL_MAX;
-        let newLimit = limit + increment;
-        newLimit = Math.min(maxLimit, Math.max(minLimit, newLimit));
-        handleLimitChange(newLimit);
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('keydown', handleArrow);
-    return () => window.removeEventListener('keydown', handleArrow);
-  }, [limit, handleLimitChange, mode]);
+  // Range navigation with arrow keys
+  useRangeNavigation({ currentLimit: limit, mode, onLimitChange: updateLimit });
 
   // Refs for focusing inputs
   const pinyinInputRef = useRef<HTMLInputElement>(null);
@@ -198,19 +88,20 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
   return (
     <AppLayout
       activeTab={activeTab}
-      onTabChange={handleTabChange}
+      onTabChange={setActiveTab}
       currentMode={mode}
-      onModeChange={handleModeChange}
+      onModeChange={setMode}
       currentLimit={limit}
       minLimit={minLimit}
       maxLimit={maxLimit}
-      onLimitChange={handleLimitChange}
+      onLimitChange={updateLimit}
       correctAnswers={correctAnswers}
       totalSeen={totalSeen}
     >
-      <div className="container mx-auto px-3 py-3 max-w-screen-xl">
-        <TabPanel tab={AppTab.FLASHCARDS} activeTab={activeTab}>
-          <Card className="mb-3">
+      <TabPanel tab={AppTab.FLASHCARDS} activeTab={activeTab}>
+        <div className="h-full flex flex-col">
+          {/* Character + Input section centered vertically */}
+          <div className="flex-1 flex flex-col items-center justify-center">
             <CharacterDisplay currentIndex={current} hintType={hint} mode={mode} />
 
             {mode === FlashcardMode.PINYIN ? (
@@ -219,7 +110,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
                 value={pinyinInput}
                 onChange={setPinyinInput}
                 currentPinyin={currentCharacter?.pinyin ?? ''}
-                onSubmit={handlePinyinSubmit}
+                onSubmit={setPinyinFlashResult}
                 isCorrect={isPinyinCorrect}
                 disabled={false}
                 flashResult={flashResult}
@@ -232,7 +123,7 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
                 expectedCharacter={
                   currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''
                 }
-                onSubmit={handleCharacterSubmit}
+                onSubmit={setCharacterFlashResult}
                 isCorrect={isCharacterCorrect}
                 disabled={false}
                 flashResult={flashResult}
@@ -240,24 +131,29 @@ export const FlashCards: React.FC<FlashCardProps> = ({ initialCurrent, initialLi
               />
             )}
 
-            <div className="mt-3">
+            <div className="mt-6">
               <ControlButtons
-                onTogglePinyin={handleTogglePinyin}
-                onToggleEnglish={handleToggleEnglish}
+                onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
+                onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
                 onNext={getNext}
               />
+            </div>
+          </div>
 
+          {/* Previous character at bottom with separator */}
+          <div className="flex-shrink-0 pb-4 px-4 border-t border-border-primary pt-4">
+            <div className="max-w-2xl mx-auto">
               <PreviousCharacter previousCharacterIndex={previousCharacter} />
             </div>
-          </Card>
-        </TabPanel>
+          </div>
+        </div>
+      </TabPanel>
 
-        <TabPanel tab={AppTab.HISTORY} activeTab={activeTab}>
-          <Card>
-            <IncorrectAnswers incorrectAnswers={incorrectAnswers} />
-          </Card>
-        </TabPanel>
-      </div>
+      <TabPanel tab={AppTab.HISTORY} activeTab={activeTab}>
+        <div className="container mx-auto px-4 py-4 max-w-screen-xl">
+          <IncorrectAnswers incorrectAnswers={incorrectAnswers} />
+        </div>
+      </TabPanel>
     </AppLayout>
   );
 };

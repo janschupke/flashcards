@@ -45,7 +45,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
       />
-      <main className="flex-1 overflow-auto bg-surface-primary">{children}</main>
+      <main className="flex-1 overflow-hidden bg-surface-primary">{children}</main>
     </div>
   );
 };

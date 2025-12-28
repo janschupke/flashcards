@@ -10,11 +10,15 @@ import {
 } from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
 import {
-  validateCharacterInput,
   getModeSpecificLimit,
   getRandomCharacterIndex,
   getCharacterAtIndex,
 } from '../utils/characterUtils';
+import {
+  evaluatePinyinAnswer,
+  evaluateCharacterAnswer,
+  createIncorrectAnswer,
+} from '../utils/flashcardUtils';
 import data from '../data/characters.json';
 
 interface UseFlashCardProps {
@@ -71,55 +75,22 @@ export const useFlashCard = ({
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
 
-      let isCorrect = false;
-      let hasInput = false;
-      let newIncorrectAnswers = [...prev.incorrectAnswers];
+      // Evaluate answer based on mode
+      const evaluation =
+        prev.mode === FlashcardMode.PINYIN
+          ? evaluatePinyinAnswer(prev.pinyinInput, currentCharacter)
+          : evaluateCharacterAnswer(prev.characterInput, currentCharacter, prev.mode);
 
-      if (prev.mode === FlashcardMode.PINYIN) {
-        const trimmedInput = prev.pinyinInput.trim();
-        hasInput = trimmedInput.length > 0;
-        isCorrect = hasInput
-          ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin)
-          : false;
+      const { isCorrect, hasInput } = evaluation;
 
-        // Add to incorrect answers if wrong or empty input
-        if (!isCorrect) {
-          newIncorrectAnswers.push({
-            characterIndex: prev.current,
-            submittedPinyin: prev.pinyinInput.trim() || '(empty)',
-            correctPinyin: currentCharacter.pinyin,
-            simplified: currentCharacter.simplified,
-            traditional: currentCharacter.traditional,
-            english: currentCharacter.english,
-            mode: FlashcardMode.PINYIN,
-          });
-        }
-      } else {
-        // Character input modes
-        const trimmedInput = prev.characterInput.trim();
-        hasInput = trimmedInput.length > 0;
-        const expectedCharacter =
-          prev.mode === FlashcardMode.SIMPLIFIED
-            ? currentCharacter.simplified
-            : currentCharacter.traditional;
-        isCorrect = hasInput
-          ? validateCharacterInput(prev.characterInput, expectedCharacter)
-          : false;
-
-        // Add to incorrect answers if wrong or empty input
-        if (!isCorrect) {
-          newIncorrectAnswers.push({
-            characterIndex: prev.current,
-            submittedPinyin: '', // Not applicable for character modes
-            correctPinyin: '', // Not applicable for character modes
-            submittedCharacter: prev.characterInput.trim() || '(empty)',
-            correctCharacter: expectedCharacter,
-            simplified: currentCharacter.simplified,
-            traditional: currentCharacter.traditional,
-            english: currentCharacter.english,
-            mode: prev.mode,
-          });
-        }
+      // Add to incorrect answers if wrong or empty input
+      const newIncorrectAnswers = [...prev.incorrectAnswers];
+      if (!isCorrect) {
+        const submittedInput =
+          prev.mode === FlashcardMode.PINYIN ? prev.pinyinInput : prev.characterInput;
+        newIncorrectAnswers.push(
+          createIncorrectAnswer(currentCharacter, prev.mode, submittedInput, prev.current)
+        );
       }
 
       // Get new random index based on current mode
@@ -127,21 +98,17 @@ export const useFlashCard = ({
 
       return {
         ...prev,
-        previousCharacter: prev.current, // Store current as previous
+        previousCharacter: prev.current,
         current: newIndex,
         hint: HINT_TYPES.NONE,
         totalSeen: prev.totalSeen + 1,
-        // Reset input state for new character
         pinyinInput: '',
         isPinyinCorrect: null,
         characterInput: '',
         isCharacterCorrect: null,
-        // Update scoring
         correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
         totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
-        // Set flash result based on evaluation
         flashResult: hasInput ? (isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT) : null,
-        // Update incorrect answers
         incorrectAnswers: newIncorrectAnswers,
       };
     });
@@ -273,11 +240,11 @@ export const useFlashCard = ({
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
 
-      const expectedCharacter =
-        prev.mode === FlashcardMode.SIMPLIFIED
-          ? currentCharacter.simplified
-          : currentCharacter.traditional;
-      const isCorrect = validateCharacterInput(prev.characterInput, expectedCharacter);
+      const { isCorrect } = evaluateCharacterAnswer(
+        prev.characterInput,
+        currentCharacter,
+        prev.mode
+      );
 
       return {
         ...prev,
@@ -295,7 +262,7 @@ export const useFlashCard = ({
         const currentCharacter = getCurrentCharacter();
         if (!currentCharacter) return prev;
 
-        const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
+        const { isCorrect } = evaluatePinyinAnswer(input, currentCharacter);
 
         return {
           ...prev,
@@ -314,11 +281,7 @@ export const useFlashCard = ({
         const currentCharacter = getCurrentCharacter();
         if (!currentCharacter) return prev;
 
-        const expectedCharacter =
-          prev.mode === FlashcardMode.SIMPLIFIED
-            ? currentCharacter.simplified
-            : currentCharacter.traditional;
-        const isCorrect = validateCharacterInput(input, expectedCharacter);
+        const { isCorrect } = evaluateCharacterAnswer(input, currentCharacter, prev.mode);
 
         return {
           ...prev,

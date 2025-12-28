@@ -18,7 +18,7 @@ export const TabPanel: React.FC<TabPanelProps> = ({ tab, activeTab, children }) 
       id={`tab-panel-${tabId}`}
       aria-labelledby={`tab-${tabId}`}
       hidden={!isActive}
-      className={isActive ? 'block' : 'hidden'}
+      className={isActive ? 'block h-full' : 'hidden'}
     >
       {isActive && children}
     </div>
