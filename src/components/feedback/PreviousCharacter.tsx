@@ -21,7 +21,7 @@ export const PreviousCharacter: React.FC<PreviousCharacterProps> = ({ previousAn
       <div className="text-xs text-text-tertiary mb-1 uppercase tracking-wider text-center">
         Previous Character
       </div>
-      <div className="flex flex-wrap justify-between items-center gap-2 sm:gap-3 text-sm text-text-secondary">
+      <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 text-sm text-text-secondary">
         <CharacterInfoColumn
           label="Simplified"
           value={previousAnswer ? previousAnswer.simplified : PLACEHOLDER}

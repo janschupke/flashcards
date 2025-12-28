@@ -31,7 +31,7 @@ describe('CharacterInfoColumn', () => {
   it('renders with correct structure', () => {
     const { container } = render(<CharacterInfoColumn label="Label" value="Value" />);
 
-    const column = container.querySelector('.flex.flex-col.items-center.flex-1');
+    const column = container.querySelector('.flex.flex-col.items-center');
     expect(column).toBeInTheDocument();
 
     const label = column?.querySelector('.text-xs');
