@@ -1,2 +1,2 @@
 export * from './characterUtils';
-export * from './pinyinUtils'; 
+export * from './pinyinUtils';

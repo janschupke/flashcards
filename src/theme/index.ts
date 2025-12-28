@@ -76,4 +76,4 @@ export const theme = {
   borderRadius,
   typography,
   shadows,
-} as const; 
+} as const;

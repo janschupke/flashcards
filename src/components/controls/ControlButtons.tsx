@@ -1,4 +1,7 @@
 import React from 'react';
+import { Button } from '../common/Button';
+import { ButtonGroup } from '../common/ButtonGroup';
+import { ButtonVariant } from '../../types/components';
 
 interface ControlButtonsProps {
   onTogglePinyin: () => void;
@@ -12,28 +15,31 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({
   onNext,
 }) => {
   return (
-    <div className="flex gap-3 justify-center flex-wrap">
-      <button
+    <ButtonGroup>
+      <Button
         type="button"
         onClick={onTogglePinyin}
-        className="btn btn-secondary min-w-[120px]"
+        variant={ButtonVariant.SECONDARY}
+        className="min-w-[80px]"
       >
         Pinyin (,)
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={onToggleEnglish}
-        className="btn btn-secondary min-w-[120px]"
+        variant={ButtonVariant.SECONDARY}
+        className="min-w-[80px]"
       >
         English (.)
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={onNext}
-        className="btn btn-primary min-w-[120px]"
+        variant={ButtonVariant.PRIMARY}
+        className="min-w-[80px]"
       >
         Next (Enter)
-      </button>
-    </div>
+      </Button>
+    </ButtonGroup>
   );
-}; 
+};

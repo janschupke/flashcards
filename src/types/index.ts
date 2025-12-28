@@ -15,7 +15,7 @@ export interface IncorrectAnswer {
   simplified: string;
   traditional: string;
   english: string;
-  mode: 'pinyin' | 'simplified' | 'traditional'; // Track which mode the answer was given in
+  mode: FlashcardMode; // Track which mode the answer was given in
 }
 
 // Add new enums
@@ -41,7 +41,6 @@ export interface FlashCardState {
   limit: number;
   hint: HintType;
   totalSeen: number;
-  progress: number;
   // New fields for traditional character feature
   displayMode: 'simplified' | 'traditional' | 'both';
   pinyinInput: string;
@@ -102,7 +101,6 @@ export const KEYBOARD_SHORTCUTS = {
 export const DEFAULT_CONFIG = {
   DEFAULT_LIMIT: 500,
   MIN_LIMIT: 1,
-  PROGRESS_UPDATE_DELAY: 300,
 } as const;
 
 // New types for traditional character feature
@@ -132,4 +130,8 @@ export interface CharacterInputProps {
 export interface ModeToggleButtonsProps {
   currentMode: FlashcardMode;
   onModeChange: (mode: FlashcardMode) => void;
-} 
+}
+
+// Export layout and component types
+export * from './layout';
+export * from './components';

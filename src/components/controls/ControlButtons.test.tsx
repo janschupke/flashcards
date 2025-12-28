@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
@@ -24,4 +23,4 @@ describe('ControlButtons', () => {
     await user.click(screen.getByText(/next/i));
     expect(mockOnNext).toHaveBeenCalled();
   });
-}); 
+});

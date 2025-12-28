@@ -28,7 +28,7 @@ export function normalizePinyin(pinyin: string): string {
     .replace(/ǔ/g, 'u')
     .replace(/ù/g, 'u')
     .replace(/ǖ/g, 'ü')
-    .replace(/ǘ/g, 'ü') 
+    .replace(/ǘ/g, 'ü')
     .replace(/ǚ/g, 'ü')
     .replace(/ǜ/g, 'ü')
     .replace(/ń/g, 'n')
@@ -46,10 +46,10 @@ export function normalizePinyin(pinyin: string): string {
 export function evaluatePinyinInput(userInput: string, correctPinyin: string): boolean {
   const normalizedInput = normalizePinyin(userInput);
   const normalizedCorrect = normalizePinyin(correctPinyin);
-  
+
   // Handle multiple pinyin readings (separated by semicolons or slashes)
-  const correctReadings = normalizedCorrect.split(/[;/]/).map(r => r.trim());
-  
+  const correctReadings = normalizedCorrect.split(/[;/]/).map((r) => r.trim());
+
   return correctReadings.includes(normalizedInput);
 }
 
@@ -60,7 +60,10 @@ export function evaluatePinyinInput(userInput: string, correctPinyin: string): b
  */
 export function getPinyinReadings(pinyin: string): string[] {
   const normalized = normalizePinyin(pinyin);
-  return normalized.split(/[;/]/).map(r => r.trim()).filter(r => r.length > 0);
+  return normalized
+    .split(/[;/]/)
+    .map((r) => r.trim())
+    .filter((r) => r.length > 0);
 }
 
 /**
@@ -70,4 +73,4 @@ export function getPinyinReadings(pinyin: string): string[] {
  */
 export function formatPinyinForDisplay(pinyin: string): string {
   return pinyin.trim();
-} 
+}

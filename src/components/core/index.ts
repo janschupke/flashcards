@@ -1,2 +1,2 @@
 export { FlashCards } from './FlashCards';
-export { CharacterDisplay } from './CharacterDisplay'; 
+export { CharacterDisplay } from './CharacterDisplay';

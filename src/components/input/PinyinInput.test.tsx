@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { PinyinInput } from './PinyinInput';
 import React from 'react';
@@ -11,37 +11,38 @@ describe('PinyinInput', () => {
     vi.clearAllMocks();
   });
 
-  function ControlledPinyinInput(props: any) {
-    const [value, setValue] = React.useState(props.value || '');
+  interface ControlledPinyinInputProps {
+    value?: string;
+    currentPinyin: string;
+    onSubmit: (value: string) => void;
+    isCorrect?: boolean | null;
+    flashResult?: FlashResult | null;
+    disabled?: boolean;
+  }
+
+  function ControlledPinyinInput(props: ControlledPinyinInputProps): React.JSX.Element {
+    const [value, setValue] = React.useState(props.value ?? '');
     return (
       <PinyinInput
-        {...props}
         value={value}
         onChange={setValue}
+        currentPinyin={props.currentPinyin}
+        onSubmit={props.onSubmit}
+        isCorrect={props.isCorrect ?? null}
+        flashResult={props.flashResult ?? null}
+        disabled={props.disabled ?? false}
       />
     );
   }
 
   it('renders input field', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={null} />);
 
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
   it('calls onSubmit when Enter is pressed', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={null} />);
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'ni' } });
@@ -51,37 +52,19 @@ describe('PinyinInput', () => {
   });
 
   it('shows correct feedback when pinyin is correct', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={true}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={true} />);
 
     expect(screen.getByText('✓ 正确')).toBeInTheDocument();
   });
 
   it('shows incorrect feedback when pinyin is wrong', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={false}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={false} />);
 
     expect(screen.getByText('✗ 错误，正确答案是: ni3')).toBeInTheDocument();
   });
 
   it('shows no feedback when isCorrect is null', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={null} />);
 
     // The feedback div should exist but be empty
     const feedbackElement = screen.getByTestId('feedback-text');
@@ -104,13 +87,7 @@ describe('PinyinInput', () => {
   });
 
   it('updates value when onChange is called', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={null} />);
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'test' } });
@@ -118,13 +95,7 @@ describe('PinyinInput', () => {
   });
 
   it('calls onSubmit when Enter is pressed with input value', () => {
-    render(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-      />
-    );
+    render(<ControlledPinyinInput currentPinyin="ni3" onSubmit={mockOnSubmit} isCorrect={null} />);
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'test' } });
@@ -143,7 +114,7 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('shows red border when flashResult is incorrect', () => {
@@ -157,7 +128,7 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#ef4444' });
+    expect(wrapper).toHaveClass('border-error');
   });
 
   it('shows default border when flashResult is null', () => {
@@ -171,7 +142,7 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
+    expect(wrapper).toHaveClass('border-border-secondary');
   });
 
   // Additional border highlighting tests
@@ -187,7 +158,7 @@ describe('PinyinInput', () => {
 
     const wrapper = screen.getByRole('textbox').parentElement;
     // Should show green (flashResult) instead of red (isCorrect)
-    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('shows green border when isCorrect is true and no flashResult', () => {
@@ -201,7 +172,7 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('shows red border when isCorrect is false and no flashResult', () => {
@@ -215,7 +186,7 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#ef4444' });
+    expect(wrapper).toHaveClass('border-error');
   });
 
   it('shows neutral border when isCorrect is null and no flashResult', () => {
@@ -229,12 +200,12 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
+    expect(wrapper).toHaveClass('border-border-secondary');
   });
 
   it('transitions from flash to neutral border after flash timeout', async () => {
     vi.useFakeTimers();
-    
+
     const { rerender } = render(
       <ControlledPinyinInput
         currentPinyin="ni3"
@@ -245,24 +216,28 @@ describe('PinyinInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle({ borderColor: '#10b981' });
+    expect(wrapper).toHaveClass('border-success');
 
-    // Clear flashResult and advance timers
-    rerender(
-      <ControlledPinyinInput
-        currentPinyin="ni3"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-        flashResult={null}
-      />
-    );
+    // Advance timers to complete the flash animation
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
-    // Advance timers to trigger the flash timeout
-    await vi.runAllTimersAsync();
-    
-    // Should now show neutral border
-    expect(wrapper).toHaveStyle({ borderColor: '#4a5568' });
-    
+    // Clear flashResult after flash completes
+    act(() => {
+      rerender(
+        <ControlledPinyinInput
+          currentPinyin="ni3"
+          onSubmit={mockOnSubmit}
+          isCorrect={null}
+          flashResult={null}
+        />
+      );
+    });
+
+    // Should now show neutral border (isCorrect is null, flashResult is null)
+    expect(wrapper).toHaveClass('border-border-secondary');
+
     vi.useRealTimers();
   });
-}); 
+});

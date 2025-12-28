@@ -3,12 +3,12 @@ import { UI_CONSTANTS } from '../constants';
 import data from '../data/characters.json';
 
 export const getCharacterByIndex = (index: number): Character | null => {
-  return data[index] || null;
+  return data[index] ?? null;
 };
 
 export const getHintText = (character: Character | null, hintType: HintType): string => {
   if (!character) return '?';
-  
+
   switch (hintType) {
     case HINT_TYPES.NONE:
       return 'Tap a button below to reveal';
@@ -21,7 +21,11 @@ export const getHintText = (character: Character | null, hintType: HintType): st
   }
 };
 
-export const validateLimit = (value: string, minAvailable: number, maxAvailable: number): number => {
+export const validateLimit = (
+  value: string,
+  minAvailable: number,
+  maxAvailable: number
+): number => {
   const parsed = parseInt(value, 10);
   if (isNaN(parsed) || parsed <= 0) {
     return Math.max(minAvailable, Math.min(UI_CONSTANTS.MIN_WIDTH, maxAvailable));
@@ -50,12 +54,12 @@ export const validateCharacterInput = (input: string, expected: string): boolean
  */
 export const getFilteredCharacters = (mode: FlashcardMode): Character[] => {
   switch (mode) {
-    case 'pinyin':
+    case FlashcardMode.PINYIN:
       return data;
-    case 'simplified':
-    case 'traditional':
+    case FlashcardMode.SIMPLIFIED:
+    case FlashcardMode.TRADITIONAL:
       // Only use characters where simplified ≠ traditional
-      return data.filter(char => char.simplified !== char.traditional);
+      return data.filter((char) => char.simplified !== char.traditional);
     default:
       return data;
   }
@@ -79,9 +83,9 @@ export const getModeSpecificLimit = (mode: FlashcardMode): number => {
  */
 export const getExpectedCharacter = (character: Character, mode: FlashcardMode): string => {
   switch (mode) {
-    case 'simplified':
+    case FlashcardMode.SIMPLIFIED:
       return character.simplified;
-    case 'traditional':
+    case FlashcardMode.TRADITIONAL:
       return character.traditional;
     default:
       return character.simplified; // Fallback
@@ -94,13 +98,16 @@ export const getExpectedCharacter = (character: Character, mode: FlashcardMode):
  * @param mode - Current flashcard mode
  * @returns Character to display for the mode
  */
-export const getDisplayCharacter = (character: Character, mode: FlashcardMode): { simplified: string; traditional: string } => {
+export const getDisplayCharacter = (
+  character: Character,
+  mode: FlashcardMode
+): { simplified: string; traditional: string } => {
   switch (mode) {
-    case 'pinyin':
+    case FlashcardMode.PINYIN:
       return { simplified: character.simplified, traditional: character.traditional };
-    case 'simplified':
+    case FlashcardMode.SIMPLIFIED:
       return { simplified: '', traditional: character.traditional };
-    case 'traditional':
+    case FlashcardMode.TRADITIONAL:
       return { simplified: character.simplified, traditional: '' };
     default:
       return { simplified: character.simplified, traditional: character.traditional };
@@ -127,7 +134,8 @@ export const getRandomCharacterIndex = (mode: FlashcardMode, limit: number): num
 export const getCharacterAtIndex = (index: number, mode: FlashcardMode): Character | null => {
   const filteredCharacters = getFilteredCharacters(mode);
   if (index >= 0 && index < filteredCharacters.length) {
-    return filteredCharacters[index];
+    const character = filteredCharacters[index];
+    return character ?? null;
   }
   return null;
-}; 
+};

@@ -9,13 +9,13 @@ export const APP_LIMITS = {
 // Animation timings
 export const ANIMATION_TIMINGS = {
   FLASH_RESULT_DURATION: 1000,
-  PROGRESS_UPDATE_DELAY: 300,
+  TAB_TRANSITION: 200, // milliseconds
+  CARD_HOVER: 150, // milliseconds
 } as const;
 
 // UI constants
 export const UI_CONSTANTS = {
   INCREMENT_STEP: 50,
-  PROGRESS_MAX: 100,
   MIN_WIDTH: 100,
 } as const;
 
@@ -48,4 +48,7 @@ export const CHINESE_TEXT = {
   LABELS: {
     CHARACTER_RANGE: (min: number, max: number) => `Character Range (${min} - ${max})`,
   },
-} as const; 
+} as const;
+
+// Export layout constants
+export * from './layout';

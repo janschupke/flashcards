@@ -1,54 +1,60 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { CharacterInputProps } from '../../types';
+import { CharacterInputProps, FlashcardMode, FlashResult } from '../../types';
 import { ANIMATION_TIMINGS, CHINESE_TEXT } from '../../constants';
+import { InputVariant } from '../../types/components';
 
 export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
-  ({
-    value,
-    onChange,
-    expectedCharacter,
-    onSubmit,
-    isCorrect,
-    disabled = false,
-    flashResult,
-    mode,
-  }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      expectedCharacter,
+      onSubmit,
+      isCorrect,
+      disabled = false,
+      flashResult,
+      mode,
+    },
+    ref
+  ) => {
     const [isFlashing, setIsFlashing] = useState(false);
 
     // Handle flash result changes
     useEffect(() => {
-      if (flashResult) {
+      if (flashResult !== null && flashResult !== undefined) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsFlashing(true);
         const timer = setTimeout(() => {
           setIsFlashing(false);
         }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
         return () => clearTimeout(timer);
       }
+      return undefined;
     }, [flashResult]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       const newValue = e.target.value;
       onChange(newValue);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
       if (e.key === 'Enter' && !disabled) {
         onSubmit(value);
       }
     };
 
-    const getPlaceholder = () => {
+    const getPlaceholder = (): string => {
       switch (mode) {
-        case 'simplified':
+        case FlashcardMode.SIMPLIFIED:
           return CHINESE_TEXT.MODES.SIMPLIFIED.PLACEHOLDER;
-        case 'traditional':
+        case FlashcardMode.TRADITIONAL:
           return CHINESE_TEXT.MODES.TRADITIONAL.PLACEHOLDER;
         default:
           return '输入字符';
       }
     };
 
-    const getFeedbackText = () => {
+    const getFeedbackText = (): string => {
       if (isCorrect === true) {
         return CHINESE_TEXT.FEEDBACK.CORRECT;
       }
@@ -58,21 +64,35 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
       return '';
     };
 
-    const borderColor = ((flash: typeof flashResult, correct: typeof isCorrect) => {
-      if (flash) {
-        return flash === 'correct' ? 'rgb(16, 185, 129)' : 'rgb(239, 68, 68)';
+    const getVariant = (): InputVariant => {
+      if (isFlashing) {
+        return flashResult === FlashResult.CORRECT ? InputVariant.SUCCESS : InputVariant.ERROR;
       }
-      if (correct === true) return 'rgb(16, 185, 129)';
-      if (correct === false) return 'rgb(239, 68, 68)';
-      return 'rgb(74, 85, 104)';
-    })(flashResult, isCorrect);
+      if (isCorrect === true) return InputVariant.SUCCESS;
+      if (isCorrect === false) return InputVariant.ERROR;
+      return InputVariant.DEFAULT;
+    };
+
+    const variant = getVariant();
+    const borderClass =
+      variant === InputVariant.SUCCESS
+        ? 'border-success'
+        : variant === InputVariant.ERROR
+          ? 'border-error'
+          : 'border-border-secondary';
+
+    const feedbackClass =
+      variant === InputVariant.SUCCESS
+        ? 'text-success'
+        : variant === InputVariant.ERROR
+          ? 'text-error'
+          : 'text-text-tertiary';
 
     return (
       <div className="m-0 text-center">
-        <div style={{ borderColor }} className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-secondary-dark border-2 ${
-          isFlashing ? (flashResult === 'correct' ? 'border-emerald-500' : 'border-rose-500')
-          : (isCorrect === true ? 'border-emerald-500' : isCorrect === false ? 'border-rose-500' : 'border-secondary')
-        }`}>
+        <div
+          className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-surface-secondary border-2 ${borderClass}`}
+        >
           <input
             ref={ref}
             type="text"
@@ -85,10 +105,13 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
-            className="w-full px-5 py-4 text-2xl text-center bg-transparent text-white outline-none disabled:bg-background-primary disabled:text-secondary-light disabled:cursor-not-allowed placeholder:text-secondary-light"
+            className="w-full px-4 py-3 text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary focus:ring-2 focus:ring-border-focus"
           />
         </div>
-        <div className={`mt-2 text-sm font-medium min-h-[20px] ${isCorrect === true ? 'text-emerald-500' : isCorrect === false ? 'text-rose-500' : 'text-gray-500'}`} data-testid="feedback-text">
+        <div
+          className={`mt-2 text-sm font-medium min-h-[20px] ${feedbackClass}`}
+          data-testid="feedback-text"
+        >
           {getFeedbackText()}
         </div>
       </div>
@@ -96,4 +119,4 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
   }
 );
 
-CharacterInput.displayName = 'CharacterInput'; 
+CharacterInput.displayName = 'CharacterInput';

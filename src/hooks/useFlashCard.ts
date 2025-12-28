@@ -1,7 +1,20 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode, FlashResult } from '../types';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  FlashCardState,
+  FlashCardActions,
+  HintType,
+  HINT_TYPES,
+  FlashcardMode,
+  FlashResult,
+  Character,
+} from '../types';
 import { evaluatePinyinInput } from '../utils/pinyinUtils';
-import { validateCharacterInput, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
+import {
+  validateCharacterInput,
+  getModeSpecificLimit,
+  getRandomCharacterIndex,
+  getCharacterAtIndex,
+} from '../utils/characterUtils';
 import data from '../data/characters.json';
 
 interface UseFlashCardProps {
@@ -9,15 +22,23 @@ interface UseFlashCardProps {
   initialLimit?: number;
 }
 
-export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps = {}): FlashCardState & FlashCardActions => {
-  const defaultLimit = initialLimit !== undefined ? Math.min(initialLimit, data.length) : Math.min(1500, data.length);
-  
+export const useFlashCard = ({
+  initialCurrent,
+  initialLimit,
+}: UseFlashCardProps = {}): FlashCardState & FlashCardActions => {
+  const defaultLimit =
+    initialLimit !== undefined ? Math.min(initialLimit, data.length) : Math.min(1500, data.length);
+
+  // Initialize current index - use useState initializer to avoid Math.random in render
+  const [initialCurrentIndex] = useState<number>(() => {
+    return initialCurrent ?? Math.floor(Math.random() * defaultLimit);
+  });
+
   const [state, setState] = useState<FlashCardState>({
-    current: initialCurrent !== undefined ? initialCurrent : Math.floor(Math.random() * defaultLimit),
+    current: initialCurrentIndex,
     limit: defaultLimit,
     hint: HINT_TYPES.NONE,
     totalSeen: 0,
-    progress: 0,
     // New state for traditional character feature
     displayMode: 'simplified',
     pinyinInput: '',
@@ -35,27 +56,18 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     isCharacterCorrect: null,
   });
 
-  // Memoize progress calculation to avoid unnecessary recalculations
-  const progress = useMemo(() => {
-    return state.limit > 0 ? Math.min((state.totalSeen / state.limit) * 100, 100) : 0;
-  }, [state.totalSeen, state.limit]);
-
-  // Update progress when dependencies change
-  useEffect(() => {
-    setState(prev => ({ ...prev, progress }));
-  }, [progress]);
-
   // Get current character based on mode
-  const getCurrentCharacter = useCallback(() => {
+  const getCurrentCharacter = useCallback((): Character | null => {
     if (state.mode === FlashcardMode.PINYIN) {
-      return data[state.current];
+      return data[state.current] ?? null;
     } else {
       return getCharacterAtIndex(state.current, state.mode);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.current, state.mode]);
 
   const getNext = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
 
@@ -66,8 +78,10 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       if (prev.mode === FlashcardMode.PINYIN) {
         const trimmedInput = prev.pinyinInput.trim();
         hasInput = trimmedInput.length > 0;
-        isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
-        
+        isCorrect = hasInput
+          ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin)
+          : false;
+
         // Add to incorrect answers if wrong or empty input
         if (!isCorrect) {
           newIncorrectAnswers.push({
@@ -84,9 +98,14 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
         // Character input modes
         const trimmedInput = prev.characterInput.trim();
         hasInput = trimmedInput.length > 0;
-        const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
-        isCorrect = hasInput ? validateCharacterInput(prev.characterInput, expectedCharacter) : false;
-        
+        const expectedCharacter =
+          prev.mode === FlashcardMode.SIMPLIFIED
+            ? currentCharacter.simplified
+            : currentCharacter.traditional;
+        isCorrect = hasInput
+          ? validateCharacterInput(prev.characterInput, expectedCharacter)
+          : false;
+
         // Add to incorrect answers if wrong or empty input
         if (!isCorrect) {
           newIncorrectAnswers.push({
@@ -102,10 +121,10 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
           });
         }
       }
-      
+
       // Get new random index based on current mode
       const newIndex = getRandomCharacterIndex(prev.mode, prev.limit);
-      
+
       return {
         ...prev,
         previousCharacter: prev.current, // Store current as previous
@@ -129,30 +148,33 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, [getCurrentCharacter]);
 
   const toggleHint = useCallback((hintType: HintType) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       hint: prev.hint === hintType ? HINT_TYPES.NONE : hintType,
     }));
   }, []);
 
-  const updateLimit = useCallback((newLimit: number) => {
-    const maxLimit = Math.min(newLimit, getModeSpecificLimit(state.mode));
-    setState(prev => ({
-      ...prev,
-      limit: maxLimit,
-      // Don't reset current character or totalSeen
-      // Don't reset scoring
-      hint: HINT_TYPES.NONE,
-      pinyinInput: '',
-      isPinyinCorrect: null,
-      characterInput: '',
-      isCharacterCorrect: null,
-      flashResult: null,
-    }));
-  }, [state.mode]);
+  const updateLimit = useCallback(
+    (newLimit: number) => {
+      const maxLimit = Math.min(newLimit, getModeSpecificLimit(state.mode));
+      setState((prev) => ({
+        ...prev,
+        limit: maxLimit,
+        // Don't reset current character or totalSeen
+        // Don't reset scoring
+        hint: HINT_TYPES.NONE,
+        pinyinInput: '',
+        isPinyinCorrect: null,
+        characterInput: '',
+        isCharacterCorrect: null,
+        flashResult: null,
+      }));
+    },
+    [state.mode]
+  );
 
   const reset = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       current: getRandomCharacterIndex(prev.mode, prev.limit),
       totalSeen: 0,
@@ -170,14 +192,14 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
 
   // New actions for traditional character feature
   const setDisplayMode = useCallback((mode: 'simplified' | 'traditional' | 'both') => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       displayMode: mode,
     }));
   }, []);
 
   const setPinyinInput = useCallback((input: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       pinyinInput: input,
       isPinyinCorrect: null, // Reset evaluation when input changes
@@ -185,12 +207,12 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const evaluatePinyin = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
-      
+
       const isCorrect = evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin);
-      
+
       return {
         ...prev,
         isPinyinCorrect: isCorrect,
@@ -201,7 +223,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, [getCurrentCharacter]);
 
   const resetScore = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       correctAnswers: 0,
       totalAttempted: 0,
@@ -215,7 +237,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
 
   // New actions for flashcard modes
   const setMode = useCallback((mode: FlashcardMode) => {
-    setState(prev => {
+    setState((prev) => {
       const newMaxLimit = getModeSpecificLimit(mode);
       // Always use the max available for the mode as the default limit
       const newLimit = newMaxLimit;
@@ -239,7 +261,7 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const setCharacterInput = useCallback((input: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       characterInput: input,
       isCharacterCorrect: null, // Reset evaluation when input changes
@@ -247,13 +269,16 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const validateCharacter = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
-      
-      const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
+
+      const expectedCharacter =
+        prev.mode === FlashcardMode.SIMPLIFIED
+          ? currentCharacter.simplified
+          : currentCharacter.traditional;
       const isCorrect = validateCharacterInput(prev.characterInput, expectedCharacter);
-      
+
       return {
         ...prev,
         isCharacterCorrect: isCorrect,
@@ -264,47 +289,57 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, [getCurrentCharacter]);
 
   // New functions to set flash result immediately
-  const setPinyinFlashResult = useCallback((input: string) => {
-    setState(prev => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-      
-      const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
-      
-      return {
-        ...prev,
-        pinyinInput: input,
-        isPinyinCorrect: isCorrect,
-        flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
-      };
-    });
-  }, [getCurrentCharacter]);
+  const setPinyinFlashResult = useCallback(
+    (input: string) => {
+      setState((prev) => {
+        const currentCharacter = getCurrentCharacter();
+        if (!currentCharacter) return prev;
 
-  const setCharacterFlashResult = useCallback((input: string) => {
-    setState(prev => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-      
-      const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
-      const isCorrect = validateCharacterInput(input, expectedCharacter);
-      
-      return {
-        ...prev,
-        characterInput: input,
-        isCharacterCorrect: isCorrect,
-        flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
-      };
-    });
-  }, [getCurrentCharacter]);
+        const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
+
+        return {
+          ...prev,
+          pinyinInput: input,
+          isPinyinCorrect: isCorrect,
+          flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
+        };
+      });
+    },
+    [getCurrentCharacter]
+  );
+
+  const setCharacterFlashResult = useCallback(
+    (input: string) => {
+      setState((prev) => {
+        const currentCharacter = getCurrentCharacter();
+        if (!currentCharacter) return prev;
+
+        const expectedCharacter =
+          prev.mode === FlashcardMode.SIMPLIFIED
+            ? currentCharacter.simplified
+            : currentCharacter.traditional;
+        const isCorrect = validateCharacterInput(input, expectedCharacter);
+
+        return {
+          ...prev,
+          characterInput: input,
+          isCharacterCorrect: isCorrect,
+          flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
+        };
+      });
+    },
+    [getCurrentCharacter]
+  );
 
   // Clear flash result after animation
   useEffect(() => {
-    if (state.flashResult) {
+    if (state.flashResult !== null && state.flashResult !== undefined) {
       const timer = setTimeout(() => {
-        setState(prev => ({ ...prev, flashResult: null }));
+        setState((prev) => ({ ...prev, flashResult: null }));
       }, 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [state.flashResult]);
 
   return {
@@ -323,4 +358,4 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
     setPinyinFlashResult,
     setCharacterFlashResult,
   };
-}; 
+};

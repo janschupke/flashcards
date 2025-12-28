@@ -1,5 +1,3 @@
-/* global document */
-
 import { createRoot } from 'react-dom/client';
 import { FlashCards } from './components/core/FlashCards';
 import './index.css';

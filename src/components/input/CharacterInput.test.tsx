@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterInput } from './CharacterInput';
 import { FlashcardMode, FlashResult } from '../../types';
@@ -73,7 +73,7 @@ describe('CharacterInput', () => {
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '们' } });
-    
+
     // Update the component with the new value to simulate controlled component behavior
     rerender(
       <CharacterInput
@@ -85,7 +85,7 @@ describe('CharacterInput', () => {
         mode={FlashcardMode.SIMPLIFIED}
       />
     );
-    
+
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
     expect(mockOnSubmit).toHaveBeenCalledWith('们');
@@ -134,7 +134,7 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(16, 185, 129)');
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('applies correct styling when answer is incorrect', () => {
@@ -150,7 +150,7 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(239, 68, 68)');
+    expect(wrapper).toHaveClass('border-error');
   });
 
   it('is disabled when disabled prop is true', () => {
@@ -185,7 +185,7 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(16, 185, 129)');
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('shows red border when flashResult is incorrect', () => {
@@ -202,7 +202,7 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(239, 68, 68)');
+    expect(wrapper).toHaveClass('border-error');
   });
 
   it('shows default border when flashResult is null', () => {
@@ -219,7 +219,7 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(74, 85, 104)');
+    expect(wrapper).toHaveClass('border-border-secondary');
   });
 
   it('prioritizes flashResult over isCorrect for border color', () => {
@@ -237,12 +237,12 @@ describe('CharacterInput', () => {
 
     const wrapper = screen.getByRole('textbox').parentElement;
     // Should show green (flashResult) instead of red (isCorrect)
-    expect(wrapper).toHaveStyle('border-color: rgb(16, 185, 129)');
+    expect(wrapper).toHaveClass('border-success');
   });
 
   it('transitions from flash to neutral border after flash timeout', async () => {
     vi.useFakeTimers();
-    
+
     const { rerender } = render(
       <CharacterInput
         value="们"
@@ -256,27 +256,31 @@ describe('CharacterInput', () => {
     );
 
     const wrapper = screen.getByRole('textbox').parentElement;
-    expect(wrapper).toHaveStyle('border-color: rgb(16, 185, 129)');
+    expect(wrapper).toHaveClass('border-success');
 
-    // Clear flashResult and advance timers
-    rerender(
-      <CharacterInput
-        value="们"
-        onChange={mockOnChange}
-        expectedCharacter="们"
-        onSubmit={mockOnSubmit}
-        isCorrect={null}
-        mode={FlashcardMode.SIMPLIFIED}
-        flashResult={null}
-      />
-    );
+    // Advance timers to complete the flash animation
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
-    // Advance timers to trigger the flash timeout
-    await vi.runAllTimersAsync();
-    
-    // Should now show neutral border
-    expect(wrapper).toHaveStyle('border-color: rgb(74, 85, 104)');
-    
+    // Clear flashResult after flash completes
+    act(() => {
+      rerender(
+        <CharacterInput
+          value="们"
+          onChange={mockOnChange}
+          expectedCharacter="们"
+          onSubmit={mockOnSubmit}
+          isCorrect={null}
+          mode={FlashcardMode.SIMPLIFIED}
+          flashResult={null}
+        />
+      );
+    });
+
+    // Should now show neutral border (isCorrect is null, flashResult is null)
+    expect(wrapper).toHaveClass('border-border-secondary');
+
     vi.useRealTimers();
   });
-}); 
+});

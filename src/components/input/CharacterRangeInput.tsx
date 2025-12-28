@@ -18,22 +18,25 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentLimit.toString());
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Clamp value to max allowed
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed)) {
-      if (parsed > maxLimit) {
-        setInputValue(maxLimit.toString());
-        return;
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      // Clamp value to max allowed
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed)) {
+        if (parsed > maxLimit) {
+          setInputValue(maxLimit.toString());
+          return;
+        }
+        if (parsed < minLimit) {
+          setInputValue(minLimit.toString());
+          return;
+        }
       }
-      if (parsed < minLimit) {
-        setInputValue(minLimit.toString());
-        return;
-      }
-    }
-    setInputValue(value);
-  }, [maxLimit, minLimit]);
+      setInputValue(value);
+    },
+    [maxLimit, minLimit]
+  );
 
   const handleInputBlur = useCallback(() => {
     const newLimit = validateLimit(inputValue, minLimit, maxLimit);
@@ -42,21 +45,25 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   }, [inputValue, onLimitChange, maxLimit, minLimit]);
 
   // In handleKeyDown, always clamp to bounds
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault();
-      const currentValue = parseInt(inputValue, 10) || currentLimit;
-      const increment = e.key === 'ArrowUp' ? UI_CONSTANTS.INCREMENT_STEP : -UI_CONSTANTS.INCREMENT_STEP;
-      let newValue = currentValue + increment;
-      if (newValue > maxLimit) {
-        newValue = maxLimit;
-      } else if (newValue < minLimit) {
-        newValue = minLimit;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const currentValue = parseInt(inputValue, 10) || currentLimit;
+        const increment =
+          e.key === 'ArrowUp' ? UI_CONSTANTS.INCREMENT_STEP : -UI_CONSTANTS.INCREMENT_STEP;
+        let newValue = currentValue + increment;
+        if (newValue > maxLimit) {
+          newValue = maxLimit;
+        } else if (newValue < minLimit) {
+          newValue = minLimit;
+        }
+        setInputValue(newValue.toString());
+        onLimitChange(newValue);
       }
-      setInputValue(newValue.toString());
-      onLimitChange(newValue);
-    }
-  }, [inputValue, currentLimit, onLimitChange, minLimit, maxLimit]);
+    },
+    [inputValue, currentLimit, onLimitChange, minLimit, maxLimit]
+  );
 
   // Update input value when currentLimit changes externally
   useEffect(() => {
@@ -64,14 +71,17 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
   }, [currentLimit]);
 
   return (
-    <div className="mb-7 p-5 bg-primary/10 rounded-2xl border border-primary/20">
-      <label htmlFor="limit" className="block text-[0.9rem] font-semibold text-textc-secondary mb-2 uppercase tracking-[0.5px]">
+    <div className="mb-3 p-2 bg-primary-light/10 rounded-lg border border-primary/20">
+      <label
+        htmlFor="limit"
+        className="block text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider"
+      >
         {CHINESE_TEXT.LABELS.CHARACTER_RANGE(minLimit, maxLimit)}
       </label>
       <input
         id="limit"
         type="number"
-        className="w-full max-w-[200px] px-4 py-3 border-2 border-secondary rounded-xl text-base bg-secondary-dark text-white outline-none focus:shadow-[0_0_0_3px_rgba(74,85,104,0.1)] placeholder:text-secondary-light"
+        className="w-full max-w-[200px] px-2 py-1.5 border-2 border-border-secondary rounded-lg text-sm bg-surface-secondary text-text-primary outline-none focus:ring-2 focus:ring-border-focus placeholder:text-text-tertiary"
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
@@ -83,4 +93,4 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
       />
     </div>
   );
-}; 
+};

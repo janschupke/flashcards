@@ -7,7 +7,7 @@ vi.mock('../../data/characters.json', () => ({
   default: [
     { item: '1', simplified: '我', traditional: '我', pinyin: 'wǒ', english: 'I ; me' },
     { item: '2', simplified: '好', traditional: '好', pinyin: 'hǎo', english: 'good' },
-  ]
+  ],
 }));
 
 describe('PreviousCharacter', () => {
@@ -19,13 +19,13 @@ describe('PreviousCharacter', () => {
 
   it('renders previous character information when index is provided', () => {
     render(<PreviousCharacter previousCharacterIndex={0} />);
-    
+
     expect(screen.getByText('Previous Character')).toBeInTheDocument();
     expect(screen.getByText('Simplified')).toBeInTheDocument();
     expect(screen.getByText('Traditional')).toBeInTheDocument();
     expect(screen.getByText('Pinyin')).toBeInTheDocument();
     expect(screen.getByText('English')).toBeInTheDocument();
-    
+
     expect(screen.getAllByText('我')).toHaveLength(2); // Simplified and Traditional
     expect(screen.getByText('wǒ')).toBeInTheDocument();
     expect(screen.getByText('I ; me')).toBeInTheDocument();
@@ -36,4 +36,4 @@ describe('PreviousCharacter', () => {
     expect(screen.getByText('Previous Character')).toBeInTheDocument();
     expect(screen.getAllByText('—')).toHaveLength(4); // All placeholders
   });
-}); 
+});

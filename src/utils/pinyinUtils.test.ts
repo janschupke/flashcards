@@ -1,4 +1,9 @@
-import { normalizePinyin, evaluatePinyinInput, getPinyinReadings, formatPinyinForDisplay } from './pinyinUtils';
+import {
+  normalizePinyin,
+  evaluatePinyinInput,
+  getPinyinReadings,
+  formatPinyinForDisplay,
+} from './pinyinUtils';
 
 describe('pinyinUtils', () => {
   describe('normalizePinyin', () => {
@@ -83,4 +88,4 @@ describe('pinyinUtils', () => {
       expect(formatPinyinForDisplay('')).toBe('');
     });
   });
-}); 
+});

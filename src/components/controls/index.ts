@@ -1,2 +1,2 @@
 export { ControlButtons } from './ControlButtons';
-export { ModeToggleButtons } from './ModeToggleButtons'; 
+export { ModeToggleButtons } from './ModeToggleButtons';
