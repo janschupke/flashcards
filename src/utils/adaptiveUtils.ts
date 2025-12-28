@@ -2,7 +2,13 @@ import { CharacterPerformance } from '../types/storage';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 
 /**
- * Calculates the success rate for a character performance
+ * Calculates the success rate for a character performance.
+ *
+ * Special cases:
+ * - null or 0 total attempts: Returns 1.0 (treated as untested/perfect)
+ * - 0 correct, 1 total: Returns 0.0 (0% success rate - worst case, highest priority)
+ * - Normal case: correct / total
+ *
  * @param performance - Character performance data or null
  * @returns Success rate (0-1), defaults to 1.0 if no attempts
  */
@@ -14,7 +20,21 @@ export const getSuccessRate = (performance: CharacterPerformance | null): number
 };
 
 /**
- * Calculates selection weights for characters based on their performance
+ * Calculates selection weights for characters based on their performance.
+ *
+ * Priority order (highest to lowest):
+ * 1. 0% success rate entries (0 correct, 1 failure) - Highest priority
+ *    These get ZERO_SUCCESS_MULTIPLIER (3.0x) boost before general weight multiplier
+ * 2. Other low success rate entries - Weighted by inverse success rate
+ * 3. Untested characters - Share UNTESTED_PRIORITY (40%) equally
+ * 4. High success rate entries - Lower weight, less practice needed
+ *
+ * Weight calculation:
+ * - Base weight = 1 - successRate (lower success = higher weight)
+ * - 0% entries (0 correct, 1 total): base weight * ZERO_SUCCESS_MULTIPLIER * WEIGHT_MULTIPLIER
+ * - Other entries: base weight * WEIGHT_MULTIPLIER
+ * - Weights are normalized and constrained to MIN/MAX_SELECTION_CHANCE
+ *
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data
  * @returns Array of weights (probabilities) for each character
@@ -46,7 +66,15 @@ const calculateCharacterWeights = (
     const perf = performanceMap.get(charIndex)!;
     const successRate = getSuccessRate(perf);
     // Lower success rate = higher weight (needs more practice)
-    return 1 - successRate;
+    let weight = 1 - successRate;
+
+    // Special priority for 0% entries (0 correct, 1 failure)
+    // These are the worst performers and need the most practice
+    if (perf.correct === 0 && perf.total === 1) {
+      weight *= ADAPTIVE_CONFIG.ZERO_SUCCESS_MULTIPLIER;
+    }
+
+    return weight;
   });
 
   // Apply weight multiplier to tested characters
@@ -100,7 +128,20 @@ const calculateCharacterWeights = (
 };
 
 /**
- * Selects a character using weighted random selection based on performance
+ * Selects a character using weighted random selection based on performance.
+ *
+ * Algorithm:
+ * 1. Checks if enough performance data exists (MIN_ATTEMPTS_FOR_ADAPTIVE)
+ * 2. If not enough data, falls back to random selection
+ * 3. Otherwise, calculates weights using calculateCharacterWeights
+ * 4. Uses weighted random selection to pick a character
+ *
+ * The algorithm prioritizes:
+ * - 0% entries (0 correct, 1 failure) - Highest priority
+ * - Low success rate entries - Higher priority
+ * - Untested characters - Medium priority (shared equally)
+ * - High success rate entries - Lower priority
+ *
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data
  * @returns Selected character index
@@ -114,9 +155,13 @@ export const selectAdaptiveCharacter = (
   }
 
   // Check if we have enough performance data to use adaptive selection
+  // We need at least one character with performance data in the current range
+  // Special case: 0% entries (0 correct, 1 failure) are considered valid data
+  // even if they don't meet MIN_ATTEMPTS_FOR_ADAPTIVE threshold
   const hasEnoughData = performance.some(
     (p) =>
-      characters.includes(p.characterIndex) && p.total >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_ADAPTIVE
+      characters.includes(p.characterIndex) &&
+      (p.total >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_ADAPTIVE || (p.correct === 0 && p.total === 1)) // 0% entries are always valid for adaptive selection
   );
 
   // Fallback to random if not enough data

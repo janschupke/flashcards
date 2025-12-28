@@ -3,6 +3,9 @@ export const ADAPTIVE_CONFIG = {
   MIN_SELECTION_CHANCE: 0.1,
   MAX_SELECTION_CHANCE: 0.5,
   WEIGHT_MULTIPLIER: 2.0,
+  // Extra multiplier for 0% success rate entries (0 correct, 1 failure)
+  // These entries need the highest priority for practice
+  ZERO_SUCCESS_MULTIPLIER: 3.0,
   MIN_ATTEMPTS_FOR_ADAPTIVE: 3,
   // Priority for untested characters (percentage of selection probability)
   UNTESTED_PRIORITY: 0.4, // 40% chance for untested characters in active set
