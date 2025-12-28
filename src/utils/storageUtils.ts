@@ -1,6 +1,7 @@
 import { Answer } from '../types';
 import { CharacterPerformance, StoredCounters, StorageData } from '../types/storage';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
+import { logger } from './logger';
 
 const STORAGE_KEYS = {
   PERFORMANCE: 'flashcard-performance',
@@ -54,8 +55,7 @@ export const updateCharacterPerformance = (characterIndex: number, isCorrect: bo
 
     window.localStorage.setItem(STORAGE_KEYS.PERFORMANCE, JSON.stringify(performance));
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to update character performance:', error);
+    logger.error('Failed to update character performance:', error);
   }
 };
 
@@ -63,8 +63,7 @@ export const clearCharacterPerformance = (): void => {
   try {
     window.localStorage.removeItem(STORAGE_KEYS.PERFORMANCE);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to clear character performance:', error);
+    logger.error('Failed to clear character performance:', error);
   }
 };
 
@@ -74,8 +73,7 @@ export const saveHistory = (answers: Answer[]): void => {
     const limited = answers.slice(-ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES);
     window.localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(limited));
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save history:', error);
+    logger.error('Failed to save history:', error);
   }
 };
 
@@ -99,8 +97,7 @@ export const saveCounters = (counters: Omit<StoredCounters, 'lastUpdated'>): voi
     };
     window.localStorage.setItem(STORAGE_KEYS.COUNTERS, JSON.stringify(stored));
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save counters:', error);
+    logger.error('Failed to save counters:', error);
   }
 };
 
@@ -124,8 +121,7 @@ export const savePreviousAnswer = (answer: Answer | null): void => {
       window.localStorage.setItem(STORAGE_KEYS.PREVIOUS_ANSWER, JSON.stringify(answer));
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save previous answer:', error);
+    logger.error('Failed to save previous answer:', error);
   }
 };
 
@@ -145,8 +141,7 @@ export const saveAdaptiveRange = (range: number): void => {
   try {
     window.localStorage.setItem(STORAGE_KEYS.ADAPTIVE_RANGE, JSON.stringify(range));
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save adaptive range:', error);
+    logger.error('Failed to save adaptive range:', error);
   }
 };
 
@@ -168,8 +163,7 @@ export const clearAllStorage = (): void => {
       window.localStorage.removeItem(key);
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to clear all storage:', error);
+    logger.error('Failed to clear all storage:', error);
   }
 };
 
@@ -187,7 +181,6 @@ export const saveStorageData = (data: StorageData): void => {
       JSON.stringify(data.characterPerformance)
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save storage data:', error);
+    logger.error('Failed to save storage data:', error);
   }
 };

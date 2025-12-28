@@ -1,10 +1,23 @@
 import React, { useMemo } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
 import { useStatistics } from '../../hooks/useStatistics';
 import { FilterButton } from '../common/FilterButton';
+import { PaginatedTable } from '../common/PaginatedTable';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface StatisticsProps {
-  // Component can work standalone by loading from storage
+// Component can work standalone by loading from storage
+// No props needed - component loads data from storage internally
+type StatisticsProps = Record<string, never>;
+
+interface StatisticsRow {
+  simplified: string;
+  traditional: string;
+  pinyin: string;
+  english: string;
+  correct: number;
+  total: number;
+  successRate: number;
+  successRatePercent: string;
+  successRateClass: string;
 }
 
 export const Statistics: React.FC<StatisticsProps> = () => {
@@ -19,8 +32,8 @@ export const Statistics: React.FC<StatisticsProps> = () => {
     handleSort,
   } = useStatistics();
 
-  // Generate table rows
-  const rows = useMemo(() => {
+  // Transform data for table
+  const tableData = useMemo<StatisticsRow[]>(() => {
     return sortedData.map((item) => {
       const successRatePercent = (item.successRate * 100).toFixed(1);
       const successRateClass =
@@ -30,31 +43,92 @@ export const Statistics: React.FC<StatisticsProps> = () => {
             ? 'text-warning'
             : 'text-error';
 
-      return [
-        <span key="simplified" className="text-text-secondary">
-          {item.character?.simplified ?? '?'}
-        </span>,
-        <span key="traditional" className="text-text-secondary">
-          {item.character?.traditional ?? '?'}
-        </span>,
-        <span key="pinyin" className="text-text-secondary">
-          {item.character?.pinyin ?? '?'}
-        </span>,
-        <span key="english" className="text-text-secondary">
-          {item.character?.english ?? '?'}
-        </span>,
-        <span key="correct" className="text-text-secondary">
-          {item.correct}
-        </span>,
-        <span key="total" className="text-text-secondary">
-          {item.total}
-        </span>,
-        <span key="successRate" className={successRateClass}>
-          {successRatePercent}%
-        </span>,
-      ];
+      return {
+        simplified: item.character?.simplified ?? '?',
+        traditional: item.character?.traditional ?? '?',
+        pinyin: item.character?.pinyin ?? '?',
+        english: item.character?.english ?? '?',
+        correct: item.correct,
+        total: item.total,
+        successRate: item.successRate,
+        successRatePercent,
+        successRateClass,
+      };
     });
   }, [sortedData]);
+
+  // Define columns
+  const columns = useMemo<ColumnDef<StatisticsRow>[]>(
+    () => [
+      {
+        header: () => (
+          <span
+            className="cursor-pointer hover:text-text-secondary"
+            onClick={() => handleSort('character')}
+          >
+            Simplified {sortField === 'character' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </span>
+        ),
+        accessorKey: 'simplified',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+      },
+      {
+        header: 'Traditional',
+        accessorKey: 'traditional',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+      },
+      {
+        header: 'Pinyin',
+        accessorKey: 'pinyin',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+      },
+      {
+        header: 'English',
+        accessorKey: 'english',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+      },
+      {
+        header: () => (
+          <span
+            className="cursor-pointer hover:text-text-secondary"
+            onClick={() => handleSort('correct')}
+          >
+            Correct {sortField === 'correct' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </span>
+        ),
+        accessorKey: 'correct',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
+      },
+      {
+        header: () => (
+          <span
+            className="cursor-pointer hover:text-text-secondary"
+            onClick={() => handleSort('total')}
+          >
+            Total {sortField === 'total' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </span>
+        ),
+        accessorKey: 'total',
+        cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
+      },
+      {
+        header: () => (
+          <span
+            className="cursor-pointer hover:text-text-secondary"
+            onClick={() => handleSort('successRate')}
+          >
+            Success Rate {sortField === 'successRate' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </span>
+        ),
+        accessorKey: 'successRatePercent',
+        cell: (info) => {
+          const row = info.row.original;
+          return <span className={row.successRateClass}>{row.successRatePercent}%</span>;
+        },
+      },
+    ],
+    [sortField, sortDirection, handleSort]
+  );
 
   if (statisticsData.length === 0) {
     return (
@@ -88,59 +162,8 @@ export const Statistics: React.FC<StatisticsProps> = () => {
         />
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b border-border-primary">
-              <th
-                className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase cursor-pointer hover:text-text-secondary"
-                onClick={() => handleSort('character')}
-              >
-                Simplified {sortField === 'character' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase">
-                Traditional
-              </th>
-              <th className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase">
-                Pinyin
-              </th>
-              <th className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase">
-                English
-              </th>
-              <th
-                className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase cursor-pointer hover:text-text-secondary"
-                onClick={() => handleSort('correct')}
-              >
-                Correct {sortField === 'correct' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th
-                className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase cursor-pointer hover:text-text-secondary"
-                onClick={() => handleSort('total')}
-              >
-                Total {sortField === 'total' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th
-                className="px-2 py-2 text-left text-xs font-semibold text-text-tertiary uppercase cursor-pointer hover:text-text-secondary"
-                onClick={() => handleSort('successRate')}
-              >
-                Success Rate {sortField === 'successRate' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index} className="border-b border-border-secondary">
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="px-2 py-2 text-sm">
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Paginated Table */}
+      <PaginatedTable data={tableData} columns={columns} pageSize={20} />
     </div>
   );
 };

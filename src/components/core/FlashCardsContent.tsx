@@ -96,9 +96,7 @@ export const FlashCardsContent: React.FC = () => {
             ref={characterInputRef}
             value={characterInput}
             onChange={setCharacterInput}
-            expectedCharacter={
-              currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''
-            }
+            expectedCharacter={currentCharacter ? getExpectedCharacter(currentCharacter, mode) : ''}
             onSubmit={setCharacterFlashResult}
             isCorrect={isCharacterCorrect}
             disabled={false}
@@ -124,4 +122,3 @@ export const FlashCardsContent: React.FC = () => {
     </div>
   );
 };
-

@@ -110,6 +110,7 @@ export default [
       'react/self-closing-comp': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      'no-console': ['error', { allow: ['error'] }],
     },
   },
   prettier,

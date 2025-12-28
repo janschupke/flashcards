@@ -88,36 +88,43 @@ export const TopControls: React.FC<TopControlsProps> = ({
         {/* Answer counter, success rate, range, and reset button */}
         <div className="flex items-center gap-1.5 sm:gap-2 ml-auto flex-wrap justify-end">
           <div className="flex items-center gap-1 sm:gap-2">
-            <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">Answers:</span>
+            <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
+              Answers:
+            </span>
             <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">A:</span>
             <span className="text-sm font-bold text-primary" data-testid="stat-answers">
               {correctAnswers} / {totalSeen}
             </span>
           </div>
-          {totalSeen > 0 && (() => {
-            const successRate = correctAnswers / totalSeen;
-            const successRatePercent = Math.round(successRate * 100);
-            const colorClass =
-              successRate >= 0.8
-                ? 'text-success'
-                : successRate >= 0.5
-                  ? 'text-warning'
-                  : 'text-error';
-            return (
-              <div className="flex items-center gap-1 sm:gap-2">
-                <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">Success:</span>
-                <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">S:</span>
-                <span
-                  className={`text-sm font-medium ${colorClass}`}
-                  data-testid="stat-success-rate"
-                >
-                  {successRatePercent}%
-                </span>
-              </div>
-            );
-          })()}
+          {totalSeen > 0 &&
+            (() => {
+              const successRate = correctAnswers / totalSeen;
+              const successRatePercent = Math.round(successRate * 100);
+              const colorClass =
+                successRate >= 0.8
+                  ? 'text-success'
+                  : successRate >= 0.5
+                    ? 'text-warning'
+                    : 'text-error';
+              return (
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
+                    Success:
+                  </span>
+                  <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">S:</span>
+                  <span
+                    className={`text-sm font-medium ${colorClass}`}
+                    data-testid="stat-success-rate"
+                  >
+                    {successRatePercent}%
+                  </span>
+                </div>
+              );
+            })()}
           <div className="flex items-center gap-1 sm:gap-2">
-            <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">Range:</span>
+            <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
+              Range:
+            </span>
             <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">R:</span>
             <span
               className="text-sm font-medium text-text-secondary cursor-help"
@@ -126,11 +133,7 @@ export const TopControls: React.FC<TopControlsProps> = ({
             >
               1-{adaptiveRange}
             </span>
-            <Tooltip
-              id="adaptive-range-tooltip"
-              place="bottom"
-              className="max-w-xs z-50"
-            >
+            <Tooltip id="adaptive-range-tooltip" place="bottom" className="max-w-xs z-50">
               <div className="text-sm">
                 <p className="font-semibold mb-1">Adaptive Range</p>
                 <p className="mb-2">
@@ -139,8 +142,9 @@ export const TopControls: React.FC<TopControlsProps> = ({
                   {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION} attempts.
                 </p>
                 <p className="text-xs opacity-90">
-                  Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} • Expansion: +{ADAPTIVE_CONFIG.EXPANSION_AMOUNT} every{' '}
-                  {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers
+                  Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} • Expansion: +
+                  {ADAPTIVE_CONFIG.EXPANSION_AMOUNT} every {ADAPTIVE_CONFIG.EXPANSION_INTERVAL}{' '}
+                  answers
                 </p>
               </div>
             </Tooltip>

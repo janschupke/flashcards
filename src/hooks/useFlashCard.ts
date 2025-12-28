@@ -82,14 +82,16 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
   });
 
   // Get current character based on mode
+  // Extract values to avoid dependency on entire state object
+  const currentIndex = state.current;
+  const currentMode = state.mode;
   const getCurrentCharacter = useCallback((): Character | null => {
-    if (state.mode === FlashcardMode.PINYIN) {
-      return data[state.current] ?? null;
+    if (currentMode === FlashcardMode.PINYIN) {
+      return data[currentIndex] ?? null;
     } else {
-      return getCharacterAtIndex(state.current, state.mode);
+      return getCharacterAtIndex(currentIndex, currentMode);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.current, state.mode]);
+  }, [currentIndex, currentMode]);
 
   const getNext = useCallback(() => {
     setState((prev) => {

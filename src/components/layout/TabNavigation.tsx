@@ -38,11 +38,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = () => {
         const tabLabel = 'LABEL' in tab ? tab.LABEL : tab.label;
         const tabAriaLabel = 'ARIA_LABEL' in tab ? tab.ARIA_LABEL : tab.ariaLabel;
         return (
-          <NavLink
-            key={tab.value}
-            to={getRouteForTab(tab.value)}
-            className="no-underline"
-          >
+          <NavLink key={tab.value} to={getRouteForTab(tab.value)} className="no-underline">
             {({ isActive }) => (
               <TabButton
                 label={tabLabel}

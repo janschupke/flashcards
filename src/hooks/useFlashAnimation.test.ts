@@ -31,6 +31,10 @@ describe('useFlashAnimation', () => {
 
   it('returns false after animation duration when flashResult is CORRECT', () => {
     const { result } = renderHook(() => useFlashAnimation(FlashResult.CORRECT));
+    // Advance timers to flush the immediate setTimeout(0) update
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(true);
 
     act(() => {
@@ -42,6 +46,10 @@ describe('useFlashAnimation', () => {
 
   it('returns false after animation duration when flashResult is INCORRECT', () => {
     const { result } = renderHook(() => useFlashAnimation(FlashResult.INCORRECT));
+    // Advance timers to flush the immediate setTimeout(0) update
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(true);
 
     act(() => {
@@ -58,11 +66,17 @@ describe('useFlashAnimation', () => {
         initialProps: { flashResult: FlashResult.CORRECT as FlashResult | null },
       }
     );
-
+    // Advance timers to flush the immediate setTimeout(0) update
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(true);
 
     // Change to null - should immediately set isFlashing to false
     rerender({ flashResult: null as FlashResult | null });
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(false);
   });
 
@@ -73,15 +87,24 @@ describe('useFlashAnimation', () => {
         initialProps: { flashResult: FlashResult.CORRECT as FlashResult | null },
       }
     );
-
+    // Advance timers to flush the immediate setTimeout(0) update
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(true);
 
     // Change to null - should reset immediately
     rerender({ flashResult: null as FlashResult | null });
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(false);
 
     // Change to INCORRECT - should set isFlashing to true again
     rerender({ flashResult: FlashResult.INCORRECT as FlashResult | null });
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
     expect(result.current).toBe(true);
   });
 });

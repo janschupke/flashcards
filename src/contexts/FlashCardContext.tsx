@@ -17,9 +17,7 @@ export const FlashCardProvider: React.FC<FlashCardProviderProps> = ({
 }) => {
   const flashCardState = useFlashCard({ initialCurrent });
 
-  return (
-    <FlashCardContext.Provider value={flashCardState}>{children}</FlashCardContext.Provider>
-  );
+  return <FlashCardContext.Provider value={flashCardState}>{children}</FlashCardContext.Provider>;
 };
 
 export const useFlashCardContext = (): FlashCardContextValue => {
@@ -29,4 +27,3 @@ export const useFlashCardContext = (): FlashCardContextValue => {
   }
   return context;
 };
-
