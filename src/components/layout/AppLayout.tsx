@@ -3,19 +3,14 @@ import { useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import { ToastContainer } from '../common/ToastContainer';
 import { useFlashCardContext } from '../../contexts/FlashCardContext';
-import { HINT_TYPES } from '../../types';
 import { AppTab } from '../../types/layout';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const {
-    mode,
     adaptiveRange,
     correctAnswers,
     totalSeen,
-    hint,
-    toggleHint,
-    setMode,
     resetStatistics,
   } = useFlashCardContext();
 
@@ -35,14 +30,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     <div className="h-screen flex flex-col">
       <Navigation
         activeTab={activeTab}
-        currentMode={mode}
-        onModeChange={setMode}
         adaptiveRange={adaptiveRange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
-        currentHint={hint}
-        onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
-        onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
         onReset={resetStatistics}
       />
       <main className="flex-1 overflow-y-auto bg-surface-primary">{children}</main>

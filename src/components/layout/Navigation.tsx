@@ -4,32 +4,21 @@ import { AppTab } from '../../types/layout';
 import { NAVIGATION_CONSTANTS } from '../../constants/layout';
 import { TabNavigation } from './TabNavigation';
 import { MobileMenu } from './MobileMenu';
-import { TopControls } from './TopControls';
-import { FlashcardMode, HintType } from '../../types';
+import { FlashcardStatsPanel } from './FlashcardStatsPanel';
 
 interface NavigationProps {
   activeTab: AppTab;
-  currentMode: FlashcardMode;
-  onModeChange: (mode: FlashcardMode) => void;
   adaptiveRange: number;
   correctAnswers: number;
   totalSeen: number;
-  currentHint?: HintType;
-  onTogglePinyin?: () => void;
-  onToggleEnglish?: () => void;
   onReset?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
-  currentMode,
-  onModeChange,
   adaptiveRange,
   correctAnswers,
   totalSeen,
-  currentHint,
-  onTogglePinyin,
-  onToggleEnglish,
   onReset,
 }) => {
   const location = useLocation();
@@ -51,15 +40,10 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </nav>
       {isFlashcardsPage && (
-        <TopControls
-          currentMode={currentMode}
-          onModeChange={onModeChange}
+        <FlashcardStatsPanel
           adaptiveRange={adaptiveRange}
           correctAnswers={correctAnswers}
           totalSeen={totalSeen}
-          currentHint={currentHint}
-          onTogglePinyin={onTogglePinyin}
-          onToggleEnglish={onToggleEnglish}
           onReset={onReset}
         />
       )}

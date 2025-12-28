@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import { FlashCardsContent } from './FlashCardsContent';
+import { FlashcardPage } from './FlashcardPage';
 import { ToastProvider } from '../../contexts/ToastContext';
 import { FlashCardProvider } from '../../contexts/FlashCardContext';
 
@@ -28,9 +28,9 @@ const renderWithToast = (component: React.ReactElement): ReturnType<typeof rende
   );
 };
 
-describe('FlashCardsContent', () => {
+describe('FlashcardPage', () => {
   it('renders without crashing', () => {
-    renderWithToast(<FlashCardsContent />);
+    renderWithToast(<FlashcardPage />);
     // Check that the character display is rendered
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
@@ -38,7 +38,7 @@ describe('FlashCardsContent', () => {
   // Range input tests removed - range input was removed in favor of adaptive range
 
   it('clears pinyin input when transitioning to next character', async () => {
-    renderWithToast(<FlashCardsContent />);
+    renderWithToast(<FlashcardPage />);
 
     const pinyinInput = screen.getByRole('textbox');
     // Use regex to match the Next button
@@ -57,7 +57,7 @@ describe('FlashCardsContent', () => {
   });
 
   it('switches mode with right arrow key, and does not go past last mode', () => {
-    renderWithToast(<FlashCardsContent />);
+    renderWithToast(<FlashcardPage />);
     // Verify we can switch modes with keyboard
     // Just check that arrow key handlers are registered
     fireEvent.keyDown(window, { key: 'ArrowRight' });
@@ -66,7 +66,7 @@ describe('FlashCardsContent', () => {
   });
 
   it('switches mode with left arrow key, and does not go past first mode', () => {
-    renderWithToast(<FlashCardsContent />);
+    renderWithToast(<FlashcardPage />);
     // Verify we can switch modes with keyboard
     // Just check that arrow key handlers are registered
     fireEvent.keyDown(window, { key: 'ArrowLeft' });

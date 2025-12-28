@@ -13,7 +13,7 @@ import { FlashcardControls } from '../controls/FlashcardControls';
 import { getExpectedCharacter, getCharacterAtIndex, getHintText } from '../../utils/characterUtils';
 import data from '../../data/characters.json';
 
-export const FlashCardsContent: React.FC = () => {
+export const FlashcardPage: React.FC = () => {
   const {
     current,
     hint,
