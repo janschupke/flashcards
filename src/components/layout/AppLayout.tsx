@@ -45,7 +45,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
         onReset={resetStatistics}
       />
-      <main className="flex-1 overflow-hidden bg-surface-primary">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-surface-primary">{children}</main>
       <ToastContainer />
     </div>
   );
