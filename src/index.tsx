@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client';
-import { TooltipProvider } from 'react-tooltip';
-import { FlashCards } from './components/core/FlashCards';
-import { ToastProvider } from './contexts/ToastContext';
+import { BrowserRouter } from 'react-router-dom';
+import { App } from './App';
 import './index.css';
 import 'react-tooltip/dist/react-tooltip.css';
 
@@ -11,9 +10,7 @@ if (!rootElement) {
 }
 const root = createRoot(rootElement);
 root.render(
-  <TooltipProvider>
-    <ToastProvider>
-      <FlashCards />
-    </ToastProvider>
-  </TooltipProvider>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );

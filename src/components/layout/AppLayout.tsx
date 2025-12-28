@@ -1,53 +1,49 @@
 import React from 'react';
-import { AppTab } from '../../types/layout';
+import { useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
-import { FlashcardMode, HintType } from '../../types';
 import { ToastContainer } from '../common/ToastContainer';
+import { useFlashCard } from '../../hooks/useFlashCard';
+import { HINT_TYPES } from '../../types';
+import { AppTab } from '../../types/layout';
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-  activeTab: AppTab;
-  onTabChange: (tab: AppTab) => void;
-  // Top controls props (only used in Flashcards tab)
-  currentMode?: FlashcardMode;
-  onModeChange?: (mode: FlashcardMode) => void;
-  adaptiveRange?: number;
-  correctAnswers?: number;
-  totalSeen?: number;
-  currentHint?: HintType;
-  onTogglePinyin?: () => void;
-  onToggleEnglish?: () => void;
-  onReset?: () => void;
-}
+export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const {
+    mode,
+    adaptiveRange,
+    correctAnswers,
+    totalSeen,
+    hint,
+    toggleHint,
+    setMode,
+    resetStatistics,
+  } = useFlashCard();
 
-export const AppLayout: React.FC<AppLayoutProps> = ({
-  children,
-  activeTab,
-  onTabChange,
-  currentMode,
-  onModeChange,
-  adaptiveRange,
-  correctAnswers,
-  totalSeen,
-  currentHint,
-  onTogglePinyin,
-  onToggleEnglish,
-  onReset,
-}) => {
+  // Determine active tab from route
+  const activeTab =
+    location.pathname === '/'
+      ? AppTab.FLASHCARDS
+      : location.pathname === '/history'
+        ? AppTab.HISTORY
+        : location.pathname === '/statistics'
+          ? AppTab.STATISTICS
+          : location.pathname === '/about'
+            ? AppTab.ABOUT
+            : AppTab.FLASHCARDS;
+
   return (
     <div className="h-screen flex flex-col">
       <Navigation
         activeTab={activeTab}
-        onTabChange={onTabChange}
-        currentMode={currentMode}
-        onModeChange={onModeChange}
+        currentMode={mode}
+        onModeChange={setMode}
         adaptiveRange={adaptiveRange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
-        currentHint={currentHint}
-        onTogglePinyin={onTogglePinyin}
-        onToggleEnglish={onToggleEnglish}
-        onReset={onReset}
+        currentHint={hint}
+        onTogglePinyin={() => toggleHint(HINT_TYPES.PINYIN)}
+        onToggleEnglish={() => toggleHint(HINT_TYPES.ENGLISH)}
+        onReset={resetStatistics}
       />
       <main className="flex-1 overflow-hidden bg-surface-primary">{children}</main>
       <ToastContainer />

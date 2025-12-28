@@ -11,6 +11,7 @@
 
   /* Semantic Colors (Status/Feedback) */
   --color-success: #10b981;
+  --color-success-muted: #6ee7b7;
   --color-success-light: #d1fae5;
   --color-success-dark: #059669;
   --color-error: #ef4444;

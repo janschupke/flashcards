@@ -1,14 +1,29 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { AppTab } from '../../types/layout';
 import { TAB_CONSTANTS } from '../../constants/layout';
 import { TabButton } from './TabButton';
 
 interface TabNavigationProps {
   activeTab: AppTab;
-  onTabChange: (tab: AppTab) => void;
 }
 
-export const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
+const getRouteForTab = (tab: AppTab): string => {
+  switch (tab) {
+    case AppTab.FLASHCARDS:
+      return '/';
+    case AppTab.HISTORY:
+      return '/history';
+    case AppTab.STATISTICS:
+      return '/statistics';
+    case AppTab.ABOUT:
+      return '/about';
+    default:
+      return '/';
+  }
+};
+
+export const TabNavigation: React.FC<TabNavigationProps> = () => {
   const tabs = [
     { value: AppTab.FLASHCARDS, ...TAB_CONSTANTS.FLASHCARDS },
     { value: AppTab.HISTORY, ...TAB_CONSTANTS.HISTORY },
@@ -19,19 +34,25 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabCh
   return (
     <div role="tablist" className="flex gap-2">
       {tabs.map((tab) => {
-        const isActive = activeTab === tab.value;
         const tabId = 'ID' in tab ? tab.ID : tab.id;
         const tabLabel = 'LABEL' in tab ? tab.LABEL : tab.label;
         const tabAriaLabel = 'ARIA_LABEL' in tab ? tab.ARIA_LABEL : tab.ariaLabel;
         return (
-          <TabButton
+          <NavLink
             key={tab.value}
-            label={tabLabel}
-            isActive={isActive}
-            onClick={() => onTabChange(tab.value)}
-            id={tabId}
-            ariaLabel={tabAriaLabel}
-          />
+            to={getRouteForTab(tab.value)}
+            className="no-underline"
+          >
+            {({ isActive }) => (
+              <TabButton
+                label={tabLabel}
+                isActive={isActive}
+                onClick={() => {}}
+                id={tabId}
+                ariaLabel={tabAriaLabel}
+              />
+            )}
+          </NavLink>
         );
       })}
     </div>

@@ -9,7 +9,7 @@ export const ToastContainer: React.FC = () => {
 
   return (
     <div
-      className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 items-center"
+      className="fixed top-0 left-0 right-0 z-50 flex flex-col"
       role="region"
       aria-label="Notifications"
     >
