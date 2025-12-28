@@ -1,10 +1,3 @@
-export const LAYOUT_CONSTANTS = {
-  NAV_HEIGHT: 64, // pixels
-  FOOTER_HEIGHT: 48, // pixels
-  TAB_PADDING: 16, // pixels
-  CONTENT_MAX_WIDTH: 1280, // pixels
-} as const;
-
 export const COMPONENT_CONSTANTS = {
   CARD_BORDER_RADIUS: 12, // pixels
   INPUT_HEIGHT: {
@@ -32,9 +25,4 @@ export const TAB_CONSTANTS = {
 export const NAVIGATION_CONSTANTS = {
   LOGO_TEXT: '汉字 Flashcards',
   BRAND_NAME: 'Chinese Flashcards',
-} as const;
-
-export const FOOTER_CONSTANTS = {
-  COPYRIGHT_YEAR: new Date().getFullYear(),
-  COPYRIGHT_TEXT: 'Chinese Flashcards',
 } as const;

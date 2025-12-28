@@ -98,11 +98,6 @@ export const KEYBOARD_SHORTCUTS = {
   MODE_TRADITIONAL: 'F3',
 } as const;
 
-export const DEFAULT_CONFIG = {
-  DEFAULT_LIMIT: 500,
-  MIN_LIMIT: 1,
-} as const;
-
 // New types for traditional character feature
 export interface PinyinInputProps {
   value: string;

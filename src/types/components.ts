@@ -35,10 +35,3 @@ export enum TableVariant {
   STRIPED = 'striped',
   BORDERED = 'bordered',
 }
-
-export enum AlertVariant {
-  SUCCESS = 'success',
-  ERROR = 'error',
-  WARNING = 'warning',
-  INFO = 'info',
-}

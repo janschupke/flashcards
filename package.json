@@ -16,6 +16,9 @@
     "lint:fix": "eslint './src/**/*.{ts,js,tsx,jsx}' --fix",
     "format:check": "prettier --check './src/**/*.{ts,tsx,js,jsx,json,css,md}'",
     "format": "prettier --write './src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
+    "knip:fix:files": "knip --fix --allow-remove-files",
     "check": "npm run typecheck && npm run test && npm run lint && npm run format && npm run build"
   },
   "author": "jan@schupke.io",
@@ -42,6 +45,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^26.1.0",
+    "knip": "^5.78.0",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "tailwindcss": "^4.1.18",
