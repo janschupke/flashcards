@@ -51,9 +51,23 @@ export function evaluatePinyinInput(userInput: string, correctPinyin: string): b
   // Handle multiple pinyin readings (separated by semicolons or slashes)
   const correctReadings = normalizedCorrect.split(/[;/]/).map((r) => r.trim());
 
-  // Since normalizePinyin converts 'v' to 'ü', both user input 'v' and correct pinyin 'ü'
-  // (or vice versa) will be normalized to 'ü' and match correctly
-  return correctReadings.includes(normalizedInput);
+  // Check direct match first
+  if (correctReadings.includes(normalizedInput)) {
+    return true;
+  }
+
+  // If correct answer contains 'ü', also accept 'u' as alternative
+  // This allows users to type 'u' when the correct answer is 'ü' (keyboard convenience)
+  for (const reading of correctReadings) {
+    if (reading.includes('ü')) {
+      const alternativeReading = reading.replace(/ü/g, 'u');
+      if (normalizedInput === alternativeReading) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**

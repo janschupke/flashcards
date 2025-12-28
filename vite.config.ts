@@ -19,9 +19,31 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: (id) => {
+          // Split node_modules into separate chunks
+          if (id.includes('node_modules')) {
+            // React and React DOM together
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            // React Router
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+            // React Table
+            if (id.includes('@tanstack/react-table')) {
+              return 'table-vendor';
+            }
+            // React Tooltip
+            if (id.includes('react-tooltip')) {
+              return 'tooltip-vendor';
+            }
+            // Other vendor code
+            return 'vendor';
+          }
+        },
       },
     },
   },
   base: '/',
-}) 
+})

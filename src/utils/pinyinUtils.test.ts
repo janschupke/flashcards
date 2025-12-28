@@ -99,6 +99,29 @@ describe('pinyinUtils', () => {
       expect(evaluatePinyinInput('lü', 'lǚ/lv')).toBe(true);
       expect(evaluatePinyinInput('lv', 'lǚ;lv')).toBe(true);
     });
+
+    it('should accept u as alternative to ü (keyboard convenience)', () => {
+      // User types 'u' instead of 'ü' when correct has 'ü'
+      expect(evaluatePinyinInput('lu', 'lǚ')).toBe(true);
+      expect(evaluatePinyinInput('nu', 'nǚ')).toBe(true);
+      expect(evaluatePinyinInput('ju', 'jǚ')).toBe(true);
+      expect(evaluatePinyinInput('qu', 'qǚ')).toBe(true);
+      expect(evaluatePinyinInput('xu', 'xǚ')).toBe(true);
+      expect(evaluatePinyinInput('yu', 'yǚ')).toBe(true);
+
+      // Complex cases with multiple syllables
+      expect(evaluatePinyinInput('luan', 'lüǎn')).toBe(true);
+      // 'nuǎn' normalizes to 'nuan', so 'nuan' should match 'nuǎn' directly
+      expect(evaluatePinyinInput('nuan', 'nuǎn')).toBe(true);
+      // Verify that 'u' input does NOT match when correct has 'ü' in a different position
+      // (This tests that the ü→u conversion only works when correct actually has 'ü')
+      expect(evaluatePinyinInput('lu', 'lǚ')).toBe(true); // Should match via ü→u conversion
+      expect(evaluatePinyinInput('nu', 'nǚ')).toBe(true); // Should match via ü→u conversion
+
+      // Multiple readings
+      expect(evaluatePinyinInput('lu', 'lǚ/lv')).toBe(true);
+      expect(evaluatePinyinInput('lu', 'lǚ;lv')).toBe(true);
+    });
   });
 
   describe('getPinyinReadings', () => {

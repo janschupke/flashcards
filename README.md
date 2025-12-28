@@ -63,20 +63,29 @@ A modern adaptive learning flashcard web app for practicing Chinese characters. 
 ## Adaptive Learning System Explained
 
 ### Character Selection Algorithm
-The app uses a weighted random selection algorithm that:
-- Prioritizes untested characters in the active set (configurable percentage, default 40%)
-- Calculates success rate for each tested character in your current practice range
-- Weights characters with lower success rates more heavily (they need more practice)
-- Ensures no character has more than 50% selection probability (maximum)
-- Ensures no character has less than 10% selection probability (minimum)
-- Falls back to random selection if there's not enough performance data
+The app uses a weighted random selection algorithm that prioritizes characters based on their success rate:
+
+**Priority Categories (highest to lowest):**
+1. **Low Success Rate (0-30%)** - Gets 50% of selection probability
+   - Characters struggling the most get the highest priority
+   - Shared equally among all low success characters
+   - Not constrained by maximum selection chance to ensure prioritization
+2. **Untested Characters** - Gets 20% of selection probability
+   - Characters you haven't practiced yet
+   - Shared equally among all untested characters
+3. **Medium Success Rate (30-70%)** - Gets 20% of selection probability
+   - Weighted by inverse success rate (lower = higher weight)
+4. **High Success Rate (70-100%)** - Gets 10% of selection probability
+   - Weighted by inverse success rate (lower = higher weight)
 
 **Configuration:**
 - Minimum selection chance: 10%
-- Maximum selection chance: 50%
-- Weight multiplier: 2.0x
-- Minimum attempts for adaptive: 3
-- Untested priority: 40% (characters with no attempts get higher priority)
+- Maximum selection chance: 50% (does not apply to low success entries)
+- Weight multiplier: 2.0x (for medium/high success categories)
+- Minimum attempts for adaptive: 3 (or 1 attempt for low success entries)
+- Low success threshold: 30%
+- Medium success threshold: 70%
+- Priority allocations: 50% low, 20% untested, 20% medium, 10% high
 
 ### Range Expansion
 The app automatically expands your practice range as you improve:

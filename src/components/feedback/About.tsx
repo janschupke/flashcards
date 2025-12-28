@@ -69,17 +69,47 @@ export const About: React.FC = () => {
           <div>
             <h4 className="font-semibold text-text-primary mb-1">Character Selection</h4>
             <p className="mb-2">
-              The app uses a weighted selection algorithm that shows characters you&apos;re
-              struggling with more often, while ensuring no character appears more than{' '}
-              {ADAPTIVE_CONFIG.MAX_SELECTION_CHANCE * 100}% of the time.
+              The app uses a priority-based selection algorithm that categorizes characters by their
+              success rate and allocates selection probability accordingly. Characters you&apos;re
+              struggling with get the highest priority.
             </p>
+            <p className="mb-2 font-semibold text-text-primary">Priority Categories:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
+              <li>
+                <strong>Low Success (0-{ADAPTIVE_CONFIG.LOW_SUCCESS_THRESHOLD * 100}%):</strong>{' '}
+                Gets {ADAPTIVE_CONFIG.LOW_SUCCESS_PRIORITY * 100}% of selection probability -
+                highest priority for characters you&apos;re struggling with
+              </li>
+              <li>
+                <strong>Untested:</strong> Gets {ADAPTIVE_CONFIG.UNTESTED_PRIORITY * 100}% of
+                selection probability - characters you haven&apos;t practiced yet
+              </li>
+              <li>
+                <strong>
+                  Medium Success ({ADAPTIVE_CONFIG.LOW_SUCCESS_THRESHOLD * 100}-
+                  {ADAPTIVE_CONFIG.MEDIUM_SUCCESS_THRESHOLD * 100}%):
+                </strong>{' '}
+                Gets {ADAPTIVE_CONFIG.MEDIUM_SUCCESS_PRIORITY * 100}% of selection probability -
+                weighted by inverse success rate
+              </li>
+              <li>
+                <strong>
+                  High Success ({ADAPTIVE_CONFIG.MEDIUM_SUCCESS_THRESHOLD * 100}-100%):
+                </strong>{' '}
+                Gets {ADAPTIVE_CONFIG.HIGH_SUCCESS_PRIORITY * 100}% of selection probability -
+                lowest priority for characters you&apos;ve mastered
+              </li>
+            </ul>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Characters with lower success rates are weighted more heavily</li>
               <li>Minimum selection probability: {ADAPTIVE_CONFIG.MIN_SELECTION_CHANCE * 100}%</li>
-              <li>Maximum selection probability: {ADAPTIVE_CONFIG.MAX_SELECTION_CHANCE * 100}%</li>
+              <li>
+                Maximum selection probability: {ADAPTIVE_CONFIG.MAX_SELECTION_CHANCE * 100}% (does
+                not apply to low success entries)
+              </li>
               <li>
                 Adaptive selection activates after {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_ADAPTIVE}{' '}
-                attempts on a character
+                attempts, or immediately for characters with low success rates (even with just 1
+                attempt)
               </li>
             </ul>
           </div>

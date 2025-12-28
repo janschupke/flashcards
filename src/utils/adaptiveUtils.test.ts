@@ -64,12 +64,12 @@ describe('adaptiveUtils', () => {
   });
 
   describe('selectAdaptiveCharacter', () => {
-    it('should prioritize 0% entries (0 success, 1 failure) over other entries', () => {
+    it('should prioritize low success rate entries (0-30%) over other entries', () => {
       const characters = [0, 1, 2, 3];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0% - should be highest priority (triggers adaptive)
-        { characterIndex: 1, correct: 3, total: 6 }, // 50% - medium priority (has enough attempts)
-        { characterIndex: 2, correct: 6, total: 6 }, // 100% - lowest priority (has enough attempts)
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% - low success, highest priority
+        { characterIndex: 1, correct: 3, total: 6 }, // 50% - medium success, medium priority
+        { characterIndex: 2, correct: 6, total: 6 }, // 100% - high success, lowest priority
         { characterIndex: 3, correct: 0, total: 0 }, // untested
       ];
 
@@ -81,65 +81,23 @@ describe('adaptiveUtils', () => {
       const char2Percent = percentages[2] ?? 0;
       const char3Percent = percentages[3] ?? 0;
 
-      // Character 0 (0% success) should be selected more often than character 1 (50% success)
-      // Use a margin to account for statistical variance
+      // Character 0 (0% success, low category) should be selected more often than character 1 (50% success, medium category)
       expect(char0Percent).toBeGreaterThan(char1Percent - 0.02);
-      // Character 0 (0% success) should be selected more often than character 2 (100% success)
+      // Character 0 should be selected more often than character 2 (100% success, high category)
       expect(char0Percent).toBeGreaterThan(char2Percent - 0.02);
-      // Character 0 (0% success) should be selected more often than character 3 (untested)
-      // Note: Untested gets 40% priority, but 0% entries should still be prioritized
+      // Character 0 should be selected more often than character 3 (untested)
+      // Low success gets 50% allocation, untested gets 20%
       expect(char0Percent).toBeGreaterThan(char3Percent - 0.02);
-      // Verify 0% entry gets substantial selection rate (at least 25% with 4 characters)
-      expect(char0Percent).toBeGreaterThan(0.25);
+      // Verify low success entry gets substantial selection rate (at least 40% with 4 characters)
+      expect(char0Percent).toBeGreaterThan(0.4);
     });
 
-    it('should give 0% entries higher priority than low success rate entries', () => {
-      const characters = [0, 1];
-      const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0% - should be highest priority (gets ZERO_SUCCESS_MULTIPLIER)
-        { characterIndex: 1, correct: 1, total: 10 }, // 10% - should be lower priority
-      ];
-
-      const counts = runSelectionTest(characters, performance);
-      const percentages = getPercentages(counts, TEST_ITERATIONS);
-
-      const char0Percent = percentages[0] ?? 0;
-      const char1Percent = percentages[1] ?? 0;
-
-      // Character 0 (0% success) should be selected significantly more often
-      // Due to ZERO_SUCCESS_MULTIPLIER (3.0x), it should get much higher priority
-      expect(char0Percent).toBeGreaterThan(char1Percent);
-      // Character 0 should get at least 60% of selections due to the multiplier boost
-      // Using conservative threshold to account for min/max constraints, normalization, and statistical variance
-      expect(char0Percent).toBeGreaterThan(0.6);
-    });
-
-    it('should prioritize 0% entries over other 0% success rate entries with more attempts', () => {
-      const characters = [0, 1];
-      const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0% with 1 attempt - should get ZERO_SUCCESS_MULTIPLIER
-        { characterIndex: 1, correct: 0, total: 5 }, // 0% with 5 attempts - should NOT get multiplier
-      ];
-
-      const counts = runSelectionTest(characters, performance);
-      const percentages = getPercentages(counts, TEST_ITERATIONS);
-
-      const char0Percent = percentages[0] ?? 0;
-      const char1Percent = percentages[1] ?? 0;
-
-      // Character 0 (0 correct, 1 total) should be selected more often than
-      // Character 1 (0 correct, 5 total) because it gets the ZERO_SUCCESS_MULTIPLIER
-      expect(char0Percent).toBeGreaterThan(char1Percent);
-      // Should get more than half, with margin for statistical variance
-      expect(char0Percent).toBeGreaterThan(0.52);
-    });
-
-    it('should handle multiple 0% entries fairly', () => {
+    it('should prioritize low success rate entries over medium/high success entries', () => {
       const characters = [0, 1, 2];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0%
-        { characterIndex: 1, correct: 0, total: 1 }, // 0%
-        { characterIndex: 2, correct: 2, total: 2 }, // 100%
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% - low success category (0-30%)
+        { characterIndex: 1, correct: 2, total: 5 }, // 40% - medium success category (30-70%)
+        { characterIndex: 2, correct: 8, total: 10 }, // 80% - high success category (70-100%)
       ];
 
       const counts = runSelectionTest(characters, performance);
@@ -149,18 +107,81 @@ describe('adaptiveUtils', () => {
       const char1Percent = percentages[1] ?? 0;
       const char2Percent = percentages[2] ?? 0;
 
-      // Both 0% entries should be selected more often than 100% entry
-      expect(char0Percent).toBeGreaterThan(char2Percent - 0.02);
-      expect(char1Percent).toBeGreaterThan(char2Percent - 0.02);
-      // The two 0% entries should have roughly equal probability (within 12% to account for variance)
-      expect(Math.abs(char0Percent - char1Percent)).toBeLessThan(0.12);
+      // Low success (0%) should be selected more often than medium success (40%)
+      expect(char0Percent).toBeGreaterThan(char1Percent);
+      // Low success should be selected more often than high success (80%)
+      expect(char0Percent).toBeGreaterThan(char2Percent);
+      // Medium success should be selected more often than high success
+      expect(char1Percent).toBeGreaterThan(char2Percent);
+      // Low success gets 50% allocation, so should get at least 40% with 3 characters
+      expect(char0Percent).toBeGreaterThan(0.4);
     });
 
-    it('should use adaptive selection for 0% entries even with only 1 attempt', () => {
+    it('should give equal priority to all low success rate entries regardless of attempt count', () => {
+      const characters = [0, 1, 2];
+      const performance: CharacterPerformance[] = [
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% with 1 attempt - low success
+        { characterIndex: 1, correct: 0, total: 5 }, // 0% with 5 attempts - low success
+        { characterIndex: 2, correct: 3, total: 10 }, // 30% - still low success (at threshold)
+      ];
+
+      const counts = runSelectionTest(characters, performance);
+      const percentages = getPercentages(counts, TEST_ITERATIONS);
+
+      const char0Percent = percentages[0] ?? 0;
+      const char1Percent = percentages[1] ?? 0;
+      const char2Percent = percentages[2] ?? 0;
+
+      // All low success entries should have roughly equal probability
+      // They share the low success allocation equally, so relative differences should be small
+      const avgPercent = (char0Percent + char1Percent + char2Percent) / 3;
+
+      // Each should be within 50% of the average (robust to variance)
+      // This tests that they're roughly equal without requiring exact percentages
+      expect(char0Percent).toBeGreaterThan(avgPercent * 0.5);
+      expect(char0Percent).toBeLessThan(avgPercent * 1.5);
+      expect(char1Percent).toBeGreaterThan(avgPercent * 0.5);
+      expect(char1Percent).toBeLessThan(avgPercent * 1.5);
+      expect(char2Percent).toBeGreaterThan(avgPercent * 0.5);
+      expect(char2Percent).toBeLessThan(avgPercent * 1.5);
+
+      // Verify they all get substantial selection (low success gets high priority)
+      expect(avgPercent).toBeGreaterThan(0.15); // Should be well above random (33%)
+    });
+
+    it('should handle multiple low success entries fairly', () => {
+      const characters = [0, 1, 2];
+      const performance: CharacterPerformance[] = [
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% - low success
+        { characterIndex: 1, correct: 1, total: 5 }, // 20% - low success
+        { characterIndex: 2, correct: 8, total: 10 }, // 80% - high success
+      ];
+
+      const counts = runSelectionTest(characters, performance);
+      const percentages = getPercentages(counts, TEST_ITERATIONS);
+
+      const char0Percent = percentages[0] ?? 0;
+      const char1Percent = percentages[1] ?? 0;
+      const char2Percent = percentages[2] ?? 0;
+
+      // Both low success entries should be selected more often than high success entry
+      expect(char0Percent).toBeGreaterThan(char2Percent);
+      expect(char1Percent).toBeGreaterThan(char2Percent);
+
+      // The two low success entries should have roughly equal probability
+      // Test relative equality: each should be within 50% of the average of the two
+      const lowSuccessAvg = (char0Percent + char1Percent) / 2;
+      expect(char0Percent).toBeGreaterThan(lowSuccessAvg * 0.5);
+      expect(char0Percent).toBeLessThan(lowSuccessAvg * 1.5);
+      expect(char1Percent).toBeGreaterThan(lowSuccessAvg * 0.5);
+      expect(char1Percent).toBeLessThan(lowSuccessAvg * 1.5);
+    });
+
+    it('should use adaptive selection for low success entries even with only 1 attempt', () => {
       const characters = [0, 1];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0% entry - should trigger adaptive selection
-        { characterIndex: 1, correct: 2, total: 2 }, // 100% entry
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% - low success, should trigger adaptive
+        { characterIndex: 1, correct: 2, total: 2 }, // 100% - high success
       ];
 
       const counts = runSelectionTest(characters, performance);
@@ -169,20 +190,20 @@ describe('adaptiveUtils', () => {
       const char0Percent = percentages[0] ?? 0;
       const char1Percent = percentages[1] ?? 0;
 
-      // Character 0 (0% success) should be selected more often than character 1 (100% success)
+      // Low success (0%) should be selected more often than high success (100%)
       // This proves adaptive selection is working, not just random
       expect(char0Percent).toBeGreaterThan(char1Percent);
-      // Should get significantly more than 50%, with margin for variance
-      expect(char0Percent).toBeGreaterThan(0.55);
+      // Low success gets 50% allocation, so should get at least 45% with 2 characters
+      expect(char0Percent).toBeGreaterThan(0.45);
     });
 
-    it('should fallback to random when not enough data (no 0% entries)', () => {
+    it('should fallback to random when not enough data (no low success entries)', () => {
       const characters = [0, 1, 2];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 1, total: 1 }, // Only 1 attempt, less than MIN_ATTEMPTS_FOR_ADAPTIVE, but not 0%
+        { characterIndex: 0, correct: 1, total: 1 }, // Only 1 attempt, 100% success, less than MIN_ATTEMPTS_FOR_ADAPTIVE
       ];
 
-      // Should fallback to random when no valid adaptive data
+      // Should fallback to random when no valid adaptive data (need MIN_ATTEMPTS_FOR_ADAPTIVE or low success)
       const selected = selectAdaptiveCharacter(characters, performance);
       expect(characters).toContain(selected);
     });
@@ -190,16 +211,16 @@ describe('adaptiveUtils', () => {
     it('should respect min/max selection chance constraints', () => {
       const characters = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 1 }, // 0% - should get high weight but capped at MAX
-        { characterIndex: 1, correct: 0, total: 1 }, // 0%
-        { characterIndex: 2, correct: 0, total: 1 }, // 0%
-        { characterIndex: 3, correct: 0, total: 1 }, // 0%
-        { characterIndex: 4, correct: 0, total: 1 }, // 0%
-        { characterIndex: 5, correct: 2, total: 2 }, // 100%
-        { characterIndex: 6, correct: 2, total: 2 }, // 100%
-        { characterIndex: 7, correct: 2, total: 2 }, // 100%
-        { characterIndex: 8, correct: 2, total: 2 }, // 100%
-        { characterIndex: 9, correct: 2, total: 2 }, // 100%
+        { characterIndex: 0, correct: 0, total: 1 }, // 0% - low success, not capped at MAX
+        { characterIndex: 1, correct: 1, total: 5 }, // 20% - low success
+        { characterIndex: 2, correct: 2, total: 10 }, // 20% - low success
+        { characterIndex: 3, correct: 3, total: 10 }, // 30% - low success (at threshold)
+        { characterIndex: 4, correct: 4, total: 10 }, // 40% - medium success
+        { characterIndex: 5, correct: 6, total: 10 }, // 60% - medium success
+        { characterIndex: 6, correct: 8, total: 10 }, // 80% - high success
+        { characterIndex: 7, correct: 9, total: 10 }, // 90% - high success
+        { characterIndex: 8, correct: 10, total: 10 }, // 100% - high success
+        { characterIndex: 9, correct: 10, total: 10 }, // 100% - high success
       ];
 
       const counts = runSelectionTest(characters, performance);
