@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { ANIMATION_TIMINGS } from '../constants';
 
 export type ToastVariant = 'success' | 'info' | 'warning' | 'error';
@@ -43,6 +51,22 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       timersRef.current.delete(id);
     }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
+  // Cleanup timeouts on unmount to prevent memory leaks and ensure timeouts don't fire after unmount
+  useEffect(() => {
+    // Capture the ref value at effect time to use in cleanup
+    const timersMap = timersRef.current;
+    return () => {
+      // Clear all pending timeouts
+      timersMap.forEach((timer) => {
+        clearTimeout(timer);
+      });
+      // Clear the map
+      timersMap.clear();
+      // Remove pending toasts immediately
+      setToasts([]);
+    };
   }, []);
 
   return (

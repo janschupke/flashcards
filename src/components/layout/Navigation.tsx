@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { AppTab } from '../../types/layout';
 import { NAVIGATION_CONSTANTS } from '../../constants/layout';
 import { ROUTES } from '../../constants/routes';
 import { TabNavigation } from './TabNavigation';
@@ -9,7 +8,6 @@ import { FlashcardStatsPanel } from './FlashcardStatsPanel';
 import { Answer } from '../../types';
 
 interface NavigationProps {
-  activeTab: AppTab;
   adaptiveRange: number;
   correctAnswers: number;
   totalSeen: number;
@@ -18,7 +16,6 @@ interface NavigationProps {
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
-  activeTab,
   adaptiveRange,
   correctAnswers,
   totalSeen,
@@ -40,7 +37,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
         {/* Desktop navigation */}
         <div className="hidden md:block">
-          <TabNavigation activeTab={activeTab} />
+          <TabNavigation />
         </div>
         {/* Mobile menu */}
         <div className="md:hidden">

@@ -57,7 +57,7 @@ export default [
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-      ...tseslint.configs['recommended-requiring-type-checking'].rules,
+      ...tseslint.configs['recommended-type-checked'].rules,
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       'no-debugger': 'error',

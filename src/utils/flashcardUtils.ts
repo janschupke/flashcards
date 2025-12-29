@@ -9,7 +9,7 @@ export interface EvaluationResult {
 export const evaluatePinyinAnswer = (input: string, character: Character): EvaluationResult => {
   const trimmedInput = input.trim();
   const hasInput = trimmedInput.length > 0;
-  const isCorrect = hasInput ? evaluatePinyinInput(input, character.pinyin) : false;
+  const isCorrect = hasInput ? evaluatePinyinInput(trimmedInput, character.pinyin) : false;
 
   return { isCorrect, hasInput };
 };

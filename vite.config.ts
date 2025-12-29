@@ -29,21 +29,28 @@ export default defineConfig({
         manualChunks: (id) => {
           // Split node_modules into separate chunks
           if (id.includes('node_modules')) {
-            // React and React DOM together
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            // React Router
-            if (id.includes('react-router')) {
-              return 'router-vendor';
-            }
-            // React Table
+            // Check most specific packages first to avoid matching broader patterns
+
+            // React Table (most specific - includes @tanstack scope)
             if (id.includes('@tanstack/react-table')) {
               return 'table-vendor';
             }
-            // React Tooltip
+            // React Router (check before generic 'react' to avoid false match)
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+            // React Tooltip (check before generic 'react' to avoid false match)
             if (id.includes('react-tooltip')) {
               return 'tooltip-vendor';
+            }
+            // React DOM (check before generic 'react' to avoid false match)
+            if (id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            // React core (match /react/ or \react\ in path, but not react-router, react-tooltip, etc.)
+            // Use regex to match node_modules/react/ but not node_modules/react-xxx/
+            if (/node_modules[\\/]react[\\/]/.test(id) || /node_modules[\\/]react$/.test(id)) {
+              return 'react-vendor';
             }
             // Other vendor code
             return 'vendor';

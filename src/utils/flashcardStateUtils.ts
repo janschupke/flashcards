@@ -1,5 +1,16 @@
 import { FlashCardState, Answer, Character, FlashResult, HINT_TYPES } from '../types';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
+import { evaluatePinyinAnswer, createAnswer } from './flashcardUtils';
+import {
+  saveCounters,
+  saveHistory,
+  savePreviousAnswer,
+  saveAdaptiveRange,
+  updateCharacterPerformance,
+  getAllCharacterPerformance,
+} from './storageUtils';
+import { selectAdaptiveCharacter } from './adaptiveUtils';
+import data from '../data/characters.json';
 
 /**
  * Trims an array to keep only the last N items
@@ -13,17 +24,6 @@ const trimToLimit = <T>(array: T[], maxLength: number): T[] => {
   }
   return array.slice(-maxLength);
 };
-import { evaluatePinyinAnswer, createAnswer } from './flashcardUtils';
-import {
-  saveCounters,
-  saveHistory,
-  savePreviousAnswer,
-  saveAdaptiveRange,
-  updateCharacterPerformance,
-  getAllCharacterPerformance,
-} from './storageUtils';
-import { selectAdaptiveCharacter } from './adaptiveUtils';
-import data from '../data/characters.json';
 
 /**
  * Processes an answer and returns the answer object and evaluation result

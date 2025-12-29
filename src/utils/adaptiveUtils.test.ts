@@ -134,11 +134,9 @@ describe('adaptiveUtils', () => {
 
     it('should fallback to random when not enough data', () => {
       const characters = [0, 1, 2];
-      const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 1, total: 1 }, // Only 1 attempt, 100% success
-      ];
+      const performance: CharacterPerformance[] = []; // No performance data
 
-      // Should fallback to random when no valid adaptive data
+      // Should fallback to random when no characters have been attempted
       const selected = selectAdaptiveCharacter(characters, performance);
       expect(characters).toContain(selected);
     });

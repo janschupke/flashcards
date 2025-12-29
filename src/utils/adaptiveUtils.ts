@@ -76,12 +76,12 @@ const getCharacterWeight = (
 
   // Attempt penalty: characters with many attempts get reduced weight
   // This prevents over-showing characters that have been practiced many times
-  // Formula: 1 / (1 + attempts * penalty_factor)
+  // Formula: 1 / (1 + attempts * ATTEMPT_PENALTY_FACTOR) where ATTEMPT_PENALTY_FACTOR = 0.5
   // This means:
-  // - 1 attempt: weight = 1.0 (no penalty)
-  // - 2 attempts: weight ≈ 0.67
-  // - 5 attempts: weight ≈ 0.4
-  // - 10 attempts: weight ≈ 0.2
+  // - 1 attempt: weight ≈ 0.67
+  // - 2 attempts: weight ≈ 0.50
+  // - 5 attempts: weight ≈ 0.29
+  // - 10 attempts: weight ≈ 0.17
   const attemptPenalty = 1 / (1 + totalAttempts * ADAPTIVE_CONFIG.ATTEMPT_PENALTY_FACTOR);
 
   // Combine: success penalty (higher for low success) * attempt penalty (higher for few attempts)
@@ -123,7 +123,7 @@ const calculateGroupWeights = (
   });
 
   // Normalize within group
-  // Unsuccessful/untested group gets SELECTION_SPLIT (70%), successful gets (1 - SELECTION_SPLIT) (30%)
+  // Unsuccessful/untested group gets SELECTION_SPLIT (80%), successful gets (1 - SELECTION_SPLIT) (20%)
   const groupSplit = isUntestedGroup
     ? ADAPTIVE_CONFIG.SELECTION_SPLIT
     : 1 - ADAPTIVE_CONFIG.SELECTION_SPLIT;

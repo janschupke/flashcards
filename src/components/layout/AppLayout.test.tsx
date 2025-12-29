@@ -1,10 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import React from 'react';
 import { AppLayout } from './AppLayout';
 import * as FlashCardContext from '../../contexts/FlashCardContext';
 import type { FlashCardContextValue } from '../../contexts/FlashCardContext';
 import { FlashcardMode, HINT_TYPES } from '../../types';
+import { ROUTES } from '../../constants/routes';
+import { getActiveTabFromPath } from '../../utils/routingUtils';
 
 // Mock dependencies
 vi.mock('../../contexts/FlashCardContext');
@@ -12,9 +15,17 @@ vi.mock('../common/ToastContainer', () => ({
   ToastContainer: () => <div data-testid="toast-container">ToastContainer</div>,
 }));
 vi.mock('./Navigation', () => ({
-  Navigation: ({ activeTab }: { activeTab: string }) => (
-    <nav data-testid="navigation">Navigation - {activeTab}</nav>
-  ),
+  Navigation: ({ children }: { children?: React.ReactNode }) => {
+    // Use actual Navigation to test route-based active tab determination
+    const location = useLocation();
+    const activeTab = getActiveTabFromPath(location.pathname);
+    return (
+      <nav data-testid="navigation" data-active-tab={activeTab}>
+        Navigation - Active: {activeTab}
+        {children}
+      </nav>
+    );
+  },
 }));
 
 describe('AppLayout', () => {
@@ -55,11 +66,11 @@ describe('AppLayout', () => {
 
   it('should render children', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <AppLayout>
           <div data-testid="child">Test Content</div>
         </AppLayout>
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
@@ -68,11 +79,11 @@ describe('AppLayout', () => {
 
   it('should render Navigation component', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <AppLayout>
           <div>Test</div>
         </AppLayout>
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
@@ -80,26 +91,39 @@ describe('AppLayout', () => {
 
   it('should render ToastContainer', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <AppLayout>
           <div>Test</div>
         </AppLayout>
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('toast-container')).toBeInTheDocument();
   });
 
   it('should determine active tab from route', () => {
-    render(
-      <BrowserRouter>
-        <AppLayout>
-          <div>Test</div>
-        </AppLayout>
-      </BrowserRouter>
-    );
+    const testCases = [
+      { route: ROUTES.FLASHCARDS, expectedTab: 'FLASHCARDS' },
+      { route: ROUTES.HISTORY, expectedTab: 'HISTORY' },
+      { route: ROUTES.STATISTICS, expectedTab: 'STATISTICS' },
+      { route: ROUTES.ABOUT, expectedTab: 'ABOUT' },
+    ];
 
-    // Should show navigation with active tab
-    expect(screen.getByTestId('navigation')).toBeInTheDocument();
+    testCases.forEach(({ route, expectedTab }) => {
+      const { unmount } = render(
+        <MemoryRouter initialEntries={[route]}>
+          <AppLayout>
+            <div>Test</div>
+          </AppLayout>
+        </MemoryRouter>
+      );
+
+      const navigation = screen.getByTestId('navigation');
+      expect(navigation).toBeInTheDocument();
+      expect(navigation).toHaveAttribute('data-active-tab', expectedTab);
+      expect(navigation).toHaveTextContent(`Active: ${expectedTab}`);
+
+      unmount();
+    });
   });
 });

@@ -16,15 +16,16 @@ vi.mock('../../data/characters.json', () => ({
   ],
 }));
 
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
 
 const renderWithToast = (component: React.ReactElement): ReturnType<typeof render> => {
   return render(
-    <BrowserRouter>
+    <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
       <ToastProvider>
         <FlashCardProvider>{component}</FlashCardProvider>
       </ToastProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 

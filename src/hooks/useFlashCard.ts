@@ -36,50 +36,51 @@ interface UseFlashCardProps {
 
 export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashCardState &
   FlashCardActions => {
-  // Load data from storage on initialization
-  const storedHistory = loadHistory();
-  const storedCounters = loadCounters();
-  const storedPreviousAnswer = loadPreviousAnswer();
-  const storedAdaptiveRange = loadAdaptiveRange();
-  const storedMode = loadMode();
+  // Lazy initializer: load storage data and compute initial state only once on mount
+  const [state, setState] = useState<FlashCardState>(() => {
+    // Load data from storage
+    const storedHistory = loadHistory();
+    const storedCounters = loadCounters();
+    const storedPreviousAnswer = loadPreviousAnswer();
+    const storedAdaptiveRange = loadAdaptiveRange();
+    const storedMode = loadMode();
 
-  // Trim history if it exceeds limit (defensive check in case of data migration or manual edits)
-  const trimmedHistory =
-    storedHistory.length > ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES
-      ? storedHistory.slice(-ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES)
-      : storedHistory;
+    // Trim history if it exceeds limit (defensive check in case of data migration or manual edits)
+    const trimmedHistory =
+      storedHistory.length > ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES
+        ? storedHistory.slice(-ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES)
+        : storedHistory;
 
-  const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
-  const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
+    const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
+    const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
 
-  // Initialize current index - use useState initializer to avoid Math.random in render
-  const [initialCurrentIndex] = useState<number>(() => {
-    return initialCurrent ?? Math.floor(Math.random() * effectiveLimit);
-  });
+    // Initialize current index - use effectiveLimit for random selection
+    const initialCurrentIndex = initialCurrent ?? Math.floor(Math.random() * effectiveLimit);
 
-  const [state, setState] = useState<FlashCardState>({
-    current: initialCurrentIndex,
-    limit: effectiveLimit,
-    hint: HINT_TYPES.NONE,
-    totalSeen: storedCounters?.totalSeen ?? 0,
-    pinyinInput: '',
-    isPinyinCorrect: null,
-    correctAnswers: storedCounters?.correctAnswers ?? 0,
-    totalAttempted: storedCounters?.totalAttempted ?? 0,
-    flashResult: null,
-    // Previous character tracking
-    previousCharacter: null,
-    // Previous answer tracking
-    previousAnswer: storedPreviousAnswer ?? null,
-    // Incorrect answers tracking
-    incorrectAnswers: [],
-    // All answers tracking (trimmed to MAX_HISTORY_ENTRIES)
-    allAnswers: trimmedHistory,
-    // Display mode - controls what characters are shown (load from storage or default to BOTH)
-    mode: storedMode ?? FlashcardMode.BOTH,
-    // Adaptive learning fields
-    adaptiveRange: initialAdaptiveRange,
-    recentAnswers: [], // Last 10 answers for expansion calculation
+    return {
+      current: initialCurrentIndex,
+      limit: effectiveLimit,
+      hint: HINT_TYPES.NONE,
+      totalSeen: storedCounters?.totalSeen ?? 0,
+      pinyinInput: '',
+      isPinyinCorrect: null,
+      correctAnswers: storedCounters?.correctAnswers ?? 0,
+      totalAttempted: storedCounters?.totalAttempted ?? 0,
+      flashResult: null,
+      // Previous character tracking
+      previousCharacter: null,
+      // Previous answer tracking
+      previousAnswer: storedPreviousAnswer ?? null,
+      // Incorrect answers tracking
+      incorrectAnswers: [],
+      // All answers tracking (trimmed to MAX_HISTORY_ENTRIES)
+      allAnswers: trimmedHistory,
+      // Display mode - controls what characters are shown (load from storage or default to BOTH)
+      mode: storedMode ?? FlashcardMode.BOTH,
+      // Adaptive learning fields
+      adaptiveRange: initialAdaptiveRange,
+      recentAnswers: [], // Last 10 answers for expansion calculation
+    };
   });
 
   // Get current character - always return full character (mode only affects display)

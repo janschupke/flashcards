@@ -1,15 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { AppTab } from '../../types/layout';
 import { getAllTabs } from '../../constants/layout';
 import { TabButton } from './TabButton';
 import { getRouteForTab } from '../../utils/routingUtils';
 
-interface TabNavigationProps {
-  activeTab: AppTab;
-}
-
-export const TabNavigation: React.FC<TabNavigationProps> = () => {
+export const TabNavigation: React.FC = () => {
   const tabs = getAllTabs();
 
   return (

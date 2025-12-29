@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { MobileMenu } from './MobileMenu';
 import { ROUTES } from '../../constants/routes';
 import { AppTab } from '../../types/layout';
@@ -26,9 +26,9 @@ describe('MobileMenu', () => {
 
   it('should render hamburger button', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -37,9 +37,9 @@ describe('MobileMenu', () => {
 
   it('should toggle menu on button click', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -64,9 +64,9 @@ describe('MobileMenu', () => {
 
   it('should prevent body scroll when menu is open', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -77,9 +77,9 @@ describe('MobileMenu', () => {
 
   it('should restore body scroll when menu is closed', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -91,9 +91,9 @@ describe('MobileMenu', () => {
 
   it('should render all navigation tabs', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -107,12 +107,12 @@ describe('MobileMenu', () => {
 
   it('should close menu when clicking outside', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <div>
           <div data-testid="outside">Outside</div>
           <MobileMenu />
         </div>
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -133,9 +133,9 @@ describe('MobileMenu', () => {
 
   it('should close menu when route changes', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');
@@ -152,19 +152,11 @@ describe('MobileMenu', () => {
   });
 
   it('should highlight active tab', () => {
-    // Mock useLocation to return history route
-    vi.mock('react-router-dom', async () => {
-      const actual = await vi.importActual('react-router-dom');
-      return {
-        ...actual,
-        useLocation: () => ({ pathname: ROUTES.HISTORY }),
-      };
-    });
-
+    // Use MemoryRouter with initialEntries to set the location for the test
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.HISTORY]}>
         <MobileMenu />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const button = screen.getByLabelText('Toggle menu');

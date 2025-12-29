@@ -1,15 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { Navigation } from './Navigation';
-import { AppTab } from '../../types/layout';
 import { ROUTES } from '../../constants/routes';
 
 // Mock dependencies
 vi.mock('./TabNavigation', () => ({
-  TabNavigation: ({ activeTab }: { activeTab: AppTab }) => (
-    <div data-testid="tab-navigation">TabNavigation - {activeTab}</div>
-  ),
+  TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
 vi.mock('./MobileMenu', () => ({
   MobileMenu: () => <div data-testid="mobile-menu">MobileMenu</div>,
@@ -20,7 +17,6 @@ vi.mock('./FlashcardStatsPanel', () => ({
 
 describe('Navigation', () => {
   const defaultProps = {
-    activeTab: AppTab.FLASHCARDS,
     adaptiveRange: 100,
     correctAnswers: 50,
     totalSeen: 100,
@@ -34,9 +30,9 @@ describe('Navigation', () => {
 
   it('should render logo link', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <Navigation {...defaultProps} />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const logoLink = screen.getByRole('link');
@@ -45,21 +41,21 @@ describe('Navigation', () => {
 
   it('should render TabNavigation on desktop', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <Navigation {...defaultProps} />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const tabNav = screen.getByTestId('tab-navigation');
     expect(tabNav).toBeInTheDocument();
-    expect(tabNav).toHaveTextContent('TabNavigation - FLASHCARDS');
+    expect(tabNav).toHaveTextContent('TabNavigation');
   });
 
   it('should render MobileMenu on mobile', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <Navigation {...defaultProps} />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('mobile-menu')).toBeInTheDocument();
@@ -85,14 +81,15 @@ describe('Navigation', () => {
     expect(screen.queryByTestId('flashcard-stats-panel')).not.toBeInTheDocument();
   });
 
-  it('should pass correct props to TabNavigation', () => {
+  it('should render TabNavigation without activeTab prop', () => {
     render(
-      <BrowserRouter>
-        <Navigation {...defaultProps} activeTab={AppTab.HISTORY} />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
+        <Navigation {...defaultProps} />
+      </MemoryRouter>
     );
 
     const tabNav = screen.getByTestId('tab-navigation');
-    expect(tabNav).toHaveTextContent('TabNavigation - HISTORY');
+    expect(tabNav).toBeInTheDocument();
+    expect(tabNav).toHaveTextContent('TabNavigation');
   });
 });
