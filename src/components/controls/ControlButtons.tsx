@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '../common/Button';
-import { ButtonGroup } from '../common/ButtonGroup';
 import { ButtonVariant } from '../../types/components';
 
 interface ControlButtonsProps {
@@ -9,17 +8,16 @@ interface ControlButtonsProps {
 
 export const ControlButtons: React.FC<ControlButtonsProps> = ({ onNext }) => {
   return (
-    <div className="flex justify-center">
-      <ButtonGroup>
-        <Button
-          type="button"
-          onClick={onNext}
-          variant={ButtonVariant.PRIMARY}
-          className="min-w-[80px] text-sm"
-        >
-          Next (Enter)
-        </Button>
-      </ButtonGroup>
+    <div className="w-full max-w-full sm:max-w-md">
+      <Button
+        type="button"
+        onClick={onNext}
+        variant={ButtonVariant.PRIMARY}
+        fullWidth
+        className="!px-3 !py-1.5 !text-2xl !border-2 !border-primary"
+      >
+        Next (Enter)
+      </Button>
     </div>
   );
 };

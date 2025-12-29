@@ -56,7 +56,7 @@
   /* Border Colors - Light Theme */
   --color-border-primary: #e5e7eb;
   --color-border-secondary: #d1d5db;
-  --color-border-focus: #3b82f6;
+  --color-border-focus: #dc2626;
   --color-border-error: #ef4444;
 
   /* Special Colors */
@@ -147,6 +147,18 @@ input {
 
   .animate-fade-in {
     animation: fadeIn 200ms ease-in-out;
+  }
+
+  /* Fade-in with scale animation for modals */
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   .card-default {

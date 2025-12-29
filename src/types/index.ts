@@ -93,17 +93,6 @@ export const KEYBOARD_SHORTCUTS = {
   MODE_TRADITIONAL: 'F3',
 } as const;
 
-// New types for traditional character feature
-export interface PinyinInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  currentPinyin: string; // Correct pinyin for current character
-  onSubmit: (input: string) => void;
-  isCorrect: boolean | null; // null = not evaluated, true/false = result
-  disabled?: boolean;
-  flashResult?: FlashResult | null;
-}
-
 // New types for mode toggle buttons
 export interface ModeToggleButtonsProps {
   currentMode: FlashcardMode;

@@ -47,7 +47,7 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               Answers:
             </span>
             <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">A:</span>
-            <span className="text-sm font-bold text-primary" data-testid="stat-answers">
+            <span className="text-sm font-bold text-text-primary" data-testid="stat-answers">
               {correctAnswers} / {totalSeen}
             </span>
           </div>
@@ -76,17 +76,16 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
                 </div>
               );
             })()}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div
+            className="flex items-center gap-1 sm:gap-2 cursor-help"
+            data-tooltip-id="adaptive-range-tooltip"
+            aria-label={`Character range 1-${adaptiveRange}. The range automatically expands when you achieve ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate over ${ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION} attempts.`}
+          >
             <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
               Range:
             </span>
             <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">R:</span>
-            <span
-              className="text-sm font-medium text-text-secondary cursor-help"
-              data-testid="adaptive-range"
-              data-tooltip-id="adaptive-range-tooltip"
-              aria-label={`Character range 1-${adaptiveRange}. The range automatically expands when you achieve ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate over ${ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION} attempts.`}
-            >
+            <span className="text-sm font-medium text-text-secondary" data-testid="adaptive-range">
               1-{adaptiveRange}
             </span>
             <Tooltip id="adaptive-range-tooltip" place="bottom" className="max-w-xs z-50">

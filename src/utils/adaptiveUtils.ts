@@ -33,7 +33,8 @@ const categorizeCharacters = (
   for (const charIndex of characters) {
     const perf = performanceMap.get(charIndex);
     const isUntested = !perf || perf.total === 0;
-    const isUnsuccessful = perf && getSuccessRate(perf) < ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD;
+    const isUnsuccessful =
+      perf !== undefined && getSuccessRate(perf) < ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD;
 
     if (isUntested || isUnsuccessful) {
       unsuccessfulOrUntested.push(charIndex);
@@ -91,10 +92,14 @@ const calculateGroupWeights = (
 
   // Normalize within group
   const sum = baseWeights.reduce((a, b) => a + b, 0);
-  const scaleFactor = sum > 0 ? ADAPTIVE_CONFIG.SELECTION_SPLIT / sum : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
+  const scaleFactor =
+    sum > 0
+      ? ADAPTIVE_CONFIG.SELECTION_SPLIT / sum
+      : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
 
   group.forEach((charIndex, index) => {
-    const normalizedWeight = sum > 0 ? baseWeights[index]! * scaleFactor : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
+    const normalizedWeight =
+      sum > 0 ? baseWeights[index]! * scaleFactor : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
     weights.set(charIndex, normalizedWeight);
   });
 
@@ -105,10 +110,7 @@ const calculateGroupWeights = (
  * Helper: Normalize weights to sum to exactly 1.0
  * @internal
  */
-const normalizeWeights = (
-  weights: Map<number, number>,
-  characters: number[]
-): number[] => {
+const normalizeWeights = (weights: Map<number, number>, characters: number[]): number[] => {
   const total = characters.reduce((sum, charIndex) => {
     return sum + (weights.get(charIndex) ?? 0);
   }, 0);

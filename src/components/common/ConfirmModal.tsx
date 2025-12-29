@@ -66,7 +66,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -74,7 +74,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       onClick={handleCancel}
     >
       <div
-        className="bg-surface-primary rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
+        className="bg-surface-primary rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-[fadeInScale_0.2s_ease-in]"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >

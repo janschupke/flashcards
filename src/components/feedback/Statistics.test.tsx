@@ -4,9 +4,9 @@ import { Statistics } from './Statistics';
 import { CharacterPerformance } from '../../types/storage';
 
 // Mock storage utilities
-const mockGetAllCharacterPerformance = vi.fn();
+const mockGetAllCharacterPerformance = vi.fn<() => CharacterPerformance[]>();
 vi.mock('../../utils/storageUtils', () => ({
-  getAllCharacterPerformance: () => mockGetAllCharacterPerformance(),
+  getAllCharacterPerformance: (): CharacterPerformance[] => mockGetAllCharacterPerformance(),
 }));
 
 // Mock character data

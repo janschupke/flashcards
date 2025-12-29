@@ -123,9 +123,7 @@ describe('adaptiveUtils', () => {
 
     it('should handle single character', () => {
       const characters = [0];
-      const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 5, total: 10 },
-      ];
+      const performance: CharacterPerformance[] = [{ characterIndex: 0, correct: 5, total: 10 }];
 
       // Run multiple selections
       for (let i = 0; i < 100; i++) {

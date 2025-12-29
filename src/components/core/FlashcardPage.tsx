@@ -6,7 +6,9 @@ import { useToastContext } from '../../contexts/ToastContext';
 import { HINT_TYPES } from '../../types';
 import { CharacterDisplay } from './CharacterDisplay';
 import { ControlButtons } from '../controls/ControlButtons';
-import { PinyinInput } from '../input/PinyinInput';
+import { FlashcardInput } from '../input/FlashcardInput';
+import { CHINESE_TEXT } from '../../constants';
+import { getPinyinFeedbackText } from '../../utils/feedbackUtils';
 import { PreviousCharacter } from '../feedback/PreviousCharacter';
 import { FlashcardControls } from '../controls/FlashcardControls';
 import { getHintText } from '../../utils/characterUtils';
@@ -78,15 +80,16 @@ export const FlashcardPage: React.FC = () => {
       <div className="flex-1 flex flex-col items-center justify-center">
         <CharacterDisplay currentIndex={current} mode={mode} />
 
-        <PinyinInput
+        <FlashcardInput
           ref={pinyinInputRef}
           value={pinyinInput}
           onChange={setPinyinInput}
-          currentPinyin={currentCharacter?.pinyin ?? ''}
           onSubmit={setPinyinFlashResult}
+          placeholder={CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER}
+          feedbackText={getPinyinFeedbackText(isPinyinCorrect, currentCharacter?.pinyin ?? '')}
           isCorrect={isPinyinCorrect}
           disabled={false}
-          flashResult={flashResult}
+          flashResult={flashResult ?? null}
         />
 
         <div className="mt-2 sm:mt-3">
