@@ -11,61 +11,40 @@ describe('ModeToggleButtons', () => {
   });
 
   it('renders all three mode buttons', () => {
-    render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.PINYIN}
-        onModeChange={mockOnModeChange}
-      />
-    );
+    render(<ModeToggleButtons currentMode={FlashcardMode.BOTH} onModeChange={mockOnModeChange} />);
 
-    expect(screen.getByText('拼音 (F1)')).toBeInTheDocument();
+    expect(screen.getByText('全部 (F1)')).toBeInTheDocument();
     expect(screen.getByText('简体 (F2)')).toBeInTheDocument();
     expect(screen.getByText('繁体 (F3)')).toBeInTheDocument();
   });
 
   it('renders the mode title', () => {
-    render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.PINYIN}
-        onModeChange={mockOnModeChange}
-      />
-    );
+    render(<ModeToggleButtons currentMode={FlashcardMode.BOTH} onModeChange={mockOnModeChange} />);
 
     expect(screen.getByText('Flashcard Mode')).toBeInTheDocument();
   });
 
   it('highlights the current mode button', () => {
     render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.SIMPLIFIED}
-        onModeChange={mockOnModeChange}
-      />
+      <ModeToggleButtons currentMode={FlashcardMode.SIMPLIFIED} onModeChange={mockOnModeChange} />
     );
 
     const simplifiedButton = screen.getByText('简体 (F2)');
-    expect(simplifiedButton).toHaveStyle('background-color: rgb(220, 38, 38)');
+    expect(simplifiedButton).toHaveClass(/bg-primary/);
   });
 
   it('calls onModeChange when a different mode is clicked', () => {
-    render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.PINYIN}
-        onModeChange={mockOnModeChange}
-      />
-    );
+    render(<ModeToggleButtons currentMode={FlashcardMode.BOTH} onModeChange={mockOnModeChange} />);
 
     const simplifiedButton = screen.getByText('简体 (F2)');
     fireEvent.click(simplifiedButton);
 
-    expect(mockOnModeChange).toHaveBeenCalledWith('simplified');
+    expect(mockOnModeChange).toHaveBeenCalledWith(FlashcardMode.SIMPLIFIED);
   });
 
   it('does not call onModeChange when the current mode is clicked', () => {
     render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.TRADITIONAL}
-        onModeChange={mockOnModeChange}
-      />
+      <ModeToggleButtons currentMode={FlashcardMode.TRADITIONAL} onModeChange={mockOnModeChange} />
     );
 
     const traditionalButton = screen.getByText('繁体 (F3)');
@@ -75,20 +54,22 @@ describe('ModeToggleButtons', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    render(
-      <ModeToggleButtons
-        currentMode={FlashcardMode.PINYIN}
-        onModeChange={mockOnModeChange}
-      />
-    );
+    render(<ModeToggleButtons currentMode={FlashcardMode.BOTH} onModeChange={mockOnModeChange} />);
 
-    const pinyinButton = screen.getByText('拼音 (F1)');
-    expect(pinyinButton).toHaveAttribute('title', '拼音模式 - Pinyin Mode (F1)');
+    // Check that buttons have aria-label for accessibility
+    const bothButton = screen.getByText('全部 (F1)');
+    expect(bothButton).toHaveAttribute('aria-label', '显示全部字符 - Show Both Characters (F1)');
 
     const simplifiedButton = screen.getByText('简体 (F2)');
-    expect(simplifiedButton).toHaveAttribute('title', '简体模式 - Simplified Mode (F2)');
+    expect(simplifiedButton).toHaveAttribute(
+      'aria-label',
+      '仅显示简体 - Show Simplified Only (F2)'
+    );
 
     const traditionalButton = screen.getByText('繁体 (F3)');
-    expect(traditionalButton).toHaveAttribute('title', '繁体模式 - Traditional Mode (F3)');
+    expect(traditionalButton).toHaveAttribute(
+      'aria-label',
+      '仅显示繁体 - Show Traditional Only (F3)'
+    );
   });
-}); 
+});

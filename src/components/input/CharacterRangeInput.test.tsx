@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CharacterRangeInput } from './CharacterRangeInput';
@@ -12,24 +11,14 @@ describe('CharacterRangeInput', () => {
   });
 
   it('renders input field with current limit', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     expect(input).toHaveValue(100);
   });
 
   it('calls onLimitChange when input loses focus with valid value', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.change(input, { target: { value: '150' } });
@@ -39,12 +28,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('clamps value to minimum of 50', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.change(input, { target: { value: '25' } });
@@ -56,12 +40,7 @@ describe('CharacterRangeInput', () => {
 
   it('clamps value to maximum of data length', () => {
     const maxLimit = APP_LIMITS.PINYIN_MODE_MAX;
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.change(input, { target: { value: '9999' } });
@@ -72,12 +51,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('increases limit by 50 when up arrow is pressed', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.keyDown(input, { key: 'ArrowUp' });
@@ -86,12 +60,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('decreases limit by 50 when down arrow is pressed', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={150}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={150} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.keyDown(input, { key: 'ArrowDown' });
@@ -100,12 +69,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('prevents going below minimum when down arrow is pressed', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={75}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={75} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.keyDown(input, { key: 'ArrowDown' });
@@ -116,12 +80,7 @@ describe('CharacterRangeInput', () => {
   it('prevents going above maximum when up arrow is pressed', () => {
     // Use the constant for maximum limit
     const maxLimit = APP_LIMITS.PINYIN_MODE_MAX;
-    render(
-      <CharacterRangeInput
-        currentLimit={maxLimit - 25}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={maxLimit - 25} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.keyDown(input, { key: 'ArrowUp' });
@@ -130,35 +89,20 @@ describe('CharacterRangeInput', () => {
     expect(mockOnLimitChange).toHaveBeenCalledWith(maxLimit);
   });
 
-
-
   it('updates input value when currentLimit prop changes', () => {
     const { rerender } = render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
+      <CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />
     );
 
     expect(screen.getByTestId('range-input')).toHaveValue(100);
 
-    rerender(
-      <CharacterRangeInput
-        currentLimit={200}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    rerender(<CharacterRangeInput currentLimit={200} onLimitChange={mockOnLimitChange} />);
 
     expect(screen.getByTestId('range-input')).toHaveValue(200);
   });
 
   it('has correct min and max attributes', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     expect(input).toHaveAttribute('min', '50');
@@ -166,12 +110,7 @@ describe('CharacterRangeInput', () => {
   });
 
   it('enforces minimum limit of 50 when typing', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={100}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={100} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.change(input, { target: { value: '30' } });
@@ -179,21 +118,12 @@ describe('CharacterRangeInput', () => {
   });
 
   it('enforces minimum limit of 50 when using arrow keys', () => {
-    render(
-      <CharacterRangeInput
-        currentLimit={60}
-        onLimitChange={mockOnLimitChange}
-      />
-    );
+    render(<CharacterRangeInput currentLimit={60} onLimitChange={mockOnLimitChange} />);
 
     const input = screen.getByTestId('range-input');
     fireEvent.keyDown(input, { key: 'ArrowDown' });
-    
+
     // Should clamp to 50, not go below
     expect(mockOnLimitChange).toHaveBeenCalledWith(50);
   });
-
-
-
-
-}); 
+});

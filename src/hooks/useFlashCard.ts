@@ -1,160 +1,178 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode, FlashResult } from '../types';
-import { evaluatePinyinInput } from '../utils/pinyinUtils';
-import { validateCharacterInput, getModeSpecificLimit, getRandomCharacterIndex, getCharacterAtIndex } from '../utils/characterUtils';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  FlashCardState,
+  FlashCardActions,
+  HintType,
+  HINT_TYPES,
+  FlashcardMode,
+  FlashResult,
+  Character,
+} from '../types';
+import { getRandomCharacterIndex } from '../utils/characterUtils';
+import {
+  loadHistory,
+  loadCounters,
+  loadPreviousAnswer,
+  loadAdaptiveRange,
+  loadMode,
+  saveMode,
+  saveAdaptiveRange,
+} from '../utils/storageUtils';
+import { evaluatePinyinAnswer } from '../utils/flashcardUtils';
+import { ADAPTIVE_CONFIG } from '../constants/adaptive';
+import { ANIMATION_TIMINGS } from '../constants';
+import {
+  processAnswer,
+  updateStorageAfterAnswer,
+  calculateAdaptiveRangeExpansion,
+  getNextCharacterIndex,
+  createNextState,
+} from '../utils/flashcardStateUtils';
 import data from '../data/characters.json';
 
 interface UseFlashCardProps {
   initialCurrent?: number;
-  initialLimit?: number;
 }
 
-export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps = {}): FlashCardState & FlashCardActions => {
-  const defaultLimit = initialLimit !== undefined ? Math.min(initialLimit, data.length) : Math.min(1500, data.length);
-  
-  const [state, setState] = useState<FlashCardState>({
-    current: initialCurrent !== undefined ? initialCurrent : Math.floor(Math.random() * defaultLimit),
-    limit: defaultLimit,
-    hint: HINT_TYPES.NONE,
-    totalSeen: 0,
-    progress: 0,
-    // New state for traditional character feature
-    displayMode: 'simplified',
-    pinyinInput: '',
-    isPinyinCorrect: null,
-    correctAnswers: 0,
-    totalAttempted: 0,
-    flashResult: null,
-    // Previous character tracking
-    previousCharacter: null,
-    // Incorrect answers tracking
-    incorrectAnswers: [],
-    // New fields for flashcard modes
-    mode: FlashcardMode.PINYIN,
-    characterInput: '',
-    isCharacterCorrect: null,
+export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashCardState &
+  FlashCardActions => {
+  // Lazy initializer: load storage data and compute initial state only once on mount
+  const [state, setState] = useState<FlashCardState>(() => {
+    // Load data from storage
+    const storedHistory = loadHistory();
+    const storedCounters = loadCounters();
+    const storedPreviousAnswer = loadPreviousAnswer();
+    const storedAdaptiveRange = loadAdaptiveRange();
+    const storedMode = loadMode();
+
+    // Trim history if it exceeds limit (defensive check in case of data migration or manual edits)
+    const trimmedHistory =
+      storedHistory.length > ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES
+        ? storedHistory.slice(-ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES)
+        : storedHistory;
+
+    const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
+    const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
+
+    // Initialize current index - use effectiveLimit for random selection
+    const initialCurrentIndex = initialCurrent ?? Math.floor(Math.random() * effectiveLimit);
+
+    return {
+      current: initialCurrentIndex,
+      limit: effectiveLimit,
+      hint: HINT_TYPES.NONE,
+      totalSeen: storedCounters?.totalSeen ?? 0,
+      pinyinInput: '',
+      isPinyinCorrect: null,
+      correctAnswers: storedCounters?.correctAnswers ?? 0,
+      totalAttempted: storedCounters?.totalAttempted ?? 0,
+      flashResult: null,
+      // Previous character tracking
+      previousCharacter: null,
+      // Previous answer tracking
+      previousAnswer: storedPreviousAnswer ?? null,
+      // Incorrect answers tracking
+      incorrectAnswers: [],
+      // All answers tracking (trimmed to MAX_HISTORY_ENTRIES)
+      allAnswers: trimmedHistory,
+      // Display mode - controls what characters are shown (load from storage or default to BOTH)
+      mode: storedMode ?? FlashcardMode.BOTH,
+      // Adaptive learning fields
+      adaptiveRange: initialAdaptiveRange,
+      recentAnswers: [], // Last 10 answers for expansion calculation
+    };
   });
 
-  // Memoize progress calculation to avoid unnecessary recalculations
-  const progress = useMemo(() => {
-    return state.limit > 0 ? Math.min((state.totalSeen / state.limit) * 100, 100) : 0;
-  }, [state.totalSeen, state.limit]);
-
-  // Update progress when dependencies change
-  useEffect(() => {
-    setState(prev => ({ ...prev, progress }));
-  }, [progress]);
-
-  // Get current character based on mode
-  const getCurrentCharacter = useCallback(() => {
-    if (state.mode === FlashcardMode.PINYIN) {
-      return data[state.current];
-    } else {
-      return getCharacterAtIndex(state.current, state.mode);
-    }
-  }, [state.current, state.mode]);
+  // Get current character - always return full character (mode only affects display)
+  const currentIndex = state.current;
+  const getCurrentCharacter = useCallback((): Character | null => {
+    return data[currentIndex] ?? null;
+  }, [currentIndex]);
 
   const getNext = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
 
-      let isCorrect = false;
-      let hasInput = false;
-      let newIncorrectAnswers = [...prev.incorrectAnswers];
+      // Process answer evaluation
+      const { answer, isCorrect, hasInput } = processAnswer(
+        currentCharacter,
+        prev.pinyinInput,
+        prev.current
+      );
 
-      if (prev.mode === FlashcardMode.PINYIN) {
-        const trimmedInput = prev.pinyinInput.trim();
-        hasInput = trimmedInput.length > 0;
-        isCorrect = hasInput ? evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin) : false;
-        
-        // Add to incorrect answers if wrong or empty input
-        if (!isCorrect) {
-          newIncorrectAnswers.push({
-            characterIndex: prev.current,
-            submittedPinyin: prev.pinyinInput.trim() || '(empty)',
-            correctPinyin: currentCharacter.pinyin,
-            simplified: currentCharacter.simplified,
-            traditional: currentCharacter.traditional,
-            english: currentCharacter.english,
-            mode: FlashcardMode.PINYIN,
-          });
-        }
-      } else {
-        // Character input modes
-        const trimmedInput = prev.characterInput.trim();
-        hasInput = trimmedInput.length > 0;
-        const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
-        isCorrect = hasInput ? validateCharacterInput(prev.characterInput, expectedCharacter) : false;
-        
-        // Add to incorrect answers if wrong or empty input
-        if (!isCorrect) {
-          newIncorrectAnswers.push({
-            characterIndex: prev.current,
-            submittedPinyin: '', // Not applicable for character modes
-            correctPinyin: '', // Not applicable for character modes
-            submittedCharacter: prev.characterInput.trim() || '(empty)',
-            correctCharacter: expectedCharacter,
-            simplified: currentCharacter.simplified,
-            traditional: currentCharacter.traditional,
-            english: currentCharacter.english,
-            mode: prev.mode,
-          });
-        }
+      // Update incorrect answers if wrong
+      const newIncorrectAnswers = [...prev.incorrectAnswers];
+      if (!isCorrect) {
+        newIncorrectAnswers.push(answer);
       }
-      
-      // Get new random index based on current mode
-      const newIndex = getRandomCharacterIndex(prev.mode, prev.limit);
-      
-      return {
-        ...prev,
-        previousCharacter: prev.current, // Store current as previous
-        current: newIndex,
-        hint: HINT_TYPES.NONE,
-        totalSeen: prev.totalSeen + 1,
-        // Reset input state for new character
-        pinyinInput: '',
-        isPinyinCorrect: null,
-        characterInput: '',
-        isCharacterCorrect: null,
-        // Update scoring
-        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-        totalAttempted: hasInput ? prev.totalAttempted + 1 : prev.totalAttempted,
-        // Set flash result based on evaluation
-        flashResult: hasInput ? (isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT) : null,
-        // Update incorrect answers
-        incorrectAnswers: newIncorrectAnswers,
-      };
+
+      // Update counters
+      // Empty answers are still attempts (incorrect ones), so count them
+      const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
+      const newTotalAttempted = prev.totalAttempted + 1;
+      const newTotalSeen = prev.totalSeen + 1;
+
+      // Add to all answers
+      const newAllAnswers = [...prev.allAnswers, answer];
+
+      // Maintain last 10 answers for expansion calculation
+      const newRecentAnswers = [...prev.recentAnswers, answer].slice(
+        -ADAPTIVE_CONFIG.EXPANSION_INTERVAL
+      );
+
+      // Update storage
+      updateStorageAfterAnswer(
+        prev.current,
+        isCorrect,
+        newCorrectAnswers,
+        newTotalAttempted,
+        newTotalSeen,
+        newAllAnswers,
+        answer
+      );
+
+      // Calculate adaptive range expansion using recent answers
+      const { newAdaptiveRange, shouldExpand } = calculateAdaptiveRangeExpansion(
+        newRecentAnswers,
+        prev.adaptiveRange
+      );
+
+      // If expansion happened, clear recent answers to start fresh
+      const finalRecentAnswers = shouldExpand ? [] : newRecentAnswers;
+
+      // Get next character index
+      const newIndex = getNextCharacterIndex(newAdaptiveRange);
+
+      // Create and return new state
+      return createNextState(
+        prev,
+        answer,
+        isCorrect,
+        hasInput,
+        newCorrectAnswers,
+        newTotalAttempted,
+        newTotalSeen,
+        newIncorrectAnswers,
+        newAllAnswers,
+        newAdaptiveRange,
+        finalRecentAnswers,
+        newIndex
+      );
     });
   }, [getCurrentCharacter]);
 
   const toggleHint = useCallback((hintType: HintType) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       hint: prev.hint === hintType ? HINT_TYPES.NONE : hintType,
     }));
   }, []);
 
-  const updateLimit = useCallback((newLimit: number) => {
-    const maxLimit = Math.min(newLimit, getModeSpecificLimit(state.mode));
-    setState(prev => ({
-      ...prev,
-      limit: maxLimit,
-      // Don't reset current character or totalSeen
-      // Don't reset scoring
-      hint: HINT_TYPES.NONE,
-      pinyinInput: '',
-      isPinyinCorrect: null,
-      characterInput: '',
-      isCharacterCorrect: null,
-      flashResult: null,
-    }));
-  }, [state.mode]);
-
   const reset = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      current: getRandomCharacterIndex(prev.mode, prev.limit),
+      current: getRandomCharacterIndex(prev.limit),
       totalSeen: 0,
       hint: HINT_TYPES.NONE,
       // Reset scoring
@@ -162,22 +180,39 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
-      characterInput: '',
-      isCharacterCorrect: null,
       flashResult: null,
+      // Reset answer tracking
+      previousAnswer: null,
+      allAnswers: [],
+      incorrectAnswers: [],
+      recentAnswers: [],
     }));
   }, []);
 
-  // New actions for traditional character feature
-  const setDisplayMode = useCallback((mode: 'simplified' | 'traditional' | 'both') => {
-    setState(prev => ({
+  const resetStatistics = useCallback(() => {
+    // Reset to initial adaptive range
+    const initialRange = ADAPTIVE_CONFIG.INITIAL_RANGE;
+    saveAdaptiveRange(initialRange);
+
+    setState((prev) => ({
       ...prev,
-      displayMode: mode,
+      // Reset statistics
+      totalSeen: 0,
+      correctAnswers: 0,
+      totalAttempted: 0,
+      // Reset answer tracking
+      previousAnswer: null,
+      allAnswers: [],
+      incorrectAnswers: [],
+      recentAnswers: [],
+      // Reset adaptive range
+      adaptiveRange: initialRange,
+      // Keep current character and mode
     }));
   }, []);
 
   const setPinyinInput = useCallback((input: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       pinyinInput: input,
       isPinyinCorrect: null, // Reset evaluation when input changes
@@ -185,12 +220,12 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, []);
 
   const evaluatePinyin = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
-      
-      const isCorrect = evaluatePinyinInput(prev.pinyinInput, currentCharacter.pinyin);
-      
+
+      const { isCorrect } = evaluatePinyinAnswer(prev.pinyinInput, currentCharacter);
+
       return {
         ...prev,
         isPinyinCorrect: isCorrect,
@@ -201,126 +236,72 @@ export const useFlashCard = ({ initialCurrent, initialLimit }: UseFlashCardProps
   }, [getCurrentCharacter]);
 
   const resetScore = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       correctAnswers: 0,
       totalAttempted: 0,
       pinyinInput: '',
       isPinyinCorrect: null,
-      characterInput: '',
-      isCharacterCorrect: null,
       flashResult: null,
     }));
   }, []);
 
-  // New actions for flashcard modes
+  // Display mode action - only changes what's displayed, doesn't reset state
   const setMode = useCallback((mode: FlashcardMode) => {
-    setState(prev => {
-      const newMaxLimit = getModeSpecificLimit(mode);
-      // Always use the max available for the mode as the default limit
-      const newLimit = newMaxLimit;
-      return {
-        ...prev,
-        mode,
-        limit: newLimit,
-        current: getRandomCharacterIndex(mode, newLimit),
-        totalSeen: 0,
-        correctAnswers: 0,
-        totalAttempted: 0,
-        hint: HINT_TYPES.NONE,
-        pinyinInput: '',
-        isPinyinCorrect: null,
-        characterInput: '',
-        isCharacterCorrect: null,
-        flashResult: null,
-        incorrectAnswers: [], // Reset incorrect answers on mode change
-      };
-    });
-  }, []);
+    // Save mode to storage
+    saveMode(mode);
 
-  const setCharacterInput = useCallback((input: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      characterInput: input,
-      isCharacterCorrect: null, // Reset evaluation when input changes
+      mode,
+      // Clear input when switching display modes
+      pinyinInput: '',
+      isPinyinCorrect: null,
+      flashResult: null,
     }));
   }, []);
 
-  const validateCharacter = useCallback(() => {
-    setState(prev => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-      
-      const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
-      const isCorrect = validateCharacterInput(prev.characterInput, expectedCharacter);
-      
-      return {
-        ...prev,
-        isCharacterCorrect: isCorrect,
-        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-        totalAttempted: prev.totalAttempted + 1,
-      };
-    });
-  }, [getCurrentCharacter]);
+  // Set flash result immediately for pinyin input
+  const setPinyinFlashResult = useCallback(
+    (input: string) => {
+      setState((prev) => {
+        const currentCharacter = getCurrentCharacter();
+        if (!currentCharacter) return prev;
 
-  // New functions to set flash result immediately
-  const setPinyinFlashResult = useCallback((input: string) => {
-    setState(prev => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-      
-      const isCorrect = evaluatePinyinInput(input, currentCharacter.pinyin);
-      
-      return {
-        ...prev,
-        pinyinInput: input,
-        isPinyinCorrect: isCorrect,
-        flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
-      };
-    });
-  }, [getCurrentCharacter]);
+        const { isCorrect } = evaluatePinyinAnswer(input, currentCharacter);
 
-  const setCharacterFlashResult = useCallback((input: string) => {
-    setState(prev => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-      
-      const expectedCharacter = prev.mode === FlashcardMode.SIMPLIFIED ? currentCharacter.simplified : currentCharacter.traditional;
-      const isCorrect = validateCharacterInput(input, expectedCharacter);
-      
-      return {
-        ...prev,
-        characterInput: input,
-        isCharacterCorrect: isCorrect,
-        flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
-      };
-    });
-  }, [getCurrentCharacter]);
+        return {
+          ...prev,
+          pinyinInput: input,
+          isPinyinCorrect: isCorrect,
+          flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
+        };
+      });
+    },
+    [getCurrentCharacter]
+  );
 
   // Clear flash result after animation
   useEffect(() => {
-    if (state.flashResult) {
+    if (state.flashResult !== null && state.flashResult !== undefined) {
       const timer = setTimeout(() => {
-        setState(prev => ({ ...prev, flashResult: null }));
-      }, 1000);
+        setState((prev) => ({ ...prev, flashResult: null }));
+      }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [state.flashResult]);
 
   return {
     ...state,
     getNext,
     toggleHint,
-    updateLimit,
     reset,
-    setDisplayMode,
+    resetStatistics,
     setPinyinInput,
     evaluatePinyin,
     resetScore,
     setMode,
-    setCharacterInput,
-    validateCharacter,
     setPinyinFlashResult,
-    setCharacterFlashResult,
   };
-}; 
+};

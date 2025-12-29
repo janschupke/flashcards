@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+/* Tailwind v4 design tokens - Semantic Color System */
+@theme {
+  /* Primary Colors (Brand/Actions) */
+  --color-primary: #dc2626;
+  --color-primary-hover: #ef4444;
+  --color-primary-active: #b91c1c;
+  --color-primary-light: #fee2e2;
+  --color-primary-dark: #b91c1c;
+
+  /* Semantic Colors (Status/Feedback) */
+  --color-success: #10b981;
+  --color-success-muted: #6ee7b7;
+  --color-success-light: #d1fae5;
+  --color-success-dark: #059669;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-dark: #dc2626;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* Neutral Colors */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  --color-neutral-950: #030712;
+
+  /* Surface Colors - Light Theme */
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f9fafb;
+  --color-surface-tertiary: #f3f4f6;
+  --color-surface-elevated: #ffffff;
+
+  /* Text Colors - Light Theme */
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-disabled: #9ca3af;
+  --color-text-inverse: #ffffff;
+
+  /* Inverse Text Colors (for colored backgrounds) */
+  --color-text-on-primary: #ffffff;
+  --color-text-on-success: #ffffff;
+  --color-text-on-error: #ffffff;
+  --color-text-on-warning: #ffffff;
+  --color-text-on-info: #ffffff;
+
+  /* Border Colors - Light Theme */
+  --color-border-primary: #e5e7eb;
+  --color-border-secondary: #d1d5db;
+  --color-border-focus: #dc2626;
+  --color-border-error: #ef4444;
+
+  /* Special Colors */
+  --color-accent: #6f42c1;
+  --color-accent-light: #a78bfa;
+  --color-accent-dark: #5b21b6;
+
+  /* Legacy aliases for backward compatibility during migration */
+  --color-secondary: #4a5568;
+  --color-secondary-dark: #2d3748;
+  --color-secondary-light: #718096;
+  --color-background-primary: #0f172a;
+  --color-background-secondary: #1f2937;
+  --color-background-card: #1f2937;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+@layer base {
+  body {
+    @apply bg-surface-primary text-text-secondary font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Card components */
+  .card {
+    @apply rounded-xl border border-border-primary;
+  }
+}
+
+@layer utilities {
+  /* Slow pulsating animation for characters */
+  @keyframes slowPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+  }
+
+  .animate-slow-pulse {
+    animation: slowPulse 3s ease-in-out infinite;
+  }
+
+  /* Rolldown animation for toasts */
+  @keyframes rolldown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Fade-in animation for page transitions */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 200ms ease-in-out;
+  }
+
+  /* Fade-in with scale animation for modals */
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .card-default {
+    @apply bg-surface-secondary;
+  }
+
+  .card-elevated {
+    @apply bg-surface-secondary shadow-lg;
+  }
+
+  .card-outlined {
+    @apply bg-transparent;
+  }
+
+  .card-padding-none {
+    @apply p-0;
+  }
+
+  .card-padding-sm {
+    @apply p-2;
+  }
+
+  .card-padding-md {
+    @apply p-3;
+  }
+
+  .card-padding-lg {
+    @apply p-4;
+  }
+}

@@ -1,28 +1,23 @@
 import React from 'react';
-import { ButtonGroup, Button } from '../styled';
+import { Button } from '../common/Button';
+import { ButtonVariant } from '../../types/components';
 
 interface ControlButtonsProps {
-  onTogglePinyin: () => void;
-  onToggleEnglish: () => void;
   onNext: () => void;
 }
 
-export const ControlButtons: React.FC<ControlButtonsProps> = ({
-  onTogglePinyin,
-  onToggleEnglish,
-  onNext,
-}) => {
+export const ControlButtons: React.FC<ControlButtonsProps> = ({ onNext }) => {
   return (
-    <ButtonGroup>
-      <Button onClick={onTogglePinyin}>
-        Pinyin (,)
-      </Button>
-      <Button onClick={onToggleEnglish}>
-        English (.)
-      </Button>
-      <Button $primary onClick={onNext}>
+    <div className="w-full max-w-full sm:max-w-md">
+      <Button
+        type="button"
+        onClick={onNext}
+        variant={ButtonVariant.PRIMARY}
+        fullWidth
+        className="!px-3 !py-1.5 !text-2xl !border-2 !border-primary"
+      >
         Next (Enter)
       </Button>
-    </ButtonGroup>
+    </div>
   );
-}; 
+};

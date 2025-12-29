@@ -1,8 +1,8 @@
-/* global document */
-
 import { createRoot } from 'react-dom/client';
-import { FlashCards } from './components/core/FlashCards';
-import { GlobalStyle } from './theme/styled';
+import { BrowserRouter } from 'react-router-dom';
+import { App } from './App';
+import './index.css';
+import 'react-tooltip/dist/react-tooltip.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,8 +10,7 @@ if (!rootElement) {
 }
 const root = createRoot(rootElement);
 root.render(
-  <>
-    <GlobalStyle />
-    <FlashCards />
-  </>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );
