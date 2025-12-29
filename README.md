@@ -1,6 +1,6 @@
 # 汉字 Flashcards
 
-A modern adaptive learning flashcard web app for practicing Chinese characters. This project helps learners master the 1,500 most common 汉字 (Chinese characters) with pinyin and English meanings through an intelligent adaptive learning system.
+A modern, adaptive learning flashcard web application for mastering Chinese characters. Practice the 1,500 most common 汉字 (Chinese characters) through an intelligent system that adapts to your learning progress, prioritizing characters you struggle with while ensuring comprehensive practice.
 
 **Live Demo:** [https://flashcards.schupke.io](https://flashcards.schupke.io)
 
@@ -10,39 +10,50 @@ A modern adaptive learning flashcard web app for practicing Chinese characters. 
 
 ### Core Learning Features
 - **Three Display Modes:**
-  - **全部 (Both) - F1:** Show both simplified and traditional characters, type pinyin (default mode)
-  - **简体 (Simplified) - F2:** Show only simplified character, type pinyin
-  - **繁体 (Traditional) - F3:** Show only traditional character, type pinyin
-- **Interactive Flashcards:** Practice Chinese characters with instant feedback
-- **Pinyin Input & Evaluation:** Always type pinyin and get instant feedback on accuracy (regardless of display mode)
-- **Hint System:** Toggle pinyin and English hints for each character (buttons in top panel)
-- **Keyboard Shortcuts:** Quickly reveal hints, switch display modes, or move to the next card
+  - **全部 (Both) - F1:** Display both simplified and traditional characters side-by-side
+  - **简体 (Simplified) - F2:** Display only simplified character
+  - **繁体 (Traditional) - F3:** Display only traditional character
+- **Pinyin-Only Input:** Always type pinyin pronunciation regardless of display mode
+- **Instant Feedback:** Real-time visual feedback with color-coded borders (green for correct, red for incorrect)
+- **Flash Animations:** Visual flash effects when submitting answers
+- **Hint System:** Toggle pinyin and English hints with keyboard shortcuts or buttons
+- **Keyboard Shortcuts:** Full keyboard support for efficient practice
 
 ### Adaptive Learning System
-- **Intelligent Character Selection:** The app uses a weighted algorithm that shows characters you're struggling with more often, while ensuring no character appears more than 50% of the time
-- **Progressive Range Expansion:** Starts with the first 100 characters and automatically expands your practice range as you improve (every 10 answers, expands by 10 if success rate ≥80%)
-- **Performance Tracking:** Tracks correct/incorrect answers for each character individually
-- **Adaptive Range Display:** Shows current practice range (e.g., "1-100") on the main page
+- **Intelligent Character Selection:** 70% of selections prioritize struggling/new characters, 30% for successful ones
+- **Weighted Random Selection:** Characters weighted by inverse success rate within each group
+- **Progressive Range Expansion:** Automatically expands from 100 to 1,500 characters as you improve
+- **Performance Tracking:** Individual tracking for each character's success rate
+- **Adaptive Thresholds:** Characters with <50% success rate are prioritized
 
-### Statistics & Progress
-- **Per-Character Statistics:** View detailed performance data for each character you've practiced
-- **Success Rate Tracking:** See which characters you've mastered (≥80%), are learning (50-79%), or struggling with (<50%)
-- **Color-Coded Statistics:** Green for mastered, yellow for learning, red for struggling
-- **Sortable Statistics:** Sort by character, correct count, total attempts, or success rate
-- **Filterable Statistics:** Filter to show all, struggling, or mastered characters
-- **Answer History:** Review your last 100 answers with color-coded correct/incorrect status
-- **Previous Answer Display:** See the last character you studied with your submitted answer
+### Statistics & Progress Tracking
+- **Per-Character Statistics:** Detailed performance metrics for each character
+- **Success Rate Categories:**
+  - 🟢 **Mastered:** ≥80% success rate
+  - 🟡 **Learning:** 50-79% success rate
+  - 🔴 **Struggling:** <50% success rate
+- **Sortable & Filterable:** Sort by character, correct count, total attempts, or success rate
+- **Filter Options:** View all, struggling only, or mastered characters
+- **Answer History:** Review last 100 answers with color-coded status
+- **Previous Answer Display:** See your last answer with feedback
+
+### Search & Navigation
+- **Real-time Search:** Search across all columns in History and Statistics
+- **Pinyin Normalization:** Search handles tone variations and ü/u alternatives
+- **Dictionary Links:** Click any row to open Purple Culture dictionary page
+- **Responsive Tables:** Paginated tables with customizable page size
 
 ### Data Persistence
-- **Local Storage:** All progress, statistics, and history are saved locally in your browser
-- **Cross-Session Persistence:** Your data persists across page refreshes and browser sessions
-- **Reset Functionality:** Reset all statistics with confirmation modal (keeps current character/mode)
+- **Local Storage:** All progress saved in browser localStorage
+- **Cross-Session Persistence:** Data persists across refreshes and sessions
+- **Reset Functionality:** Clear all data with confirmation modal
 
 ### User Interface
-- **Responsive Design:** Works great on desktop and mobile devices
-- **Toast Notifications:** Visual feedback when your practice range expands
-- **About Section:** Comprehensive documentation explaining the app and adaptive algorithm
-- **Tab Navigation:** Easy access to Flashcards, History, Statistics, and About sections
+- **Responsive Design:** Optimized for desktop, tablet, and mobile
+- **Toast Notifications:** Visual feedback for range expansions
+- **Smooth Animations:** Fade-in modals, page transitions, and character displays
+- **Accessible:** Keyboard navigation and ARIA labels
+- **Modern UI:** Clean design with Tailwind CSS
 
 ---
 
@@ -65,32 +76,36 @@ A modern adaptive learning flashcard web app for practicing Chinese characters. 
 The app uses a simple weighted selection algorithm that ensures characters you're struggling with or that are new get prioritized:
 
 **Selection Distribution:**
-- **50% of selections** come from unsuccessful or new characters
+- **70% of selections** come from unsuccessful or new characters
   - Unsuccessful characters (low success rate) get highest priority
   - New/untested characters get increased priority (but lower than unsuccessful)
-- **50% of selections** come from successful characters
+- **30% of selections** come from successful characters
   - Weighted by inverse success rate (lower success = higher weight)
 
 **Character Categories:**
 1. **Unsuccessful/Untested Characters** (<50% success OR 0 attempts)
-   - 50% of all selections
+   - 70% of all selections
    - Unsuccessful: weighted by inverse success rate (lower success = higher weight)
    - Untested: fixed weight (0.8, lower than max unsuccessful)
 2. **Successful Characters** (≥50% success rate)
-   - 50% of all selections
+   - 30% of all selections
    - Weighted by inverse success rate (lower success = higher weight)
 
 **Configuration:**
 - Unsuccessful threshold: <50% success rate
-- Selection distribution: 50% unsuccessful/untested, 50% successful
+- Selection distribution: 70% unsuccessful/untested, 30% successful
 
 ### Range Expansion
 The app automatically expands your practice range as you improve:
 - **Starting Range:** First 100 characters
-- **Expansion Check:** Every 10 answers
-- **Expansion Criteria:** ≥80% success rate with at least 10 attempts
+- **Expansion Check:** Every 10 answers (EXPANSION_INTERVAL)
+- **Expansion Criteria:**
+  - ≥80% **overall** success rate (across all attempts, not just last 10)
+  - At least 10 total attempts (MIN_ATTEMPTS_FOR_EXPANSION)
 - **Expansion Amount:** +10 characters per expansion
 - **Maximum Range:** 1,500 characters (full dataset)
+
+**Note:** The success rate is calculated from your overall performance (total correct / total attempted), not just the last 10 answers. The system checks this every 10 answers.
 
 When your range expands, you'll see a toast notification at the top of the screen.
 
@@ -108,52 +123,75 @@ When your range expands, you'll see a toast notification at the top of the scree
 ## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or newer recommended)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
+- **Node.js** v18 or newer ([Download](https://nodejs.org/))
+- **npm** (comes with Node.js) or **yarn** or **pnpm**
 
-### Installation
+### Development Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/janschupke/flashcards.git
+   cd flashcards
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   The app will be available at [http://localhost:5173](http://localhost:5173) (Vite default port)
+
+4. **Open in browser:**
+   - The dev server will automatically open, or navigate to the URL shown in the terminal
+
+### Development Scripts
+
 ```bash
-# Clone the repository
-git clone https://github.com/janschupke/flashcards.git
-cd flashcards
-
-# Install dependencies
-npm install
-```
-
-### Development
-Start the local development server:
-```bash
+# Start development server with hot reload
 npm run dev
-```
-- Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Testing
-Run all tests with:
-```bash
+# Run all tests
 npm run test
-```
-- Uses [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/).
-- Comprehensive test coverage including components, hooks, and utilities.
 
-Run tests with coverage:
-```bash
-npm run coverage
-```
+# Run tests with coverage report
+npm run test:coverage
 
-### Linting & Formatting
-```bash
-# Check for lint errors
+# Run tests in watch mode
+npm run test:ui
+
+# Type checking (TypeScript)
+npm run typecheck
+
+# Lint code
 npm run lint
 
-# Auto-fix lint errors
-npm run fix
+# Auto-fix linting issues
+npm run lint:fix
+
+# Format code with Prettier
+npm run format
+
+# Check code formatting
+npm run format:check
+
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+
+# Run all checks (knip, typecheck, test, lint, format, build)
+npm run check
 ```
 
-### Type Checking
-```bash
-npm run typecheck
-```
+### Testing
+- **Test Framework:** [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/)
+- **Coverage:** 191 tests covering components, hooks, utilities, and algorithms
+- **Run Tests:** `npm run test` or `npm run test:coverage` for coverage report
 
 ---
 
@@ -171,25 +209,83 @@ npm run preview
 
 ## Deployment
 
-### Vercel (Recommended)
-This project is pre-configured for [Vercel](https://vercel.com/):
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Framework Preset:** Vite
-- **No environment variables required**
-- **SPA Routing:** Configured via `vercel.json` to rewrite all routes to `index.html`.
+### Vercel Deployment (Recommended)
 
-#### Steps:
-1. Push your code to GitHub or GitLab.
-2. Import the repository into Vercel.
-3. Vercel will auto-detect the settings and deploy your app.
+This project is pre-configured for [Vercel](https://vercel.com/) with optimal settings for a React SPA.
+
+#### Prerequisites
+- A [Vercel account](https://vercel.com/signup) (free tier works)
+- Your code pushed to GitHub, GitLab, or Bitbucket
+
+#### Deployment Steps
+
+1. **Push to Git:**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Import to Vercel:**
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New Project"
+   - Import your repository
+   - Vercel will auto-detect the following settings:
+     - **Framework Preset:** Vite
+     - **Build Command:** `npm run build`
+     - **Output Directory:** `dist`
+     - **Install Command:** `npm install`
+
+3. **Deploy:**
+   - Click "Deploy"
+   - Vercel will build and deploy your app
+   - You'll get a production URL (e.g., `your-app.vercel.app`)
+
+#### Vercel Configuration
+
+The project includes `vercel.json` for SPA routing:
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+This ensures all routes (e.g., `/history`, `/statistics`) work correctly in production.
+
+#### Environment Variables
+
+**No environment variables required** - the app works out of the box with default settings.
+
+#### Custom Domain
+
+1. In Vercel project settings, go to "Domains"
+2. Add your custom domain
+3. Follow DNS configuration instructions
+4. Vercel will automatically provision SSL certificates
+
+#### Continuous Deployment
+
+- Every push to `main` branch triggers automatic deployment
+- Pull requests get preview deployments automatically
+- Deployments are instant and zero-downtime
 
 #### Local Production Testing
-Test the production build locally before deploying:
+
+Before deploying, test the production build locally:
 ```bash
+# Build the production bundle
 npm run build
+
+# Preview the production build
 npm run preview
 ```
+
+This serves the optimized build at `http://localhost:4173` (or similar) to verify everything works correctly.
 
 ---
 
@@ -209,21 +305,25 @@ All adaptive learning parameters can be configured in `src/constants/adaptive.ts
 
 ```typescript
 export const ADAPTIVE_CONFIG = {
-  // Character Selection
-  MIN_SELECTION_CHANCE: 0.1,        // Minimum probability for any character
-  MAX_SELECTION_CHANCE: 0.5,        // Maximum probability (never over 50%)
-  WEIGHT_MULTIPLIER: 2.0,           // How much to favor struggling characters
-  MIN_ATTEMPTS_FOR_ADAPTIVE: 3,     // Attempts needed before adaptive kicks in
+  // Selection algorithm
+  MIN_ATTEMPTS_FOR_ADAPTIVE: 3,     // Attempts needed before adaptive selection activates
 
-  // Range Expansion
-  INITIAL_RANGE: 100,                // Starting character count
-  EXPANSION_INTERVAL: 10,            // Check every N answers
-  EXPANSION_AMOUNT: 10,              // Add N characters when expanding
-  SUCCESS_THRESHOLD: 0.8,            // 80% success rate required
-  MIN_ATTEMPTS_FOR_EXPANSION: 10,    // Minimum attempts before checking
+  // Success rate threshold for categorization
+  UNSUCCESSFUL_THRESHOLD: 0.5,      // <50% = unsuccessful (untested also in this group)
 
-  // Storage
-  MAX_HISTORY_ENTRIES: 100,          // Maximum history entries to store
+  // Weighting constants
+  UNTESTED_WEIGHT: 0.8,             // Weight for untested characters (lower than max unsuccessful)
+  SELECTION_SPLIT: 0.7,             // 70% for unsuccessful/untested, 30% for successful
+
+  // Range expansion
+  INITIAL_RANGE: 100,               // Starting character count
+  EXPANSION_INTERVAL: 10,           // Check every N answers
+  EXPANSION_AMOUNT: 10,             // Add N characters when expanding
+  SUCCESS_THRESHOLD: 0.8,           // 80% success rate required for expansion
+  MIN_ATTEMPTS_FOR_EXPANSION: 10,   // Minimum attempts before checking expansion
+
+  // Storage limits
+  MAX_HISTORY_ENTRIES: 100,         // Maximum history entries to store
 } as const;
 ```
 

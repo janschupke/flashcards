@@ -91,15 +91,16 @@ const calculateGroupWeights = (
   });
 
   // Normalize within group
+  // Unsuccessful/untested group gets SELECTION_SPLIT (70%), successful gets (1 - SELECTION_SPLIT) (30%)
+  const groupSplit = isUntestedGroup
+    ? ADAPTIVE_CONFIG.SELECTION_SPLIT
+    : 1 - ADAPTIVE_CONFIG.SELECTION_SPLIT;
   const sum = baseWeights.reduce((a, b) => a + b, 0);
-  const scaleFactor =
-    sum > 0
-      ? ADAPTIVE_CONFIG.SELECTION_SPLIT / sum
-      : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
+  const scaleFactor = sum > 0 ? groupSplit / sum : groupSplit / group.length;
 
   group.forEach((charIndex, index) => {
     const normalizedWeight =
-      sum > 0 ? baseWeights[index]! * scaleFactor : ADAPTIVE_CONFIG.SELECTION_SPLIT / group.length;
+      sum > 0 ? baseWeights[index]! * scaleFactor : groupSplit / group.length;
     weights.set(charIndex, normalizedWeight);
   });
 
@@ -133,12 +134,12 @@ const normalizeWeights = (weights: Map<number, number>, characters: number[]): n
  * Algorithm:
  * 1. Categorize characters into two groups: unsuccessful/untested vs successful
  * 2. Calculate weights within each group (unsuccessful weighted by inverse success rate, untested get fixed weight)
- * 3. Normalize each group to 50% of total selection probability
+ * 3. Normalize each group to 70% (unsuccessful/untested) and 30% (successful) of total selection probability
  * 4. Final normalization ensures weights sum to exactly 1.0
  *
  * Selection Distribution:
- * - 50% for unsuccessful/untested characters
- * - 50% for successful characters
+ * - 70% for unsuccessful/untested characters
+ * - 30% for successful characters
  *
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data
@@ -178,14 +179,14 @@ const calculateCharacterWeights = (
  * Selects a character using weighted random selection based on performance.
  *
  * Algorithm:
- * 1. Checks if enough performance data exists (MIN_ATTEMPTS_FOR_ADAPTIVE)
- * 2. If not enough data, falls back to random selection
+ * 1. Checks if any character has at least 1 attempt (to enable adaptive selection)
+ * 2. If no characters have attempts, falls back to random selection
  * 3. Otherwise, calculates weights using calculateCharacterWeights (normalized to sum to 1.0)
  * 4. Uses weighted random selection to pick a character
  *
  * The algorithm ensures:
- * - 50% of selections come from unsuccessful/untested characters
- * - 50% of selections come from successful characters
+ * - 70% of selections come from unsuccessful/untested characters
+ * - 30% of selections come from successful characters
  * - Unsuccessful characters get highest priority within their group
  * - Untested characters get increased priority (but lower than unsuccessful)
  *
@@ -207,10 +208,10 @@ export const selectAdaptiveCharacter = (
   }
 
   // Check if we have enough performance data
+  // Activate adaptive selection if any character has at least 1 attempt
+  // (This covers early activation and ensures no gap at 2 attempts)
   const hasEnoughData = performance.some(
-    (p) =>
-      characters.includes(p.characterIndex) &&
-      (p.total >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_ADAPTIVE || p.total === 1)
+    (p) => characters.includes(p.characterIndex) && p.total >= 1
   );
 
   // Fallback to random if not enough data

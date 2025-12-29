@@ -5,6 +5,7 @@ import { PaginatedTable } from '../common/PaginatedTable';
 import { getSubmittedText, getCorrectText } from '../../utils/answerUtils';
 import { getAnswerColorClass } from '../../utils/styleUtils';
 import { matchesPinyinSearch, getPurpleCultureUrl } from '../../utils/pinyinUtils';
+import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
 
 interface HistoryProps {
   allAnswers: Answer[];
@@ -113,6 +114,11 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
 
   return (
     <div className="space-y-4">
+      {/* Note about history limit */}
+      <div className="text-xs sm:text-sm text-text-tertiary text-center">
+        Showing last {ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES} answers
+      </div>
+
       {/* Search input */}
       <div className="w-full">
         <input

@@ -36,28 +36,13 @@ export const About: React.FC = () => {
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>
                 <strong>全部 (Both) - F1:</strong> Display both simplified and traditional
-                characters. Always type the pinyin pronunciation.
+                characters.
               </li>
               <li>
                 <strong>简体 (Simplified) - F2:</strong> Display only the simplified character.
-                Always type the pinyin pronunciation.
               </li>
               <li>
                 <strong>繁体 (Traditional) - F3:</strong> Display only the traditional character.
-                Always type the pinyin pronunciation.
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-text-primary mb-1">Input</h4>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>
-                <strong>Always type pinyin:</strong> Regardless of which display mode you&apos;re
-                in, you always type the pinyin pronunciation of the character
-              </li>
-              <li>
-                <strong>Alternative inputs:</strong> You can type &apos;u&apos; or &apos;v&apos;
-                instead of &apos;ü&apos; for convenience
               </li>
             </ul>
           </div>
@@ -94,18 +79,18 @@ export const About: React.FC = () => {
             <h4 className="font-semibold text-text-primary mb-1">Character Selection</h4>
             <p className="mb-2">
               The app uses a weighted selection algorithm that ensures characters you&apos;re
-              struggling with or that are new get prioritized. The system guarantees that 50% of
+              struggling with or that are new get prioritized. The system guarantees that 70% of
               selections come from unsuccessful or new characters.
             </p>
             <p className="mb-2 font-semibold text-text-primary">Selection Distribution:</p>
             <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
               <li>
-                <strong>50% Unsuccessful or New:</strong> Characters with low success rates or that
-                are new to your practice range get 50% of all selections
+                <strong>70% Unsuccessful or New:</strong> Characters with low success rates or that
+                are new to your practice range get 70% of all selections
               </li>
               <li>
-                <strong>50% Successful:</strong> Characters with higher success rates get the
-                remaining 50% of selections
+                <strong>30% Successful:</strong> Characters with higher success rates get the
+                remaining 30% of selections
               </li>
             </ul>
             <p className="mb-2 font-semibold text-text-primary">Priority Categories:</p>
@@ -115,20 +100,19 @@ export const About: React.FC = () => {
                   Unsuccessful/Untested (&lt;{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success
                   or 0 attempts):
                 </strong>{' '}
-                50% of selections - weighted by inverse success rate (untested get fixed weight)
+                70% of selections - weighted by inverse success rate (untested get fixed weight)
               </li>
               <li>
                 <strong>
                   Successful (≥{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success):
                 </strong>{' '}
-                50% of selections - weighted by inverse success rate
+                30% of selections - weighted by inverse success rate
               </li>
             </ul>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>
-                Adaptive selection activates after {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_ADAPTIVE}{' '}
-                attempts, or immediately for characters with low success rates (even with just 1
-                attempt)
+                Adaptive selection activates as soon as any character in your range has at least 1
+                attempt. If no characters have been attempted yet, selection falls back to random.
               </li>
             </ul>
           </div>
@@ -142,8 +126,9 @@ export const About: React.FC = () => {
               <li>Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} characters</li>
               <li>Expansion check: Every {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers</li>
               <li>
-                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate with at
-                least {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION} attempts
+                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% overall success rate
+                (across all attempts) with at least {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION}{' '}
+                total attempts
               </li>
               <li>
                 Expansion amount: +{ADAPTIVE_CONFIG.EXPANSION_AMOUNT} characters per expansion
@@ -173,19 +158,6 @@ export const About: React.FC = () => {
             <li>
               <span className="text-error">Red (&lt;50%):</span> Struggling
             </li>
-          </ul>
-        </div>
-      </Card>
-
-      <Card padding={CardPadding.MD}>
-        <h3 className="text-xl font-bold text-text-primary mb-3">Tips for Learning</h3>
-        <div className="space-y-2 text-text-secondary">
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Use hints when you&apos;re stuck, but try to answer without them when possible</li>
-            <li>Focus on characters marked as &quot;struggling&quot; in the Statistics tab</li>
-            <li>Practice regularly to maintain your progress</li>
-            <li>Review the History tab to see your recent answers</li>
-            <li>Use the Reset button if you want to start fresh (this clears all data)</li>
           </ul>
         </div>
       </Card>

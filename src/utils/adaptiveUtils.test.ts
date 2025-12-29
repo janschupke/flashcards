@@ -63,7 +63,7 @@ describe('adaptiveUtils', () => {
   });
 
   describe('selectAdaptiveCharacter', () => {
-    it('should select unsuccessful or new characters 50% of the time', () => {
+    it('should select unsuccessful or new characters 70% of the time', () => {
       const characters = [0, 1, 2, 3, 4, 5];
       const performance: CharacterPerformance[] = [
         { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful
@@ -84,9 +84,9 @@ describe('adaptiveUtils', () => {
         (percentages[2] ?? 0) +
         (percentages[3] ?? 0);
 
-      // Should be approximately 50% (with tolerance for statistical variance)
-      expect(unsuccessfulOrNewPercent).toBeGreaterThan(0.45);
-      expect(unsuccessfulOrNewPercent).toBeLessThan(0.55);
+      // Should be approximately 70% (with tolerance for statistical variance)
+      expect(unsuccessfulOrNewPercent).toBeGreaterThan(0.65);
+      expect(unsuccessfulOrNewPercent).toBeLessThan(0.75);
     });
 
     it('should prioritize unsuccessful over untested characters', () => {
@@ -117,7 +117,7 @@ describe('adaptiveUtils', () => {
       const unsuccessfulOrNewPercent = (percentages[0] ?? 0) + (percentages[1] ?? 0);
       const successfulPercent = percentages[2] ?? 0;
 
-      // Unsuccessful/new should be selected more often (50% vs 50%, but with more characters in that group)
+      // Unsuccessful/new should be selected more often (70% vs 30%)
       expect(unsuccessfulOrNewPercent).toBeGreaterThan(successfulPercent);
     });
 
@@ -135,7 +135,7 @@ describe('adaptiveUtils', () => {
     it('should fallback to random when not enough data', () => {
       const characters = [0, 1, 2];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 1, total: 1 }, // Only 1 attempt, 100% success, less than MIN_ATTEMPTS_FOR_ADAPTIVE
+        { characterIndex: 0, correct: 1, total: 1 }, // Only 1 attempt, 100% success
       ];
 
       // Should fallback to random when no valid adaptive data
@@ -184,7 +184,7 @@ describe('adaptiveUtils', () => {
       });
     });
 
-    it('should maintain 50/50 split when both groups have characters', () => {
+    it('should maintain 70/30 split when both groups have characters', () => {
       const characters = [0, 1, 2, 3];
       const performance: CharacterPerformance[] = [
         { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful
@@ -196,8 +196,8 @@ describe('adaptiveUtils', () => {
       const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
       const percentages = getPercentages(counts, TEST_ITERATIONS);
       const unsuccessfulOrUntestedPercent = (percentages[0] ?? 0) + (percentages[1] ?? 0);
-      expect(unsuccessfulOrUntestedPercent).toBeGreaterThan(0.45);
-      expect(unsuccessfulOrUntestedPercent).toBeLessThan(0.55);
+      expect(unsuccessfulOrUntestedPercent).toBeGreaterThan(0.65);
+      expect(unsuccessfulOrUntestedPercent).toBeLessThan(0.75);
     });
   });
 

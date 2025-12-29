@@ -1,13 +1,10 @@
 export const ADAPTIVE_CONFIG = {
-  // Selection algorithm
-  MIN_ATTEMPTS_FOR_ADAPTIVE: 3,
-
   // Success rate threshold for categorization
   UNSUCCESSFUL_THRESHOLD: 0.5, // <50% = unsuccessful (untested also in this group)
 
   // Weighting constants
   UNTESTED_WEIGHT: 0.8, // Weight for untested characters (lower than max unsuccessful)
-  SELECTION_SPLIT: 0.5, // 50% for unsuccessful/untested, 50% for successful
+  SELECTION_SPLIT: 0.7, // 70% for unsuccessful/untested, 30% for successful
 
   // Range expansion
   INITIAL_RANGE: 100,
