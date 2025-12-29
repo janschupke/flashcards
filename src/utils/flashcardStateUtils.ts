@@ -1,10 +1,4 @@
-import {
-  FlashCardState,
-  Answer,
-  Character,
-  FlashResult,
-  HINT_TYPES,
-} from '../types';
+import { FlashCardState, Answer, Character, FlashResult, HINT_TYPES } from '../types';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 
 /**
@@ -51,7 +45,6 @@ export const processAnswer = (
 export const updateStorageAfterAnswer = (
   characterIndex: number,
   isCorrect: boolean,
-  hasInput: boolean,
   correctAnswers: number,
   totalAttempted: number,
   totalSeen: number,
@@ -59,10 +52,8 @@ export const updateStorageAfterAnswer = (
   answer: Answer
 ): void => {
   // Note: allAnswers parameter is used for saving history
-  // Update character performance in storage
-  if (hasInput) {
-    updateCharacterPerformance(characterIndex, isCorrect);
-  }
+  // Always update performance - empty answers are incorrect attempts
+  updateCharacterPerformance(characterIndex, isCorrect);
 
   // Save counters to storage
   saveCounters({
@@ -79,26 +70,24 @@ export const updateStorageAfterAnswer = (
 };
 
 /**
- * Calculates adaptive range expansion based on performance
+ * Calculates adaptive range expansion based on recent performance (rolling window)
+ * @param recentAnswers - Last 10 answers for expansion calculation
+ * @param currentAdaptiveRange - Current adaptive range
  * @returns Object with newAdaptiveRange and shouldExpand flag
  */
 export const calculateAdaptiveRangeExpansion = (
-  answersSinceLastCheck: number,
-  totalAttempted: number,
-  correctAnswers: number,
+  recentAnswers: Answer[],
   currentAdaptiveRange: number
-): { newAdaptiveRange: number; shouldExpand: boolean; newAnswersSinceLastCheck: number } => {
-  const newAnswersSinceLastCheck = answersSinceLastCheck + 1;
+): { newAdaptiveRange: number; shouldExpand: boolean } => {
   let newAdaptiveRange = currentAdaptiveRange;
   let shouldExpand = false;
 
-  // Check if we should expand the range
-  if (
-    newAnswersSinceLastCheck >= ADAPTIVE_CONFIG.EXPANSION_INTERVAL &&
-    totalAttempted >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION
-  ) {
-    // Calculate success rate for current range
-    const successRate = totalAttempted > 0 ? correctAnswers / totalAttempted : 0;
+  // Only check expansion if we have enough recent answers
+  if (recentAnswers.length >= ADAPTIVE_CONFIG.EXPANSION_INTERVAL) {
+    // Calculate success rate from last 10 answers
+    const recentCorrect = recentAnswers.filter((a) => a.isCorrect).length;
+    const recentTotal = recentAnswers.length;
+    const successRate = recentCorrect / recentTotal;
 
     if (successRate >= ADAPTIVE_CONFIG.SUCCESS_THRESHOLD) {
       // Expand range
@@ -117,7 +106,6 @@ export const calculateAdaptiveRangeExpansion = (
   return {
     newAdaptiveRange,
     shouldExpand,
-    newAnswersSinceLastCheck: shouldExpand ? 0 : newAnswersSinceLastCheck,
   };
 };
 
@@ -145,7 +133,7 @@ export const createNextState = (
   newIncorrectAnswers: Answer[],
   newAllAnswers: Answer[],
   newAdaptiveRange: number,
-  newAnswersSinceLastCheck: number,
+  newRecentAnswers: Answer[],
   newIndex: number
 ): FlashCardState => {
   // Trim history to MAX_HISTORY_ENTRIES to keep state in sync with storage
@@ -172,7 +160,6 @@ export const createNextState = (
     incorrectAnswers: trimmedIncorrectAnswers,
     allAnswers: trimmedAllAnswers,
     adaptiveRange: newAdaptiveRange,
-    answersSinceLastCheck: newAnswersSinceLastCheck,
+    recentAnswers: newRecentAnswers,
   };
 };
-

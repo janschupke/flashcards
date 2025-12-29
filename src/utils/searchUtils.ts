@@ -40,4 +40,3 @@ export const filterTableRows = <T>(
     return false;
   });
 };
-

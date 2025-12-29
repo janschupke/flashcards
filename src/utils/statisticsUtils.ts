@@ -37,5 +37,3 @@ export const getSuccessRateColorClass = (rate: number): string => {
   }
   return 'text-error';
 };
-
-

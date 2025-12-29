@@ -63,7 +63,7 @@ describe('adaptiveUtils', () => {
   });
 
   describe('selectAdaptiveCharacter', () => {
-    it('should select unsuccessful or new characters 70% of the time', () => {
+    it('should select unsuccessful or new characters 80% of the time', () => {
       const characters = [0, 1, 2, 3, 4, 5];
       const performance: CharacterPerformance[] = [
         { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful
@@ -84,23 +84,23 @@ describe('adaptiveUtils', () => {
         (percentages[2] ?? 0) +
         (percentages[3] ?? 0);
 
-      // Should be approximately 70% (with tolerance for statistical variance)
-      expect(unsuccessfulOrNewPercent).toBeGreaterThan(0.65);
-      expect(unsuccessfulOrNewPercent).toBeLessThan(0.75);
+      // Should be approximately 80% (with tolerance for statistical variance)
+      expect(unsuccessfulOrNewPercent).toBeGreaterThan(0.75);
+      expect(unsuccessfulOrNewPercent).toBeLessThan(0.85);
     });
 
-    it('should prioritize unsuccessful over untested characters', () => {
+    it('should prioritize untested over unsuccessful characters', () => {
       const characters = [0, 1];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful
-        // Character 1 is untested (no performance data)
+        { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful (weight reduced by attempt penalty)
+        // Character 1 is untested (no performance data) - gets weight = 1.0 (highest priority)
       ];
 
       const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
       const percentages = getPercentages(counts, TEST_ITERATIONS);
 
-      // Unsuccessful should be selected more often than untested
-      expect(percentages[0] ?? 0).toBeGreaterThan(percentages[1] ?? 0);
+      // Untested should be selected more often than unsuccessful (untested has weight = 1.0, unsuccessful has penalty)
+      expect(percentages[1] ?? 0).toBeGreaterThan(percentages[0] ?? 0);
     });
 
     it('should prioritize unsuccessful/new over successful characters', () => {
@@ -117,7 +117,7 @@ describe('adaptiveUtils', () => {
       const unsuccessfulOrNewPercent = (percentages[0] ?? 0) + (percentages[1] ?? 0);
       const successfulPercent = percentages[2] ?? 0;
 
-      // Unsuccessful/new should be selected more often (70% vs 30%)
+      // Unsuccessful/new should be selected more often (80% vs 20%)
       expect(unsuccessfulOrNewPercent).toBeGreaterThan(successfulPercent);
     });
 
@@ -184,7 +184,7 @@ describe('adaptiveUtils', () => {
       });
     });
 
-    it('should maintain 70/30 split when both groups have characters', () => {
+    it('should maintain 80/20 split when both groups have characters', () => {
       const characters = [0, 1, 2, 3];
       const performance: CharacterPerformance[] = [
         { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful
@@ -196,8 +196,8 @@ describe('adaptiveUtils', () => {
       const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
       const percentages = getPercentages(counts, TEST_ITERATIONS);
       const unsuccessfulOrUntestedPercent = (percentages[0] ?? 0) + (percentages[1] ?? 0);
-      expect(unsuccessfulOrUntestedPercent).toBeGreaterThan(0.65);
-      expect(unsuccessfulOrUntestedPercent).toBeLessThan(0.75);
+      expect(unsuccessfulOrUntestedPercent).toBeGreaterThan(0.75);
+      expect(unsuccessfulOrUntestedPercent).toBeLessThan(0.85);
     });
   });
 

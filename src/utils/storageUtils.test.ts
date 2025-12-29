@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { saveHistory, loadHistory } from './storageUtils';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { Answer } from '../types';
@@ -8,7 +8,7 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
 
   return {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value.toString();
     },
@@ -27,7 +27,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('storageUtils - History', () => {
   beforeEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
   const createMockAnswer = (index: number, isCorrect: boolean = true): Answer => ({
@@ -42,11 +42,7 @@ describe('storageUtils - History', () => {
 
   describe('saveHistory', () => {
     it('should save history to localStorage', () => {
-      const answers: Answer[] = [
-        createMockAnswer(0),
-        createMockAnswer(1),
-        createMockAnswer(2),
-      ];
+      const answers: Answer[] = [createMockAnswer(0), createMockAnswer(1), createMockAnswer(2)];
 
       saveHistory(answers);
 
@@ -56,9 +52,7 @@ describe('storageUtils - History', () => {
     });
 
     it('should trim history to MAX_HISTORY_ENTRIES when saving', () => {
-      const answers: Answer[] = Array.from({ length: 150 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const answers: Answer[] = Array.from({ length: 150 }, (_, i) => createMockAnswer(i));
 
       saveHistory(answers);
 
@@ -70,9 +64,7 @@ describe('storageUtils - History', () => {
     });
 
     it('should keep exactly MAX_HISTORY_ENTRIES when array exceeds limit', () => {
-      const answers: Answer[] = Array.from({ length: 200 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const answers: Answer[] = Array.from({ length: 200 }, (_, i) => createMockAnswer(i));
 
       saveHistory(answers);
 
@@ -81,9 +73,7 @@ describe('storageUtils - History', () => {
     });
 
     it('should keep all entries when under limit', () => {
-      const answers: Answer[] = Array.from({ length: 50 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const answers: Answer[] = Array.from({ length: 50 }, (_, i) => createMockAnswer(i));
 
       saveHistory(answers);
 
@@ -99,9 +89,7 @@ describe('storageUtils - History', () => {
     });
 
     it('should preserve answer order (keep last N entries)', () => {
-      const answers: Answer[] = Array.from({ length: 120 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const answers: Answer[] = Array.from({ length: 120 }, (_, i) => createMockAnswer(i));
 
       saveHistory(answers);
 
@@ -120,11 +108,7 @@ describe('storageUtils - History', () => {
     });
 
     it('should load saved history', () => {
-      const answers: Answer[] = [
-        createMockAnswer(0),
-        createMockAnswer(1),
-        createMockAnswer(2),
-      ];
+      const answers: Answer[] = [createMockAnswer(0), createMockAnswer(1), createMockAnswer(2)];
 
       saveHistory(answers);
       const loaded = loadHistory();
@@ -135,7 +119,7 @@ describe('storageUtils - History', () => {
 
     it('should handle corrupted localStorage data gracefully', () => {
       // Simulate corrupted data
-      localStorage.setItem('flashcard-history', 'invalid json');
+      window.localStorage.setItem('flashcard-history', 'invalid json');
 
       const history = loadHistory();
       expect(history).toEqual([]);
@@ -145,16 +129,12 @@ describe('storageUtils - History', () => {
   describe('History trimming integration', () => {
     it('should maintain MAX_HISTORY_ENTRIES limit across multiple saves', () => {
       // First save: 50 entries
-      const firstBatch: Answer[] = Array.from({ length: 50 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const firstBatch: Answer[] = Array.from({ length: 50 }, (_, i) => createMockAnswer(i));
       saveHistory(firstBatch);
       expect(loadHistory()).toHaveLength(50);
 
       // Second save: add 60 more (total would be 110, but should be trimmed to 100)
-      const secondBatch: Answer[] = Array.from({ length: 60 }, (_, i) =>
-        createMockAnswer(50 + i)
-      );
+      const secondBatch: Answer[] = Array.from({ length: 60 }, (_, i) => createMockAnswer(50 + i));
       const combined = [...firstBatch, ...secondBatch];
       saveHistory(combined);
       const saved = loadHistory();
@@ -166,5 +146,3 @@ describe('storageUtils - History', () => {
     });
   });
 });
-
-

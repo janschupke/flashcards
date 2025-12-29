@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   processAnswer,
+  updateStorageAfterAnswer,
   calculateAdaptiveRangeExpansion,
   getNextCharacterIndex,
   createNextState,
 } from './flashcardStateUtils';
 import { Character, Answer, FlashCardState, HINT_TYPES, FlashcardMode } from '../types';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
+import * as storageUtils from './storageUtils';
 
 // Mock dependencies
 vi.mock('./flashcardUtils', () => ({
@@ -17,15 +19,17 @@ vi.mock('./flashcardUtils', () => ({
       hasInput: trimmed.length > 0,
     };
   }),
-  createAnswer: vi.fn((character: Character, input: string, index: number, isCorrect: boolean): Answer => ({
-    characterIndex: index,
-    submittedPinyin: input.trim() || '(empty)',
-    correctPinyin: character.pinyin,
-    simplified: character.simplified,
-    traditional: character.traditional,
-    english: character.english,
-    isCorrect,
-  })),
+  createAnswer: vi.fn(
+    (character: Character, input: string, index: number, isCorrect: boolean): Answer => ({
+      characterIndex: index,
+      submittedPinyin: input.trim() || '(empty)',
+      correctPinyin: character.pinyin,
+      simplified: character.simplified,
+      traditional: character.traditional,
+      english: character.english,
+      isCorrect,
+    })
+  ),
 }));
 
 vi.mock('./storageUtils', () => ({
@@ -42,11 +46,14 @@ vi.mock('./adaptiveUtils', () => ({
 }));
 
 vi.mock('../data/characters.json', () => ({
-  default: [
-    { item: '1', pinyin: 'wǒ', english: 'I', simplified: '我', traditional: '我' },
-    { item: '2', pinyin: 'hǎo', english: 'good', simplified: '好', traditional: '好' },
-  ],
-}), { virtual: true });
+  default: Array.from({ length: 200 }, (_, i) => ({
+    item: String(i + 1),
+    pinyin: `pinyin${i}`,
+    english: `english${i}`,
+    simplified: `simplified${i}`,
+    traditional: `traditional${i}`,
+  })),
+}));
 
 describe('flashcardStateUtils', () => {
   const mockCharacter: Character = {
@@ -83,7 +90,7 @@ describe('flashcardStateUtils', () => {
     allAnswers,
     mode: FlashcardMode.BOTH,
     adaptiveRange: 100,
-    answersSinceLastCheck: 0,
+    recentAnswers: [],
   });
 
   beforeEach(() => {
@@ -114,24 +121,141 @@ describe('flashcardStateUtils', () => {
       expect(result.isCorrect).toBe(false);
       expect(result.hasInput).toBe(false);
       expect(result.answer.submittedPinyin).toBe('(empty)');
+      expect(result.answer.isCorrect).toBe(false);
+    });
+  });
+
+  describe('updateStorageAfterAnswer - Empty Answers', () => {
+    it('should update character performance for empty answers', () => {
+      const mockAnswer: Answer = {
+        characterIndex: 0,
+        submittedPinyin: '(empty)',
+        correctPinyin: 'wǒ',
+        simplified: '我',
+        traditional: '我',
+        english: 'I',
+        isCorrect: false,
+      };
+
+      updateStorageAfterAnswer(
+        0,
+        false, // isCorrect
+        0,
+        1, // totalAttempted (should increment for empty)
+        1,
+        [mockAnswer],
+        mockAnswer
+      );
+
+      // Should update character performance even for empty answers
+      expect(storageUtils.updateCharacterPerformance).toHaveBeenCalledWith(0, false);
     });
   });
 
   describe('calculateAdaptiveRangeExpansion', () => {
-    it('should not expand if not enough answers since last check', () => {
-      const result = calculateAdaptiveRangeExpansion(5, 20, 16, 100);
+    it('should not expand if not enough recent answers', () => {
+      const recentAnswers = Array.from({ length: 5 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'test',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: true,
+      }));
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
 
       expect(result.newAdaptiveRange).toBe(100);
       expect(result.shouldExpand).toBe(false);
-      expect(result.newAnswersSinceLastCheck).toBe(6);
     });
 
     it('should expand when success rate meets threshold', () => {
-      const result = calculateAdaptiveRangeExpansion(10, 20, 16, 100);
+      const recentAnswers = Array.from({ length: 10 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'test',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: i < 8, // 8 correct, 2 incorrect = 80%
+      }));
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
 
       expect(result.newAdaptiveRange).toBe(110);
       expect(result.shouldExpand).toBe(true);
-      expect(result.newAnswersSinceLastCheck).toBe(0);
+    });
+
+    it('should not expand when success rate below threshold', () => {
+      const recentAnswers = Array.from({ length: 10 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'test',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: i < 7, // 7 correct, 3 incorrect = 70%
+      }));
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
+
+      expect(result.newAdaptiveRange).toBe(100);
+      expect(result.shouldExpand).toBe(false);
+    });
+
+    it('should handle empty answers in recent window', () => {
+      const recentAnswers = Array.from({ length: 10 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: i < 8 ? 'test' : '(empty)',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: i < 8, // 8 correct, 2 empty (counted as incorrect) = 80%
+      }));
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
+
+      expect(result.newAdaptiveRange).toBe(110);
+      expect(result.shouldExpand).toBe(true);
+    });
+
+    it('should handle exactly 10 answers', () => {
+      const recentAnswers = Array.from({ length: 10 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'test',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: true,
+      }));
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
+
+      expect(result.newAdaptiveRange).toBe(110);
+      expect(result.shouldExpand).toBe(true);
+    });
+
+    it('should handle more than 10 answers (uses last 10)', () => {
+      // Create 15 answers, but function should use last 10
+      const allAnswers = Array.from({ length: 15 }, (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'test',
+        correctPinyin: 'test',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: i >= 5, // Last 10 are all correct (indices 5-14)
+      }));
+      // Pass only last 10 (as the function expects)
+      const recentAnswers = allAnswers.slice(-10);
+
+      const result = calculateAdaptiveRangeExpansion(recentAnswers, 100);
+
+      expect(result.newAdaptiveRange).toBe(110);
+      expect(result.shouldExpand).toBe(true);
     });
   });
 
@@ -146,9 +270,7 @@ describe('flashcardStateUtils', () => {
 
   describe('createNextState - History Trimming', () => {
     it('should trim allAnswers to MAX_HISTORY_ENTRIES', () => {
-      const existingAnswers = Array.from({ length: 150 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const existingAnswers = Array.from({ length: 150 }, (_, i) => createMockAnswer(i));
       const prevState = createMockState(existingAnswers);
       const newAnswer = createMockAnswer(150);
 
@@ -163,7 +285,7 @@ describe('flashcardStateUtils', () => {
         [],
         [...existingAnswers, newAnswer],
         100,
-        0,
+        [newAnswer], // recentAnswers
         0
       );
 
@@ -174,9 +296,7 @@ describe('flashcardStateUtils', () => {
     });
 
     it('should not trim when under limit', () => {
-      const existingAnswers = Array.from({ length: 50 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const existingAnswers = Array.from({ length: 50 }, (_, i) => createMockAnswer(i));
       const prevState = createMockState(existingAnswers);
       const newAnswer = createMockAnswer(50);
 
@@ -191,7 +311,7 @@ describe('flashcardStateUtils', () => {
         [],
         [...existingAnswers, newAnswer],
         100,
-        0,
+        [newAnswer], // recentAnswers
         0
       );
 
@@ -199,9 +319,7 @@ describe('flashcardStateUtils', () => {
     });
 
     it('should trim incorrectAnswers to MAX_HISTORY_ENTRIES', () => {
-      const incorrectAnswers = Array.from({ length: 150 }, (_, i) =>
-        createMockAnswer(i, false)
-      );
+      const incorrectAnswers = Array.from({ length: 150 }, (_, i) => createMockAnswer(i, false));
       const prevState = createMockState([]);
       const newAnswer = createMockAnswer(150, false);
 
@@ -216,7 +334,7 @@ describe('flashcardStateUtils', () => {
         [...incorrectAnswers, newAnswer],
         Array.from({ length: 151 }, (_, i) => createMockAnswer(i, false)),
         100,
-        0,
+        [newAnswer], // recentAnswers
         0
       );
 
@@ -226,9 +344,7 @@ describe('flashcardStateUtils', () => {
     });
 
     it('should preserve order when trimming (keep last N entries)', () => {
-      const existingAnswers = Array.from({ length: 120 }, (_, i) =>
-        createMockAnswer(i)
-      );
+      const existingAnswers = Array.from({ length: 120 }, (_, i) => createMockAnswer(i));
       const prevState = createMockState(existingAnswers);
       const newAnswer = createMockAnswer(120);
 
@@ -243,7 +359,7 @@ describe('flashcardStateUtils', () => {
         [],
         [...existingAnswers, newAnswer],
         100,
-        0,
+        [newAnswer], // recentAnswers
         0
       );
 
@@ -270,7 +386,7 @@ describe('flashcardStateUtils', () => {
         [],
         [...existingAnswers, newAnswer],
         100,
-        0,
+        [newAnswer], // recentAnswers
         0
       );
 

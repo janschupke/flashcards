@@ -45,4 +45,3 @@ describe('useInputVariant', () => {
     expect(result.current.variant).toBe(InputVariant.ERROR);
   });
 });
-

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import { AppTab } from '../../types/layout';
 import { ROUTES } from '../../constants/routes';
@@ -24,8 +24,13 @@ describe('Navigation', () => {
     adaptiveRange: 100,
     correctAnswers: 50,
     totalSeen: 100,
+    allAnswers: [],
     onReset: vi.fn(),
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render logo link', () => {
     render(
@@ -61,38 +66,20 @@ describe('Navigation', () => {
   });
 
   it('should show FlashcardStatsPanel on flashcards page', () => {
-    // Mock useLocation to return flashcards route
-    vi.mock('react-router-dom', async () => {
-      const actual = await vi.importActual('react-router-dom');
-      return {
-        ...actual,
-        useLocation: () => ({ pathname: ROUTES.FLASHCARDS }),
-      };
-    });
-
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.FLASHCARDS]}>
         <Navigation {...defaultProps} />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('flashcard-stats-panel')).toBeInTheDocument();
   });
 
   it('should not show FlashcardStatsPanel on other pages', () => {
-    // Mock useLocation to return history route
-    vi.mock('react-router-dom', async () => {
-      const actual = await vi.importActual('react-router-dom');
-      return {
-        ...actual,
-        useLocation: () => ({ pathname: ROUTES.HISTORY }),
-      };
-    });
-
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[ROUTES.HISTORY]}>
         <Navigation {...defaultProps} />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.queryByTestId('flashcard-stats-panel')).not.toBeInTheDocument();
@@ -109,5 +96,3 @@ describe('Navigation', () => {
     expect(tabNav).toHaveTextContent('TabNavigation - HISTORY');
   });
 });
-
-

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ANIMATION_TIMINGS } from '../../constants';
-import { cn } from '../../utils/classNameUtils';
+import cn from 'classnames';
 
 interface PageTransitionProps {
   children: React.ReactNode;

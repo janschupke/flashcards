@@ -47,7 +47,15 @@ const categorizeCharacters = (
 };
 
 /**
- * Helper: Calculate base weight for a character
+ * Helper: Calculate base weight for a character using progressive weighting
+ *
+ * Progressive weighting formula:
+ * - Untested: Highest priority (UNTESTED_WEIGHT = 1.0)
+ * - Unsuccessful: Weight based on inverse success rate, penalized by attempt count
+ *   - Lower success rate = exponentially higher weight
+ *   - Fewer attempts = higher weight (to prioritize characters that need more practice)
+ * - Successful: Lower weight, further reduced by high success rate and many attempts
+ *
  * @internal
  */
 const getCharacterWeight = (
@@ -57,8 +65,32 @@ const getCharacterWeight = (
   if (isUntested || !perf) {
     return ADAPTIVE_CONFIG.UNTESTED_WEIGHT;
   }
+
   const successRate = getSuccessRate(perf);
-  return 1 - successRate;
+  const totalAttempts = perf.total;
+
+  // Progressive weighting: lower success rate gets exponentially higher weight
+  // Use (1 - successRate)^exponent to make low success rates much more important
+  const inverseSuccessRate = 1 - successRate;
+  const successPenalty = Math.pow(inverseSuccessRate, ADAPTIVE_CONFIG.SUCCESS_PENALTY_EXPONENT);
+
+  // Attempt penalty: characters with many attempts get reduced weight
+  // This prevents over-showing characters that have been practiced many times
+  // Formula: 1 / (1 + attempts * penalty_factor)
+  // This means:
+  // - 1 attempt: weight = 1.0 (no penalty)
+  // - 2 attempts: weight ≈ 0.67
+  // - 5 attempts: weight ≈ 0.4
+  // - 10 attempts: weight ≈ 0.2
+  const attemptPenalty = 1 / (1 + totalAttempts * ADAPTIVE_CONFIG.ATTEMPT_PENALTY_FACTOR);
+
+  // Combine: success penalty (higher for low success) * attempt penalty (higher for few attempts)
+  // This ensures:
+  // - 0% success with 1 attempt gets highest weight
+  // - 0% success with 10 attempts gets lower weight (but still high)
+  // - 100% success with 1 attempt gets low weight
+  // - 100% success with 10 attempts gets very low weight
+  return successPenalty * attemptPenalty;
 };
 
 /**
@@ -133,13 +165,24 @@ const normalizeWeights = (weights: Map<number, number>, characters: number[]): n
  *
  * Algorithm:
  * 1. Categorize characters into two groups: unsuccessful/untested vs successful
- * 2. Calculate weights within each group (unsuccessful weighted by inverse success rate, untested get fixed weight)
- * 3. Normalize each group to 70% (unsuccessful/untested) and 30% (successful) of total selection probability
+ * 2. Calculate progressive weights within each group:
+ *    - Untested: Highest priority (weight = 1.0)
+ *    - Unsuccessful: Progressive weight based on (1 - successRate)^2 * attempt_penalty
+ *      - Lower success rate = exponentially higher weight
+ *      - Fewer attempts = higher weight (prioritizes characters needing more practice)
+ *    - Successful: Lower weight, further reduced by high success and many attempts
+ * 3. Normalize each group to 80% (unsuccessful/untested) and 20% (successful) of total selection probability
  * 4. Final normalization ensures weights sum to exactly 1.0
  *
  * Selection Distribution:
- * - 70% for unsuccessful/untested characters
- * - 30% for successful characters
+ * - 80% for unsuccessful/untested characters (prioritizes new and struggling characters)
+ * - 20% for successful characters (maintains exposure to mastered characters)
+ *
+ * Progressive Weighting Benefits:
+ * - Characters with 0% success and 1 attempt get highest priority
+ * - Characters with 0% success and 10 attempts still get high priority (but lower than 1 attempt)
+ * - Characters with 100% success and many attempts get lowest priority
+ * - Ensures all characters in range get shown, not just a few successful ones
  *
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data
@@ -185,10 +228,12 @@ const calculateCharacterWeights = (
  * 4. Uses weighted random selection to pick a character
  *
  * The algorithm ensures:
- * - 70% of selections come from unsuccessful/untested characters
- * - 30% of selections come from successful characters
- * - Unsuccessful characters get highest priority within their group
- * - Untested characters get increased priority (but lower than unsuccessful)
+ * - 80% of selections come from unsuccessful/untested characters
+ * - 20% of selections come from successful characters
+ * - Progressive weighting: characters with lower success rates and fewer attempts get exponentially higher priority
+ * - Untested characters get highest priority (weight = 1.0)
+ * - Prevents over-showing successful characters with many attempts
+ * - Ensures all characters in range get practice, not just a few
  *
  * @param characters - Array of character indices in current range
  * @param performance - Array of all character performance data

@@ -7,7 +7,8 @@ import { getActiveTabFromPath } from '../../utils/routingUtils';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const { adaptiveRange, correctAnswers, totalSeen, resetStatistics } = useFlashCardContext();
+  const { adaptiveRange, correctAnswers, totalSeen, allAnswers, resetStatistics } =
+    useFlashCardContext();
 
   // Determine active tab from route
   const activeTab = getActiveTabFromPath(location.pathname);
@@ -19,6 +20,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         adaptiveRange={adaptiveRange}
         correctAnswers={correctAnswers}
         totalSeen={totalSeen}
+        allAnswers={allAnswers}
         onReset={resetStatistics}
       />
       <main className="flex-1 overflow-y-auto bg-surface-primary">{children}</main>

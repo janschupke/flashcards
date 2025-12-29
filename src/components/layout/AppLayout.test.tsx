@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AppLayout } from './AppLayout';
 import * as FlashCardContext from '../../contexts/FlashCardContext';
+import type { FlashCardContextValue } from '../../contexts/FlashCardContext';
+import { FlashcardMode, HINT_TYPES } from '../../types';
 
 // Mock dependencies
 vi.mock('../../contexts/FlashCardContext');
@@ -20,7 +22,7 @@ describe('AppLayout', () => {
     // Add other required context values
     current: 0,
     limit: 100,
-    hint: 'NONE' as const,
+    hint: HINT_TYPES.NONE,
     totalSeen: 100,
     pinyinInput: '',
     isPinyinCorrect: null,
@@ -31,10 +33,9 @@ describe('AppLayout', () => {
     previousAnswer: null,
     incorrectAnswers: [],
     allAnswers: [],
-    mode: 'BOTH' as const,
+    mode: FlashcardMode.BOTH,
     adaptiveRange: 100,
-    answersSinceLastCheck: 0,
-    newAnswersSinceLastCheck: 0,
+    recentAnswers: [],
     getNext: vi.fn(),
     toggleHint: vi.fn(),
     reset: vi.fn(),
@@ -47,7 +48,9 @@ describe('AppLayout', () => {
   };
 
   beforeEach(() => {
-    vi.mocked(FlashCardContext.useFlashCardContext).mockReturnValue(mockContextValue as any);
+    vi.mocked(FlashCardContext.useFlashCardContext).mockReturnValue(
+      mockContextValue as FlashCardContextValue
+    );
   });
 
   it('should render children', () => {
@@ -100,4 +103,3 @@ describe('AppLayout', () => {
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
   });
 });
-

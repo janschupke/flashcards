@@ -2,7 +2,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useFlashCard } from '../hooks/useFlashCard';
 import { FlashCardState, FlashCardActions } from '../types';
 
-interface FlashCardContextValue extends FlashCardState, FlashCardActions {}
+export interface FlashCardContextValue extends FlashCardState, FlashCardActions {}
 
 const FlashCardContext = createContext<FlashCardContextValue | undefined>(undefined);
 

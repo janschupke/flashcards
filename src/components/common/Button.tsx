@@ -1,7 +1,7 @@
 import React from 'react';
 import { ButtonVariant, ButtonSize } from '../../types/components';
 import { COMPONENT_CONSTANTS } from '../../constants/layout';
-import { cn } from '../../utils/classNameUtils';
+import cn from 'classnames';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

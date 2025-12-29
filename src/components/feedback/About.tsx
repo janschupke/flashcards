@@ -79,19 +79,46 @@ export const About: React.FC = () => {
           <div>
             <h4 className="font-semibold text-text-primary mb-1">Character Selection</h4>
             <p className="mb-2">
-              The app uses a weighted selection algorithm that ensures characters you&apos;re
-              struggling with or that are new get prioritized. The system guarantees that 70% of
-              selections come from unsuccessful or new characters.
+              The app uses a progressive weighted selection algorithm that prioritizes characters
+              you&apos;re struggling with or that are new. The system guarantees that 80% of
+              selections come from unsuccessful or new characters, with progressive weighting that
+              ensures all characters get practice.
             </p>
             <p className="mb-2 font-semibold text-text-primary">Selection Distribution:</p>
             <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
               <li>
-                <strong>70% Unsuccessful or New:</strong> Characters with low success rates or that
-                are new to your practice range get 70% of all selections
+                <strong>80% Unsuccessful or New:</strong> Characters with low success rates or that
+                are new to your practice range get 80% of all selections
               </li>
               <li>
-                <strong>30% Successful:</strong> Characters with higher success rates get the
-                remaining 30% of selections
+                <strong>20% Successful:</strong> Characters with higher success rates get the
+                remaining 20% of selections
+              </li>
+            </ul>
+            <p className="mb-2 font-semibold text-text-primary">Progressive Weighting:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
+              <li>
+                <strong>Untested characters:</strong> Highest priority (weight = 1.0) - ensures all
+                characters in range get shown
+              </li>
+              <li>
+                <strong>Unsuccessful characters:</strong> Weight = (1 - successRate)² ×
+                attempt_penalty
+                <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
+                  <li>Lower success rate = exponentially higher weight</li>
+                  <li>
+                    Fewer attempts = higher weight (prioritizes characters needing more practice)
+                  </li>
+                  <li>Prevents over-showing characters with many failed attempts</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Successful characters:</strong> Lower weight, further reduced by high
+                success rate and many attempts
+                <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
+                  <li>Prevents repeatedly showing mastered characters</li>
+                  <li>Ensures variety in practice</li>
+                </ul>
               </li>
             </ul>
             <p className="mb-2 font-semibold text-text-primary">Priority Categories:</p>
@@ -101,13 +128,13 @@ export const About: React.FC = () => {
                   Unsuccessful/Untested (&lt;{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success
                   or 0 attempts):
                 </strong>{' '}
-                70% of selections - weighted by inverse success rate (untested get fixed weight)
+                80% of selections - progressive weighting prioritizes low success and low attempts
               </li>
               <li>
                 <strong>
                   Successful (≥{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success):
                 </strong>{' '}
-                30% of selections - weighted by inverse success rate
+                20% of selections - reduced weight for high success with many attempts
               </li>
             </ul>
             <ul className="list-disc list-inside space-y-1 ml-2">
@@ -127,9 +154,8 @@ export const About: React.FC = () => {
               <li>Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} characters</li>
               <li>Expansion check: Every {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers</li>
               <li>
-                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% overall success rate
-                (across all attempts) with at least {ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION}{' '}
-                total attempts
+                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate in your
+                last {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers
               </li>
               <li>
                 Expansion amount: +{ADAPTIVE_CONFIG.EXPANSION_AMOUNT} characters per expansion
@@ -151,13 +177,23 @@ export const About: React.FC = () => {
           <p className="mt-2">Statistics are color-coded:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>
-              <span className="text-success">Green (≥{SUCCESS_RATE_THRESHOLDS.MASTERED * 100}%):</span> Mastered
+              <span className="text-success">
+                Green (≥{SUCCESS_RATE_THRESHOLDS.MASTERED * 100}%):
+              </span>{' '}
+              Mastered
             </li>
             <li>
-              <span className="text-warning">Yellow ({SUCCESS_RATE_THRESHOLDS.LEARNING * 100}-{SUCCESS_RATE_THRESHOLDS.MASTERED * 100 - 1}%):</span> Learning
+              <span className="text-warning">
+                Yellow ({SUCCESS_RATE_THRESHOLDS.LEARNING * 100}-
+                {SUCCESS_RATE_THRESHOLDS.MASTERED * 100 - 1}%):
+              </span>{' '}
+              Learning
             </li>
             <li>
-              <span className="text-error">Red (&lt;{SUCCESS_RATE_THRESHOLDS.STRUGGLING * 100}%):</span> Struggling
+              <span className="text-error">
+                Red (&lt;{SUCCESS_RATE_THRESHOLDS.STRUGGLING * 100}%):
+              </span>{' '}
+              Struggling
             </li>
           </ul>
         </div>

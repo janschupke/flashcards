@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useStatistics } from './useStatistics';
 import * as storageUtils from '../utils/storageUtils';
 import * as adaptiveUtils from '../utils/adaptiveUtils';
@@ -58,7 +58,9 @@ describe('useStatistics', () => {
     const { result } = renderHook(() => useStatistics());
 
     // Set filter to struggling
-    result.current.setFilter('struggling');
+    act(() => {
+      result.current.setFilter('struggling');
+    });
 
     expect(result.current.sortedData).toHaveLength(1);
     expect(result.current.sortedData[0]?.successRate).toBeLessThan(0.5);
@@ -80,7 +82,9 @@ describe('useStatistics', () => {
     const { result } = renderHook(() => useStatistics());
 
     // Set filter to mastered
-    result.current.setFilter('mastered');
+    act(() => {
+      result.current.setFilter('mastered');
+    });
 
     expect(result.current.sortedData).toHaveLength(1);
     expect(result.current.sortedData[0]?.successRate).toBeGreaterThanOrEqual(0.8);
@@ -101,9 +105,8 @@ describe('useStatistics', () => {
 
     const { result } = renderHook(() => useStatistics());
 
-    // Sort by success rate ascending
-    result.current.handleSort('successRate');
-
+    // Hook initializes with sortField: 'successRate' and sortDirection: 'asc'
+    // So the data is already sorted by successRate ascending
     expect(result.current.sortField).toBe('successRate');
     expect(result.current.sortDirection).toBe('asc');
     expect(result.current.sortedData[0]?.successRate).toBe(0.3);
@@ -124,13 +127,18 @@ describe('useStatistics', () => {
 
     const { result } = renderHook(() => useStatistics());
 
-    // First sort
-    result.current.handleSort('successRate');
-    expect(result.current.sortDirection).toBe('asc');
-
-    // Toggle direction
-    result.current.handleSort('successRate');
+    // Hook initializes with sortField: 'successRate' and sortDirection: 'asc'
+    // So clicking successRate will toggle to desc
+    act(() => {
+      result.current.handleSort('successRate');
+    });
     expect(result.current.sortDirection).toBe('desc');
+
+    // Toggle direction back to asc
+    act(() => {
+      result.current.handleSort('successRate');
+    });
+    expect(result.current.sortDirection).toBe('asc');
   });
 
   it('should calculate filter counts correctly', () => {
@@ -153,4 +161,3 @@ describe('useStatistics', () => {
     expect(result.current.filterCounts.mastered).toBe(1);
   });
 });
-

@@ -57,7 +57,8 @@ export interface FlashCardState {
   mode: FlashcardMode;
   // Adaptive learning fields
   adaptiveRange: number;
-  answersSinceLastCheck: number;
+  // Recent answers for rolling window expansion calculation (last 10)
+  recentAnswers: Answer[];
 }
 
 export interface FlashCardActions {

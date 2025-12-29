@@ -25,4 +25,3 @@ export const Card: React.FC<CardProps> = ({
 
   return <div className={`card ${variantClass} ${paddingClass} ${className}`}>{children}</div>;
 };
-

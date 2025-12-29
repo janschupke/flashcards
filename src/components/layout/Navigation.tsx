@@ -6,12 +6,14 @@ import { ROUTES } from '../../constants/routes';
 import { TabNavigation } from './TabNavigation';
 import { MobileMenu } from './MobileMenu';
 import { FlashcardStatsPanel } from './FlashcardStatsPanel';
+import { Answer } from '../../types';
 
 interface NavigationProps {
   activeTab: AppTab;
   adaptiveRange: number;
   correctAnswers: number;
   totalSeen: number;
+  allAnswers: Answer[];
   onReset?: () => void;
 }
 
@@ -20,6 +22,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   adaptiveRange,
   correctAnswers,
   totalSeen,
+  allAnswers,
   onReset,
 }) => {
   const location = useLocation();
@@ -49,6 +52,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           adaptiveRange={adaptiveRange}
           correctAnswers={correctAnswers}
           totalSeen={totalSeen}
+          allAnswers={allAnswers}
           onReset={onReset}
         />
       )}

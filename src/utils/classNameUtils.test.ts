@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { cn } from './classNameUtils';
+import cn from 'classnames';
 
-describe('classNameUtils', () => {
+describe('classnames', () => {
   describe('cn', () => {
     it('should join string classes', () => {
       expect(cn('class1', 'class2', 'class3')).toBe('class1 class2 class3');
@@ -33,14 +33,9 @@ describe('classNameUtils', () => {
 
     it('should handle complex combinations', () => {
       expect(
-        cn(
-          'base',
-          { active: true, disabled: false },
-          ['array1', 'array2'],
-          null,
-          'final',
-          { hidden: false }
-        )
+        cn('base', { active: true, disabled: false }, ['array1', 'array2'], null, 'final', {
+          hidden: false,
+        })
       ).toBe('base active array1 array2 final');
     });
 
@@ -57,5 +52,3 @@ describe('classNameUtils', () => {
     });
   });
 });
-
-

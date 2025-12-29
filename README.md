@@ -20,7 +20,7 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 - **Keyboard Shortcuts:** Full keyboard support for efficient practice
 
 ### Adaptive Learning System
-- **Intelligent Character Selection:** 70% of selections prioritize struggling/new characters, 30% for successful ones
+- **Progressive Character Selection:** 80% of selections prioritize struggling/new characters with progressive weighting, 20% for successful ones
 - **Weighted Random Selection:** Characters weighted by inverse success rate within each group
 - **Progressive Range Expansion:** Automatically expands from 100 to 1,500 characters as you improve
 - **Performance Tracking:** Individual tracking for each character's success rate
@@ -76,36 +76,43 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 The app uses a simple weighted selection algorithm that ensures characters you're struggling with or that are new get prioritized:
 
 **Selection Distribution:**
-- **70% of selections** come from unsuccessful or new characters
-  - Unsuccessful characters (low success rate) get highest priority
-  - New/untested characters get increased priority (but lower than unsuccessful)
-- **30% of selections** come from successful characters
-  - Weighted by inverse success rate (lower success = higher weight)
+- **80% of selections** come from unsuccessful or new characters
+  - Prioritizes characters you're struggling with
+  - Ensures new characters in your range get practice
+  - Progressive weighting: lower success rate and fewer attempts = exponentially higher priority
+  - Prevents over-showing characters with many failed attempts
+- **20% of selections** come from successful characters
+  - Maintains exposure to characters you've mastered
+  - Reduced weight for high success with many attempts
+  - Prevents repeatedly showing the same mastered characters
 
 **Character Categories:**
 1. **Unsuccessful/Untested Characters** (<50% success OR 0 attempts)
-   - 70% of all selections
-   - Unsuccessful: weighted by inverse success rate (lower success = higher weight)
-   - Untested: fixed weight (0.8, lower than max unsuccessful)
+   - 80% of all selections
+   - Progressive weighting: (1 - successRate)² × attempt_penalty
+   - Untested characters get highest priority (weight = 1.0)
+   - Lower success rate and fewer attempts = exponentially higher weight
 2. **Successful Characters** (≥50% success rate)
-   - 30% of all selections
-   - Weighted by inverse success rate (lower success = higher weight)
+   - 20% of all selections
+   - Reduced weight for high success with many attempts
+   - Prevents over-showing mastered characters
 
 **Configuration:**
 - Unsuccessful threshold: <50% success rate
-- Selection distribution: 70% unsuccessful/untested, 30% successful
+- Selection distribution: 80% unsuccessful/untested, 20% successful
+- Progressive weighting: prioritizes low success rates and low attempt counts
 
 ### Range Expansion
 The app automatically expands your practice range as you improve:
 - **Starting Range:** First 100 characters
 - **Expansion Check:** Every 10 answers (EXPANSION_INTERVAL)
 - **Expansion Criteria:**
-  - ≥80% **overall** success rate (across all attempts, not just last 10)
-  - At least 10 total attempts (MIN_ATTEMPTS_FOR_EXPANSION)
+  - ≥80% success rate in your **last 10 answers**
+  - Must have at least 10 answers total
 - **Expansion Amount:** +10 characters per expansion
 - **Maximum Range:** 1,500 characters (full dataset)
 
-**Note:** The success rate is calculated from your overall performance (total correct / total attempted), not just the last 10 answers. The system checks this every 10 answers.
+**Note:** The success rate is calculated from your **last 10 answers only** (rolling window). This ensures expansion is based on recent performance, not historical performance. The system checks this every 10 answers.
 
 When your range expands, you'll see a toast notification at the top of the screen.
 
@@ -312,15 +319,17 @@ export const ADAPTIVE_CONFIG = {
   UNSUCCESSFUL_THRESHOLD: 0.5,      // <50% = unsuccessful (untested also in this group)
 
   // Weighting constants
-  UNTESTED_WEIGHT: 0.8,             // Weight for untested characters (lower than max unsuccessful)
-  SELECTION_SPLIT: 0.7,             // 70% for unsuccessful/untested, 30% for successful
+  UNTESTED_WEIGHT: 1.0,             // Weight for untested characters (highest priority)
+  SELECTION_SPLIT: 0.8,             // 80% for unsuccessful/untested, 20% for successful
+  ATTEMPT_PENALTY_FACTOR: 0.5,      // Factor to reduce weight for characters with many attempts
+  SUCCESS_PENALTY_EXPONENT: 2.0,    // Exponent for progressive success rate penalty
 
   // Range expansion
   INITIAL_RANGE: 100,               // Starting character count
-  EXPANSION_INTERVAL: 10,           // Check every N answers
+  EXPANSION_INTERVAL: 10,           // Check every N answers (rolling window size)
   EXPANSION_AMOUNT: 10,             // Add N characters when expanding
-  SUCCESS_THRESHOLD: 0.8,           // 80% success rate required for expansion
-  MIN_ATTEMPTS_FOR_EXPANSION: 10,   // Minimum attempts before checking expansion
+  SUCCESS_THRESHOLD: 0.8,           // 80% success rate required for expansion (in last N answers)
+  // Note: MIN_ATTEMPTS_FOR_EXPANSION is no longer used - expansion checks when recentAnswers.length >= EXPANSION_INTERVAL
 
   // Storage limits
   MAX_HISTORY_ENTRIES: 100,         // Maximum history entries to store

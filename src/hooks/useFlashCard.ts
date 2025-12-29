@@ -79,7 +79,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     mode: storedMode ?? FlashcardMode.BOTH,
     // Adaptive learning fields
     adaptiveRange: initialAdaptiveRange,
-    answersSinceLastCheck: 0,
+    recentAnswers: [], // Last 10 answers for expansion calculation
   });
 
   // Get current character - always return full character (mode only affects display)
@@ -107,18 +107,23 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       }
 
       // Update counters
+      // Empty answers are still attempts (incorrect ones), so count them
       const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
-      const newTotalAttempted = hasInput ? prev.totalAttempted + 1 : prev.totalAttempted;
+      const newTotalAttempted = prev.totalAttempted + 1;
       const newTotalSeen = prev.totalSeen + 1;
 
       // Add to all answers
       const newAllAnswers = [...prev.allAnswers, answer];
 
+      // Maintain last 10 answers for expansion calculation
+      const newRecentAnswers = [...prev.recentAnswers, answer].slice(
+        -ADAPTIVE_CONFIG.EXPANSION_INTERVAL
+      );
+
       // Update storage
       updateStorageAfterAnswer(
         prev.current,
         isCorrect,
-        hasInput,
         newCorrectAnswers,
         newTotalAttempted,
         newTotalSeen,
@@ -126,13 +131,14 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
         answer
       );
 
-      // Calculate adaptive range expansion
-      const { newAdaptiveRange, newAnswersSinceLastCheck } = calculateAdaptiveRangeExpansion(
-        prev.answersSinceLastCheck,
-        newTotalAttempted,
-        newCorrectAnswers,
+      // Calculate adaptive range expansion using recent answers
+      const { newAdaptiveRange, shouldExpand } = calculateAdaptiveRangeExpansion(
+        newRecentAnswers,
         prev.adaptiveRange
       );
+
+      // If expansion happened, clear recent answers to start fresh
+      const finalRecentAnswers = shouldExpand ? [] : newRecentAnswers;
 
       // Get next character index
       const newIndex = getNextCharacterIndex(newAdaptiveRange);
@@ -149,7 +155,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
         newIncorrectAnswers,
         newAllAnswers,
         newAdaptiveRange,
-        newAnswersSinceLastCheck,
+        finalRecentAnswers,
         newIndex
       );
     });
@@ -178,6 +184,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       previousAnswer: null,
       allAnswers: [],
       incorrectAnswers: [],
+      recentAnswers: [],
     }));
   }, []);
 
@@ -196,9 +203,9 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       previousAnswer: null,
       allAnswers: [],
       incorrectAnswers: [],
+      recentAnswers: [],
       // Reset adaptive range
       adaptiveRange: initialRange,
-      answersSinceLastCheck: 0,
       // Keep current character and mode
     }));
   }, []);

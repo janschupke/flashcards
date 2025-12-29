@@ -4,7 +4,7 @@ import { Button } from '../common/Button';
 import { ButtonVariant, ButtonSize } from '../../types/components';
 import { MODES } from '../../constants/modes';
 import { useModeToggle } from '../../hooks/useModeToggle';
-import { cn } from '../../utils/classNameUtils';
+import cn from 'classnames';
 
 interface ModeButtonGroupProps {
   currentMode: FlashcardMode;

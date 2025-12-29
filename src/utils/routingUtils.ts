@@ -27,19 +27,20 @@ export const getRouteForTab = (tab: AppTab): string => {
  * @returns The corresponding AppTab
  */
 export const getActiveTabFromPath = (pathname: string): AppTab => {
-  if (pathname === ROUTES.FLASHCARDS) {
+  // Normalize pathname by removing trailing slashes
+  const normalizedPath = pathname.replace(/\/$/, '') || '/';
+
+  if (normalizedPath === ROUTES.FLASHCARDS) {
     return AppTab.FLASHCARDS;
   }
-  if (pathname === ROUTES.HISTORY) {
+  if (normalizedPath === ROUTES.HISTORY) {
     return AppTab.HISTORY;
   }
-  if (pathname === ROUTES.STATISTICS) {
+  if (normalizedPath === ROUTES.STATISTICS) {
     return AppTab.STATISTICS;
   }
-  if (pathname === ROUTES.ABOUT) {
+  if (normalizedPath === ROUTES.ABOUT) {
     return AppTab.ABOUT;
   }
   return AppTab.FLASHCARDS;
 };
-
-

@@ -43,13 +43,23 @@ describe('MobileMenu', () => {
     );
 
     const button = screen.getByLabelText('Toggle menu');
-    expect(screen.queryByText('Flashcards')).not.toBeInTheDocument();
+    // Menu is closed initially
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    const flashcardsLink = screen.getByText('Flashcards');
+    const menuContainer = flashcardsLink.closest('div[class*="max-h-0"]');
+    expect(menuContainer).toBeInTheDocument();
 
     fireEvent.click(button);
-    expect(screen.getByText('Flashcards')).toBeInTheDocument();
+    // Menu is open
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    const openMenuContainer = flashcardsLink.closest('div[class*="max-h-96"]');
+    expect(openMenuContainer).toBeInTheDocument();
 
     fireEvent.click(button);
-    expect(screen.queryByText('Flashcards')).not.toBeInTheDocument();
+    // Menu is closed again
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    const closedMenuContainer = flashcardsLink.closest('div[class*="max-h-0"]');
+    expect(closedMenuContainer).toBeInTheDocument();
   });
 
   it('should prevent body scroll when menu is open', () => {
@@ -107,11 +117,18 @@ describe('MobileMenu', () => {
 
     const button = screen.getByLabelText('Toggle menu');
     fireEvent.click(button);
-    expect(screen.getByText('Flashcards')).toBeInTheDocument();
+    // Menu is open
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    const flashcardsLink = screen.getByText('Flashcards');
+    const openMenuContainer = flashcardsLink.closest('div[class*="max-h-96"]');
+    expect(openMenuContainer).toBeInTheDocument();
 
     const outside = screen.getByTestId('outside');
     fireEvent.mouseDown(outside);
-    expect(screen.queryByText('Flashcards')).not.toBeInTheDocument();
+    // Menu is closed
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    const closedMenuContainer = flashcardsLink.closest('div[class*="max-h-0"]');
+    expect(closedMenuContainer).toBeInTheDocument();
   });
 
   it('should close menu when route changes', () => {
@@ -157,5 +174,3 @@ describe('MobileMenu', () => {
     expect(historyLink).toHaveClass('bg-primary');
   });
 });
-
-

@@ -36,17 +36,29 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       }
     };
 
+    const handleEnter = (e: KeyboardEvent): void => {
+      // When modal is open, prevent Enter from triggering other handlers (like answer submission)
+      if (e.key === 'Enter' && isOpen) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Trigger confirm when Enter is pressed (prevents answer submission)
+        onConfirm();
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleEnter, true); // Use capture phase to intercept early
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleEnter, true);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onCancel]);
+  }, [isOpen, onCancel, onConfirm]);
 
   if (!isOpen) return null;
 
@@ -59,8 +71,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Enter' && e.target === confirmButtonRef.current) {
-      handleConfirm();
+    // Prevent Enter from bubbling up (handled by global listener in useEffect)
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 

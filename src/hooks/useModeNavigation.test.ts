@@ -31,7 +31,7 @@ describe('useModeNavigation', () => {
   });
 
   it('should navigate to next mode on ArrowRight', () => {
-    const { rerender } = renderHook(
+    renderHook(
       ({ currentMode }) =>
         useModeNavigation({
           currentMode,
@@ -144,5 +144,3 @@ describe('useModeNavigation', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
   });
 });
-
-

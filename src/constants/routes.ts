@@ -5,5 +5,3 @@ export const ROUTES = {
   STATISTICS: '/statistics',
   ABOUT: '/about',
 } as const;
-
-

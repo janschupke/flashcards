@@ -3,9 +3,12 @@ export const ADAPTIVE_CONFIG = {
   UNSUCCESSFUL_THRESHOLD: 0.5, // <50% = unsuccessful (untested also in this group)
 
   // Weighting constants
-  UNTESTED_WEIGHT: 0.8, // Weight for untested characters (lower than max unsuccessful)
-  SELECTION_SPLIT: 0.7, // 70% for unsuccessful/untested, 30% for successful
+  UNTESTED_WEIGHT: 1.0, // Weight for untested characters (highest priority)
+  SELECTION_SPLIT: 0.8, // 80% for unsuccessful/untested, 20% for successful
   MIN_SUCCESSFUL_WEIGHT: 0.01, // Minimum weight for successful characters
+  // Progressive weighting factors
+  ATTEMPT_PENALTY_FACTOR: 0.5, // Factor to reduce weight for characters with many attempts
+  SUCCESS_PENALTY_EXPONENT: 2.0, // Exponent for progressive success rate penalty (higher = more aggressive)
 
   // Range expansion
   INITIAL_RANGE: 100,

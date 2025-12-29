@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { getAllTabs } from '../../constants/layout';
 import { getRouteForTab } from '../../utils/routingUtils';
-import { cn } from '../../utils/classNameUtils';
+import cn from 'classnames';
 
 export const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
