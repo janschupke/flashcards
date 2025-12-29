@@ -62,29 +62,27 @@ A modern adaptive learning flashcard web app for practicing Chinese characters. 
 ## Adaptive Learning System Explained
 
 ### Character Selection Algorithm
-The app uses a weighted random selection algorithm that prioritizes characters based on their success rate:
+The app uses a simple weighted selection algorithm that ensures characters you're struggling with or that are new get prioritized:
 
-**Priority Categories (highest to lowest):**
-1. **Low Success Rate (0-30%)** - Gets 50% of selection probability
-   - Characters struggling the most get the highest priority
-   - Shared equally among all low success characters
-   - Not constrained by maximum selection chance to ensure prioritization
-2. **Untested Characters** - Gets 20% of selection probability
-   - Characters you haven't practiced yet
-   - Shared equally among all untested characters
-3. **Medium Success Rate (30-70%)** - Gets 20% of selection probability
-   - Weighted by inverse success rate (lower = higher weight)
-4. **High Success Rate (70-100%)** - Gets 10% of selection probability
-   - Weighted by inverse success rate (lower = higher weight)
+**Selection Distribution:**
+- **50% of selections** come from unsuccessful or new characters
+  - Unsuccessful characters (low success rate) get highest priority
+  - New/untested characters get increased priority (but lower than unsuccessful)
+- **50% of selections** come from successful characters
+  - Weighted by inverse success rate (lower success = higher weight)
+
+**Character Categories:**
+1. **Unsuccessful/Untested Characters** (<50% success OR 0 attempts)
+   - 50% of all selections
+   - Unsuccessful: weighted by inverse success rate (lower success = higher weight)
+   - Untested: fixed weight (0.8, lower than max unsuccessful)
+2. **Successful Characters** (≥50% success rate)
+   - 50% of all selections
+   - Weighted by inverse success rate (lower success = higher weight)
 
 **Configuration:**
-- Minimum selection chance: 10%
-- Maximum selection chance: 50% (does not apply to low success entries)
-- Weight multiplier: 2.0x (for medium/high success categories)
-- Minimum attempts for adaptive: 3 (or 1 attempt for low success entries)
-- Low success threshold: 30%
-- Medium success threshold: 70%
-- Priority allocations: 50% low, 20% untested, 20% medium, 10% high
+- Unsuccessful threshold: <50% success rate
+- Selection distribution: 50% unsuccessful/untested, 50% successful
 
 ### Range Expansion
 The app automatically expands your practice range as you improve:
