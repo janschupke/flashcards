@@ -19,6 +19,8 @@ import {
   savePreviousAnswer,
   loadAdaptiveRange,
   saveAdaptiveRange,
+  loadMode,
+  saveMode,
   updateCharacterPerformance,
   getAllCharacterPerformance,
 } from '../utils/storageUtils';
@@ -37,6 +39,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
   const storedCounters = loadCounters();
   const storedPreviousAnswer = loadPreviousAnswer();
   const storedAdaptiveRange = loadAdaptiveRange();
+  const storedMode = loadMode();
 
   const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
   const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
@@ -64,8 +67,8 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     incorrectAnswers: [],
     // All answers tracking
     allAnswers: storedHistory,
-    // Display mode - controls what characters are shown
-    mode: FlashcardMode.BOTH,
+    // Display mode - controls what characters are shown (load from storage or default to BOTH)
+    mode: storedMode ?? FlashcardMode.BOTH,
     // Adaptive learning fields
     adaptiveRange: initialAdaptiveRange,
     answersSinceLastCheck: 0,
@@ -262,6 +265,9 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
 
   // Display mode action - only changes what's displayed, doesn't reset state
   const setMode = useCallback((mode: FlashcardMode) => {
+    // Save mode to storage
+    saveMode(mode);
+
     setState((prev) => ({
       ...prev,
       mode,

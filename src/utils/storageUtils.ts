@@ -1,4 +1,4 @@
-import { Answer } from '../types';
+import { Answer, FlashcardMode } from '../types';
 import { CharacterPerformance, StoredCounters } from '../types/storage';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { logger } from './logger';
@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   COUNTERS: 'flashcard-counters',
   PREVIOUS_ANSWER: 'flashcard-previous-answer',
   ADAPTIVE_RANGE: 'flashcard-adaptive-range',
+  MODE: 'flashcard-mode',
 } as const;
 
 // Character Performance Functions
@@ -132,6 +133,30 @@ export const loadAdaptiveRange = (): number | null => {
     if (!data) return null;
 
     return JSON.parse(data) as number;
+  } catch {
+    return null;
+  }
+};
+
+// Mode Functions
+export const saveMode = (mode: FlashcardMode): void => {
+  try {
+    window.localStorage.setItem(STORAGE_KEYS.MODE, mode);
+  } catch (error) {
+    logger.error('Failed to save mode:', error);
+  }
+};
+
+export const loadMode = (): FlashcardMode | null => {
+  try {
+    const data = window.localStorage.getItem(STORAGE_KEYS.MODE);
+    if (!data) return null;
+
+    // Validate that the stored value is a valid FlashcardMode
+    if (Object.values(FlashcardMode).includes(data as FlashcardMode)) {
+      return data as FlashcardMode;
+    }
+    return null;
   } catch {
     return null;
   }

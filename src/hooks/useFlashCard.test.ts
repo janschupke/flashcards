@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useFlashCard } from './useFlashCard';
 // APP_LIMITS is used in test comments and assertions
 import { FlashcardMode, HintType } from '../types';
-import { clearAllStorage } from '../utils/storageUtils';
+import { clearAllStorage, saveMode } from '../utils/storageUtils';
 
 // Mock the data import
 vi.mock('../data/characters.json', () => ({
@@ -49,6 +49,24 @@ describe('useFlashCard', () => {
       expect(result.current.current).toBe(2);
       expect(result.current.hint).toBe('NONE');
       expect(result.current.totalSeen).toBe(0);
+    });
+
+    it('loads mode from storage on initialization', () => {
+      // Save a mode to storage
+      saveMode(FlashcardMode.SIMPLIFIED);
+
+      const { result } = renderHook(() => useFlashCard());
+
+      expect(result.current.mode).toBe(FlashcardMode.SIMPLIFIED);
+    });
+
+    it('defaults to BOTH mode when no mode is stored', () => {
+      // Ensure storage is clear
+      clearAllStorage();
+
+      const { result } = renderHook(() => useFlashCard());
+
+      expect(result.current.mode).toBe(FlashcardMode.BOTH);
     });
   });
 
@@ -178,5 +196,20 @@ describe('useFlashCard', () => {
     // Input should be cleared
     expect(result.current.pinyinInput).toBe('');
     expect(result.current.isPinyinCorrect).toBeNull();
+  });
+
+  it('should save mode to storage when mode changes', () => {
+    const { result } = renderHook(() => useFlashCard());
+
+    // Change mode
+    act(() => {
+      result.current.setMode(FlashcardMode.TRADITIONAL);
+    });
+
+    expect(result.current.mode).toBe(FlashcardMode.TRADITIONAL);
+
+    // Create a new hook instance - it should load the saved mode
+    const { result: result2 } = renderHook(() => useFlashCard());
+    expect(result2.current.mode).toBe(FlashcardMode.TRADITIONAL);
   });
 });
