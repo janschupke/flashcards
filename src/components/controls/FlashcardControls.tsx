@@ -23,18 +23,18 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
   const isEnglishActive = currentHint === HintType.ENGLISH;
 
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-3 px-2 py-2 sm:px-4 sm:py-3 w-full">
-      {/* Mode buttons - left aligned */}
+    <div className="flex items-center justify-center sm:justify-between gap-2 sm:gap-3 px-2 py-2 sm:px-4 sm:py-3 w-full flex-wrap">
+      {/* Mode buttons - centered on mobile, left aligned on desktop */}
       <ModeButtonGroup currentMode={currentMode} onModeChange={onModeChange} size={ButtonSize.SM} />
 
-      {/* Hint toggle buttons - right aligned */}
-      <div className="flex gap-1 ml-auto">
+      {/* Hint toggle buttons - centered on mobile, right aligned on desktop */}
+      <div className="flex gap-1 sm:ml-auto flex-shrink-0">
         <Button
           type="button"
           onClick={onTogglePinyin}
           variant={isPinyinActive ? ButtonVariant.PRIMARY : ButtonVariant.SECONDARY}
           size={ButtonSize.SM}
-          className="text-xs"
+          className="text-xs whitespace-nowrap"
         >
           Pinyin (,)
         </Button>
@@ -43,7 +43,7 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
           onClick={onToggleEnglish}
           variant={isEnglishActive ? ButtonVariant.PRIMARY : ButtonVariant.SECONDARY}
           size={ButtonSize.SM}
-          className="text-xs"
+          className="text-xs whitespace-nowrap"
         >
           English (.)
         </Button>

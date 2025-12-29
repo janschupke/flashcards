@@ -15,7 +15,7 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({ onNext }) => {
           type="button"
           onClick={onNext}
           variant={ButtonVariant.PRIMARY}
-          className="min-w-[80px] text-xs sm:text-sm"
+          className="min-w-[80px] text-sm"
         >
           Next (Enter)
         </Button>

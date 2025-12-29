@@ -3,6 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useStatistics } from '../../hooks/useStatistics';
 import { FilterButton } from '../common/FilterButton';
 import { PaginatedTable } from '../common/PaginatedTable';
+import { matchesPinyinSearch, getPurpleCultureUrl } from '../../utils/pinyinUtils';
 
 // Component can work standalone by loading from storage
 // No props needed - component loads data from storage internally
@@ -59,7 +60,7 @@ export const Statistics: React.FC<StatisticsProps> = () => {
     });
   }, [sortedData]);
 
-  // Filter data based on search query (only text columns, not numeric)
+  // Filter data based on search query (only text columns, not numeric, with pinyin normalization)
   const tableData = useMemo<StatisticsRow[]>(() => {
     if (!searchQuery.trim()) {
       return allTableData;
@@ -67,12 +68,21 @@ export const Statistics: React.FC<StatisticsProps> = () => {
 
     const query = searchQuery.toLowerCase().trim();
     return allTableData.filter((row) => {
-      return (
+      // Text columns: simple substring match
+      if (
         row.simplified.toLowerCase().includes(query) ||
         row.traditional.toLowerCase().includes(query) ||
-        row.pinyin.toLowerCase().includes(query) ||
         row.english.toLowerCase().includes(query)
-      );
+      ) {
+        return true;
+      }
+
+      // Pinyin column: use normalized matching (handles tones, ü/u alternatives)
+      if (matchesPinyinSearch(query, row.pinyin)) {
+        return true;
+      }
+
+      return false;
     });
   }, [allTableData, searchQuery]);
 
@@ -188,12 +198,17 @@ export const Statistics: React.FC<StatisticsProps> = () => {
           placeholder="Search in any column..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-surface-secondary text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-transparent text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
 
       {/* Paginated Table */}
-      <PaginatedTable data={tableData} columns={columns} pageSize={20} />
+      <PaginatedTable
+        data={tableData}
+        columns={columns}
+        pageSize={20}
+        getRowUrl={(row) => getPurpleCultureUrl(row.simplified)}
+      />
     </div>
   );
 };

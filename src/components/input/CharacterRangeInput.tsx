@@ -81,7 +81,7 @@ export const CharacterRangeInput: React.FC<CharacterRangeInputProps> = ({
       <input
         id="limit"
         type="number"
-        className="w-full max-w-[200px] px-2 py-1.5 border-2 border-border-secondary rounded-lg text-sm bg-surface-secondary text-text-primary outline-none focus:ring-2 focus:ring-border-focus placeholder:text-text-tertiary"
+        className="w-full max-w-[200px] px-2 py-1.5 border-2 border-border-secondary rounded-lg text-sm bg-transparent text-text-primary outline-none focus:ring-2 focus:ring-border-focus placeholder:text-text-tertiary"
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}

@@ -48,7 +48,7 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
     return (
       <div className="m-0 text-center">
         <div
-          className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-surface-secondary border-2 ${borderClass}`}
+          className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-transparent border-2 ${borderClass}`}
         >
           <input
             ref={ref}
@@ -62,7 +62,7 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
-            className="w-full px-3 py-1.5 text-xl sm:text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary"
+            className="w-full px-3 py-1.5 text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary"
           />
         </div>
         <div

@@ -3,6 +3,7 @@ import {
   evaluatePinyinInput,
   getPinyinReadings,
   formatPinyinForDisplay,
+  matchesPinyinSearch,
 } from './pinyinUtils';
 
 describe('pinyinUtils', () => {
@@ -147,6 +148,72 @@ describe('pinyinUtils', () => {
 
     it('should handle empty string', () => {
       expect(formatPinyinForDisplay('')).toBe('');
+    });
+  });
+
+  describe('matchesPinyinSearch', () => {
+    it('should match normalized pinyin (ignoring tones)', () => {
+      expect(matchesPinyinSearch('wo', 'wǒ')).toBe(true);
+      expect(matchesPinyinSearch('wo', 'wō')).toBe(true);
+      expect(matchesPinyinSearch('wo', 'wó')).toBe(true);
+      expect(matchesPinyinSearch('wo', 'wò')).toBe(true);
+      expect(matchesPinyinSearch('ni', 'nǐ')).toBe(true);
+      expect(matchesPinyinSearch('shi', 'shì')).toBe(true);
+    });
+
+    it('should match substring in pinyin', () => {
+      expect(matchesPinyinSearch('wo', 'wǒmen')).toBe(true);
+      expect(matchesPinyinSearch('men', 'wǒmen')).toBe(true);
+      expect(matchesPinyinSearch('wo', 'wǒ')).toBe(true);
+    });
+
+    it('should handle v/ü alternatives', () => {
+      expect(matchesPinyinSearch('lv', 'lǚ')).toBe(true);
+      expect(matchesPinyinSearch('lü', 'lǚ')).toBe(true);
+      expect(matchesPinyinSearch('nv', 'nǚ')).toBe(true);
+      expect(matchesPinyinSearch('nü', 'nǚ')).toBe(true);
+    });
+
+    it('should handle u/ü alternatives when searching', () => {
+      // Search with 'u' should match text with 'ü'
+      expect(matchesPinyinSearch('lu', 'lǚ')).toBe(true);
+      expect(matchesPinyinSearch('nu', 'nǚ')).toBe(true);
+      expect(matchesPinyinSearch('ju', 'jǚ')).toBe(true);
+      expect(matchesPinyinSearch('qu', 'qǚ')).toBe(true);
+      expect(matchesPinyinSearch('xu', 'xǚ')).toBe(true);
+      expect(matchesPinyinSearch('yu', 'yǚ')).toBe(true);
+
+      // Search with 'ü' should match text with 'u' (less common but handle for completeness)
+      expect(matchesPinyinSearch('lü', 'lu')).toBe(true);
+    });
+
+    it('should handle complex pinyin with u/ü', () => {
+      expect(matchesPinyinSearch('luan', 'lüǎn')).toBe(true);
+      expect(matchesPinyinSearch('lüan', 'lüǎn')).toBe(true);
+      expect(matchesPinyinSearch('lvan', 'lüǎn')).toBe(true);
+    });
+
+    it('should be case insensitive', () => {
+      expect(matchesPinyinSearch('WO', 'wǒ')).toBe(true);
+      expect(matchesPinyinSearch('Wo', 'wǒ')).toBe(true);
+      expect(matchesPinyinSearch('wo', 'WǑ')).toBe(true);
+    });
+
+    it('should return false for non-matching pinyin', () => {
+      expect(matchesPinyinSearch('wa', 'wǒ')).toBe(false);
+      expect(matchesPinyinSearch('ne', 'nǐ')).toBe(false);
+      expect(matchesPinyinSearch('lu', 'lǚ')).toBe(true); // This should match via ü→u
+      expect(matchesPinyinSearch('lu', 'lu')).toBe(true); // Direct match
+    });
+
+    it('should handle empty query', () => {
+      expect(matchesPinyinSearch('', 'wǒ')).toBe(false);
+    });
+
+    it('should handle multiple syllables', () => {
+      expect(matchesPinyinSearch('wo', 'wǒmen')).toBe(true);
+      expect(matchesPinyinSearch('men', 'wǒmen')).toBe(true);
+      expect(matchesPinyinSearch('women', 'wǒmen')).toBe(true);
     });
   });
 });

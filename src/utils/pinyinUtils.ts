@@ -56,8 +56,10 @@ export function evaluatePinyinInput(userInput: string, correctPinyin: string): b
     return true;
   }
 
-  // If correct answer contains 'ü', also accept 'u' as alternative
-  // This allows users to type 'u' when the correct answer is 'ü' (keyboard convenience)
+  // Handle ü/u alternatives: accept 'u' when correct has 'ü' (keyboard convenience)
+  // Note: 'v' → 'ü' is already handled in normalizePinyin, but 'u' → 'ü' is not
+  // because 'u' and 'ü' are different sounds. We only accept 'u' as alternative
+  // when the correct answer specifically has 'ü'.
   for (const reading of correctReadings) {
     if (reading.includes('ü')) {
       const alternativeReading = reading.replace(/ü/g, 'u');
@@ -90,4 +92,54 @@ export function getPinyinReadings(pinyin: string): string[] {
  */
 export function formatPinyinForDisplay(pinyin: string): string {
   return pinyin.trim();
+}
+
+/**
+ * Check if a search query matches pinyin text (handles normalization and ü/u alternatives)
+ * @param searchQuery - The search query (normalized)
+ * @param pinyinText - The pinyin text to search in
+ * @returns True if the query matches the pinyin text
+ */
+export function matchesPinyinSearch(searchQuery: string, pinyinText: string): boolean {
+  const normalizedQuery = normalizePinyin(searchQuery);
+  const normalizedText = normalizePinyin(pinyinText);
+
+  // Empty query should not match
+  if (!normalizedQuery) {
+    return false;
+  }
+
+  // Direct match
+  if (normalizedText.includes(normalizedQuery)) {
+    return true;
+  }
+
+  // Handle ü/u alternatives: if query has 'u' and text has 'ü', check if they match
+  if (normalizedQuery.includes('u') && normalizedText.includes('ü')) {
+    const textWithU = normalizedText.replace(/ü/g, 'u');
+    if (textWithU.includes(normalizedQuery)) {
+      return true;
+    }
+  }
+
+  // Handle ü/u alternatives: if query has 'ü' and text has 'u', check if they match
+  // (less common, but handle for completeness)
+  if (normalizedQuery.includes('ü') && normalizedText.includes('u')) {
+    const queryWithU = normalizedQuery.replace(/ü/g, 'u');
+    if (normalizedText.includes(queryWithU)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Generate Purple Culture dictionary URL for a Chinese character
+ * @param character - The Chinese character (simplified or traditional)
+ * @returns URL to Purple Culture dictionary page for the character
+ */
+export function getPurpleCultureUrl(character: string): string {
+  const encoded = encodeURIComponent(character);
+  return `https://www.purpleculture.net/dictionary-details/?word=${encoded}`;
 }

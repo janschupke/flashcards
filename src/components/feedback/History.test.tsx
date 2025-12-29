@@ -219,5 +219,126 @@ describe('History', () => {
       expect(rows[1]).toHaveTextContent('我');
       expect(rows[1]).not.toHaveTextContent('的');
     });
+
+    describe('Pinyin normalization in search', () => {
+      it('matches pinyin with tones when searching without tones', () => {
+        const answersWithTones: Answer[] = [
+          {
+            characterIndex: 0,
+            submittedPinyin: 'wo',
+            correctPinyin: 'wǒ',
+            simplified: '我',
+            traditional: '我',
+            english: 'I ; me',
+            isCorrect: false,
+          },
+        ];
+
+        render(<History allAnswers={answersWithTones} />);
+
+        const searchInput = screen.getByPlaceholderText('Search in any column...');
+        fireEvent.change(searchInput, { target: { value: 'wo' } });
+
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBe(2); // Header + 1 data row
+        expect(rows[1]).toHaveTextContent('我');
+      });
+
+      it('matches pinyin with different tones', () => {
+        const answers: Answer[] = [
+          {
+            characterIndex: 0,
+            submittedPinyin: 'wǒ',
+            correctPinyin: 'wǒ',
+            simplified: '我',
+            traditional: '我',
+            english: 'I ; me',
+            isCorrect: true,
+          },
+        ];
+
+        render(<History allAnswers={answers} />);
+
+        const searchInput = screen.getByPlaceholderText('Search in any column...');
+        // Search with different tone
+        fireEvent.change(searchInput, { target: { value: 'wo' } });
+
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBe(2); // Header + 1 data row
+        expect(rows[1]).toHaveTextContent('我');
+      });
+
+      it('matches ü/u alternatives in pinyin search', () => {
+        const answers: Answer[] = [
+          {
+            characterIndex: 0,
+            submittedPinyin: 'lu',
+            correctPinyin: 'lǚ',
+            simplified: '旅',
+            traditional: '旅',
+            english: 'travel',
+            isCorrect: false,
+          },
+        ];
+
+        render(<History allAnswers={answers} />);
+
+        const searchInput = screen.getByPlaceholderText('Search in any column...');
+        // Search with 'u' should match 'ü' in pinyin
+        fireEvent.change(searchInput, { target: { value: 'lu' } });
+
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBe(2); // Header + 1 data row
+        expect(rows[1]).toHaveTextContent('旅');
+      });
+
+      it('matches v/ü alternatives in pinyin search', () => {
+        const answers: Answer[] = [
+          {
+            characterIndex: 0,
+            submittedPinyin: 'lv',
+            correctPinyin: 'lǚ',
+            simplified: '旅',
+            traditional: '旅',
+            english: 'travel',
+            isCorrect: true,
+          },
+        ];
+
+        render(<History allAnswers={answers} />);
+
+        const searchInput = screen.getByPlaceholderText('Search in any column...');
+        // Search with 'v' should match 'ü' in pinyin
+        fireEvent.change(searchInput, { target: { value: 'lv' } });
+
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBe(2); // Header + 1 data row
+        expect(rows[1]).toHaveTextContent('旅');
+      });
+
+      it('matches pinyin in submitted column with normalization', () => {
+        const answers: Answer[] = [
+          {
+            characterIndex: 0,
+            submittedPinyin: 'wǒ',
+            correctPinyin: 'wǒ',
+            simplified: '我',
+            traditional: '我',
+            english: 'I ; me',
+            isCorrect: true,
+          },
+        ];
+
+        render(<History allAnswers={answers} />);
+
+        const searchInput = screen.getByPlaceholderText('Search in any column...');
+        // Search without tone should match submitted pinyin with tone
+        fireEvent.change(searchInput, { target: { value: 'wo' } });
+
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBe(2); // Header + 1 data row
+        expect(rows[1]).toHaveTextContent('我');
+      });
+    });
   });
 });

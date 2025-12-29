@@ -4,6 +4,7 @@ import { Answer } from '../../types';
 import { PaginatedTable } from '../common/PaginatedTable';
 import { getSubmittedText, getCorrectText } from '../../utils/answerUtils';
 import { getAnswerColorClass } from '../../utils/styleUtils';
+import { matchesPinyinSearch, getPurpleCultureUrl } from '../../utils/pinyinUtils';
 
 interface HistoryProps {
   allAnswers: Answer[];
@@ -42,7 +43,7 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
     });
   }, [reversedAnswers]);
 
-  // Filter data based on search query
+  // Filter data based on search query (with pinyin normalization)
   const tableData = useMemo<AnswerRow[]>(() => {
     if (!searchQuery.trim()) {
       return allTableData;
@@ -50,13 +51,21 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
 
     const query = searchQuery.toLowerCase().trim();
     return allTableData.filter((row) => {
-      return (
+      // Text columns: simple substring match
+      if (
         row.simplified.toLowerCase().includes(query) ||
         row.traditional.toLowerCase().includes(query) ||
-        row.expected.toLowerCase().includes(query) ||
-        row.submitted.toLowerCase().includes(query) ||
         row.english.toLowerCase().includes(query)
-      );
+      ) {
+        return true;
+      }
+
+      // Pinyin columns: use normalized matching (handles tones, ü/u alternatives)
+      if (matchesPinyinSearch(query, row.expected) || matchesPinyinSearch(query, row.submitted)) {
+        return true;
+      }
+
+      return false;
     });
   }, [allTableData, searchQuery]);
 
@@ -111,12 +120,17 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
           placeholder="Search in any column..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-surface-secondary text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-transparent text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
 
       {/* Paginated Table */}
-      <PaginatedTable data={tableData} columns={columns} pageSize={20} />
+      <PaginatedTable
+        data={tableData}
+        columns={columns}
+        pageSize={20}
+        getRowUrl={(row) => getPurpleCultureUrl(row.simplified)}
+      />
     </div>
   );
 };

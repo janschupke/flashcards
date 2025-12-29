@@ -89,10 +89,10 @@ export const FlashcardPage: React.FC = () => {
           flashResult={flashResult}
         />
 
-        <div className="mt-4 sm:mt-6">
+        <div className="mt-2 sm:mt-3">
           <ControlButtons onNext={getNext} />
         </div>
-        <div className="mt-2 text-xs sm:text-sm md:text-base text-text-tertiary font-medium text-center px-2">
+        <div className="mt-2 text-base text-text-tertiary font-medium text-center px-2">
           {getHintText(currentCharacter, hint)}
         </div>
       </div>

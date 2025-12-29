@@ -25,7 +25,7 @@ export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
   const { handleModeChange } = useModeToggle(currentMode, onModeChange);
 
   return (
-    <div className={`flex gap-1 ${className}`}>
+    <div className={`flex gap-1 flex-wrap ${className}`}>
       {MODES.map(({ mode, label, title }) => {
         const isActive = currentMode === mode;
         return (
@@ -35,7 +35,7 @@ export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
             onClick={() => handleModeChange(mode)}
             aria-label={title}
             size={size}
-            className={size === ButtonSize.SM ? 'text-xs' : ''}
+            className={`${size === ButtonSize.SM ? 'text-xs' : ''} whitespace-nowrap`}
           >
             {label}
           </Button>

@@ -12,9 +12,19 @@ export const About: React.FC = () => {
           This is an adaptive Chinese character learning application that helps you practice Pinyin,
           Simplified, and Traditional Chinese characters through interactive flashcards.
         </p>
-        <p className="text-text-secondary">
+        <p className="text-text-secondary mb-4">
           The app uses an intelligent adaptive learning system that tracks your performance and
           adjusts the difficulty to help you learn more effectively.
+        </p>
+        <p className="text-text-secondary">
+          <a
+            href="https://github.com/janschupke/flashcards"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-primary-hover underline"
+          >
+            View on GitHub
+          </a>
         </p>
       </Card>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { AppTab } from '../../types/layout';
 import { NAVIGATION_CONSTANTS } from '../../constants/layout';
 import { TabNavigation } from './TabNavigation';
@@ -28,7 +28,11 @@ export const Navigation: React.FC<NavigationProps> = ({
     <div className="bg-surface-secondary border-b border-border-primary">
       <nav className="h-12 flex items-center justify-between px-4">
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-text-primary">{NAVIGATION_CONSTANTS.LOGO_TEXT}</h1>
+          <Link to="/" className="no-underline">
+            <h1 className="text-xl font-bold text-text-primary hover:text-primary cursor-pointer transition-colors">
+              {NAVIGATION_CONSTANTS.LOGO_TEXT}
+            </h1>
+          </Link>
         </div>
         {/* Desktop navigation */}
         <div className="hidden md:block">
