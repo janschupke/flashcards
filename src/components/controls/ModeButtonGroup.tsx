@@ -4,6 +4,7 @@ import { Button } from '../common/Button';
 import { ButtonVariant, ButtonSize } from '../../types/components';
 import { MODES } from '../../constants/modes';
 import { useModeToggle } from '../../hooks/useModeToggle';
+import { cn } from '../../utils/classNameUtils';
 
 interface ModeButtonGroupProps {
   currentMode: FlashcardMode;
@@ -25,7 +26,7 @@ export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
   const { handleModeChange } = useModeToggle(currentMode, onModeChange);
 
   return (
-    <div className={`flex gap-1 flex-wrap ${className}`}>
+    <div className={cn('flex gap-1 flex-wrap', className)}>
       {MODES.map(({ mode, label, title }) => {
         const isActive = currentMode === mode;
         return (
@@ -35,7 +36,7 @@ export const ModeButtonGroup: React.FC<ModeButtonGroupProps> = ({
             onClick={() => handleModeChange(mode)}
             aria-label={title}
             size={size}
-            className={`${size === ButtonSize.SM ? 'text-xs' : ''} whitespace-nowrap`}
+            className={cn(size === ButtonSize.SM && 'text-xs', 'whitespace-nowrap')}
           >
             {label}
           </Button>

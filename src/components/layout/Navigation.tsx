@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AppTab } from '../../types/layout';
 import { NAVIGATION_CONSTANTS } from '../../constants/layout';
+import { ROUTES } from '../../constants/routes';
 import { TabNavigation } from './TabNavigation';
 import { MobileMenu } from './MobileMenu';
 import { FlashcardStatsPanel } from './FlashcardStatsPanel';
@@ -22,13 +23,13 @@ export const Navigation: React.FC<NavigationProps> = ({
   onReset,
 }) => {
   const location = useLocation();
-  const isFlashcardsPage = location.pathname === '/';
+  const isFlashcardsPage = location.pathname === ROUTES.FLASHCARDS;
 
   return (
     <div className="bg-surface-secondary border-b border-border-primary">
       <nav className="h-12 flex items-center justify-between px-4">
         <div className="flex items-center">
-          <Link to="/" className="no-underline">
+          <Link to={ROUTES.FLASHCARDS} className="no-underline">
             <h1 className="text-xl font-bold text-text-primary hover:text-primary cursor-pointer transition-colors">
               {NAVIGATION_CONSTANTS.LOGO_TEXT}
             </h1>

@@ -6,6 +6,7 @@ import {
   flexRender,
   ColumnDef,
 } from '@tanstack/react-table';
+import { TABLE_CONSTANTS } from '../../constants';
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -17,7 +18,7 @@ interface PaginatedTableProps<T> {
 export function PaginatedTable<T>({
   data,
   columns,
-  pageSize = 10,
+  pageSize = TABLE_CONSTANTS.DEFAULT_PAGE_SIZE,
   getRowUrl,
 }: PaginatedTableProps<T>): React.ReactElement {
   // TanStack Table's useReactTable is designed to return stable functions
@@ -110,7 +111,7 @@ export function PaginatedTable<T>({
             }}
             className="px-2 py-1 text-sm border border-border-primary rounded bg-transparent text-text-primary"
           >
-            {[10, 20, 30, 50, 100].map((pageSize) => (
+            {TABLE_CONSTANTS.PAGE_SIZE_OPTIONS.map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>

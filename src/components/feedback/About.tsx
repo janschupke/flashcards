@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '../common/Card';
 import { CardPadding } from '../../types/components';
 import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
+import { SUCCESS_RATE_THRESHOLDS } from '../../constants';
 
 export const About: React.FC = () => {
   return (
@@ -150,13 +151,13 @@ export const About: React.FC = () => {
           <p className="mt-2">Statistics are color-coded:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>
-              <span className="text-success">Green (≥80%):</span> Mastered
+              <span className="text-success">Green (≥{SUCCESS_RATE_THRESHOLDS.MASTERED * 100}%):</span> Mastered
             </li>
             <li>
-              <span className="text-warning">Yellow (50-79%):</span> Learning
+              <span className="text-warning">Yellow ({SUCCESS_RATE_THRESHOLDS.LEARNING * 100}-{SUCCESS_RATE_THRESHOLDS.MASTERED * 100 - 1}%):</span> Learning
             </li>
             <li>
-              <span className="text-error">Red (&lt;50%):</span> Struggling
+              <span className="text-error">Red (&lt;{SUCCESS_RATE_THRESHOLDS.STRUGGLING * 100}%):</span> Struggling
             </li>
           </ul>
         </div>

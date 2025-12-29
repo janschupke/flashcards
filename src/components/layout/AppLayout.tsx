@@ -3,23 +3,14 @@ import { useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import { ToastContainer } from '../common/ToastContainer';
 import { useFlashCardContext } from '../../contexts/FlashCardContext';
-import { AppTab } from '../../types/layout';
+import { getActiveTabFromPath } from '../../utils/routingUtils';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { adaptiveRange, correctAnswers, totalSeen, resetStatistics } = useFlashCardContext();
 
   // Determine active tab from route
-  const activeTab =
-    location.pathname === '/'
-      ? AppTab.FLASHCARDS
-      : location.pathname === '/history'
-        ? AppTab.HISTORY
-        : location.pathname === '/statistics'
-          ? AppTab.STATISTICS
-          : location.pathname === '/about'
-            ? AppTab.ABOUT
-            : AppTab.FLASHCARDS;
+  const activeTab = getActiveTabFromPath(location.pathname);
 
   return (
     <div className="h-screen flex flex-col">

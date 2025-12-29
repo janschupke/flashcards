@@ -84,7 +84,7 @@ const calculateGroupWeights = (
 
     // For successful group, ensure minimum weight
     if (!isUntestedGroup) {
-      weight = Math.max(weight, 0.01);
+      weight = Math.max(weight, ADAPTIVE_CONFIG.MIN_SUCCESSFUL_WEIGHT);
     }
 
     return weight;

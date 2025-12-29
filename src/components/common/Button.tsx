@@ -1,6 +1,7 @@
 import React from 'react';
 import { ButtonVariant, ButtonSize } from '../../types/components';
 import { COMPONENT_CONSTANTS } from '../../constants/layout';
+import { cn } from '../../utils/classNameUtils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -36,16 +37,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseClasses =
-      'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus';
-    const widthClass = fullWidth ? 'w-full' : '';
-    const minWidthStyle = { minWidth: `${COMPONENT_CONSTANTS.BUTTON_MIN_WIDTH}px` };
+    // Use inline style for dynamic min-width (Tailwind doesn't support dynamic arbitrary values)
+    // This is acceptable for constant values that may need to be configurable
+    const minWidthStyle = !fullWidth
+      ? { minWidth: `${COMPONENT_CONSTANTS.BUTTON_MIN_WIDTH}px` }
+      : undefined;
 
     return (
       <button
         ref={ref}
-        className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${widthClass} ${className}`}
-        style={!fullWidth ? minWidthStyle : undefined}
+        className={cn(
+          'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus',
+          sizeClasses[size],
+          variantClasses[variant],
+          fullWidth && 'w-full',
+          className
+        )}
+        style={minWidthStyle}
         {...props}
       />
     );

@@ -1,25 +1,17 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
 import { useStatistics } from '../../hooks/useStatistics';
 import { FilterButton } from '../common/FilterButton';
 import { PaginatedTable } from '../common/PaginatedTable';
-import { matchesPinyinSearch, getPurpleCultureUrl } from '../../utils/pinyinUtils';
+import { SearchInput } from '../common/SearchInput';
+import { getPurpleCultureUrl } from '../../utils/pinyinUtils';
+import { filterTableRows } from '../../utils/searchUtils';
+import { formatSuccessRatePercent, getSuccessRateColorClass } from '../../utils/statisticsUtils';
+import { createStatisticsColumns, StatisticsRow } from '../../utils/tableUtils';
+import { TABLE_CONSTANTS } from '../../constants';
 
 // Component can work standalone by loading from storage
 // No props needed - component loads data from storage internally
 type StatisticsProps = Record<string, never>;
-
-interface StatisticsRow {
-  simplified: string;
-  traditional: string;
-  pinyin: string;
-  english: string;
-  correct: number;
-  total: number;
-  successRate: number;
-  successRatePercent: string;
-  successRateClass: string;
-}
 
 export const Statistics: React.FC<StatisticsProps> = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,13 +30,8 @@ export const Statistics: React.FC<StatisticsProps> = () => {
   // Transform data for table
   const allTableData = useMemo<StatisticsRow[]>(() => {
     return sortedData.map((item) => {
-      const successRatePercent = (item.successRate * 100).toFixed(1);
-      const successRateClass =
-        item.successRate >= 0.8
-          ? 'text-success'
-          : item.successRate >= 0.5
-            ? 'text-warning'
-            : 'text-error';
+      const successRatePercent = formatSuccessRatePercent(item.successRate);
+      const successRateClass = getSuccessRateColorClass(item.successRate);
 
       return {
         simplified: item.character?.simplified ?? '?',
@@ -62,100 +49,17 @@ export const Statistics: React.FC<StatisticsProps> = () => {
 
   // Filter data based on search query (only text columns, not numeric, with pinyin normalization)
   const tableData = useMemo<StatisticsRow[]>(() => {
-    if (!searchQuery.trim()) {
-      return allTableData;
-    }
-
-    const query = searchQuery.toLowerCase().trim();
-    return allTableData.filter((row) => {
-      // Text columns: simple substring match
-      if (
-        row.simplified.toLowerCase().includes(query) ||
-        row.traditional.toLowerCase().includes(query) ||
-        row.english.toLowerCase().includes(query)
-      ) {
-        return true;
-      }
-
-      // Pinyin column: use normalized matching (handles tones, ü/u alternatives)
-      if (matchesPinyinSearch(query, row.pinyin)) {
-        return true;
-      }
-
-      return false;
-    });
+    return filterTableRows(
+      allTableData,
+      searchQuery,
+      ['simplified', 'traditional', 'english'],
+      ['pinyin']
+    );
   }, [allTableData, searchQuery]);
 
   // Define columns
-  const columns = useMemo<ColumnDef<StatisticsRow>[]>(
-    () => [
-      {
-        header: () => (
-          <span
-            className="cursor-pointer hover:text-text-secondary"
-            onClick={() => handleSort('character')}
-          >
-            Simplified {sortField === 'character' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </span>
-        ),
-        accessorKey: 'simplified',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-      },
-      {
-        header: 'Traditional',
-        accessorKey: 'traditional',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-      },
-      {
-        header: 'Pinyin',
-        accessorKey: 'pinyin',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-      },
-      {
-        header: 'English',
-        accessorKey: 'english',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
-      },
-      {
-        header: () => (
-          <span
-            className="cursor-pointer hover:text-text-secondary"
-            onClick={() => handleSort('correct')}
-          >
-            Correct {sortField === 'correct' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </span>
-        ),
-        accessorKey: 'correct',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
-      },
-      {
-        header: () => (
-          <span
-            className="cursor-pointer hover:text-text-secondary"
-            onClick={() => handleSort('total')}
-          >
-            Total {sortField === 'total' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </span>
-        ),
-        accessorKey: 'total',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
-      },
-      {
-        header: () => (
-          <span
-            className="cursor-pointer hover:text-text-secondary"
-            onClick={() => handleSort('successRate')}
-          >
-            Success Rate {sortField === 'successRate' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </span>
-        ),
-        accessorKey: 'successRatePercent',
-        cell: (info) => {
-          const row = info.row.original;
-          return <span className={row.successRateClass}>{row.successRatePercent}%</span>;
-        },
-      },
-    ],
+  const columns = useMemo(
+    () => createStatisticsColumns(sortField, sortDirection, handleSort),
     [sortField, sortDirection, handleSort]
   );
 
@@ -192,21 +96,13 @@ export const Statistics: React.FC<StatisticsProps> = () => {
       </div>
 
       {/* Search input */}
-      <div className="w-full">
-        <input
-          type="text"
-          placeholder="Search in any column..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-transparent text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-        />
-      </div>
+      <SearchInput value={searchQuery} onChange={setSearchQuery} />
 
       {/* Paginated Table */}
       <PaginatedTable
         data={tableData}
         columns={columns}
-        pageSize={20}
+        pageSize={TABLE_CONSTANTS.DEFAULT_PAGE_SIZE}
         getRowUrl={(row) => getPurpleCultureUrl(row.simplified)}
       />
     </div>

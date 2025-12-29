@@ -8,6 +8,7 @@ import { FlashcardPage } from './components/core/FlashcardPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { StatisticsPage } from './pages/StatisticsPage';
 import { AboutPage } from './pages/AboutPage';
+import { ROUTES } from './constants/routes';
 
 export const App: React.FC = () => {
   return (
@@ -16,10 +17,10 @@ export const App: React.FC = () => {
         <AppLayout>
           <PageTransition>
             <Routes>
-              <Route path="/" element={<FlashcardPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/statistics" element={<StatisticsPage />} />
-              <Route path="/about" element={<AboutPage />} />
+              <Route path={ROUTES.FLASHCARDS} element={<FlashcardPage />} />
+              <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
+              <Route path={ROUTES.STATISTICS} element={<StatisticsPage />} />
+              <Route path={ROUTES.ABOUT} element={<AboutPage />} />
             </Routes>
           </PageTransition>
         </AppLayout>

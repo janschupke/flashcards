@@ -24,3 +24,4 @@ export const FilterButton: React.FC<FilterButtonProps> = ({ label, isActive, onC
     </Button>
   );
 };
+

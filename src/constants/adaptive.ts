@@ -5,6 +5,7 @@ export const ADAPTIVE_CONFIG = {
   // Weighting constants
   UNTESTED_WEIGHT: 0.8, // Weight for untested characters (lower than max unsuccessful)
   SELECTION_SPLIT: 0.7, // 70% for unsuccessful/untested, 30% for successful
+  MIN_SUCCESSFUL_WEIGHT: 0.01, // Minimum weight for successful characters
 
   // Range expansion
   INITIAL_RANGE: 100,

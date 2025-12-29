@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
+import { ANIMATION_TIMINGS } from '../constants';
 
 export type ToastVariant = 'success' | 'info' | 'warning' | 'error';
 
@@ -16,10 +17,9 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-const TOAST_DURATION = 3000;
-
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const showToast = useCallback((message: string, variant: ToastVariant = 'info') => {
     const id = `toast-${Date.now()}-${Math.random()}`;
@@ -28,12 +28,20 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setToasts((prev) => [...prev, newToast]);
 
     // Auto-dismiss after duration
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, TOAST_DURATION);
+      timersRef.current.delete(id);
+    }, ANIMATION_TIMINGS.TOAST_DURATION);
+
+    timersRef.current.set(id, timer);
   }, []);
 
   const removeToast = useCallback((id: string) => {
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { Button } from '../common/Button';
 import { ButtonSize, ButtonVariant } from '../../types/components';
 import { ConfirmModal } from '../common/ConfirmModal';
 import { clearAllStorage } from '../../utils/storageUtils';
 import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
+import { calculateSuccessRate, getSuccessRateColorClass } from '../../utils/statisticsUtils';
 
 interface FlashcardStatsPanelProps {
   adaptiveRange: number;
@@ -37,6 +38,19 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
     setShowResetModal(false);
   };
 
+  // Calculate success rate and color class
+  const successRateData = useMemo(() => {
+    if (totalSeen === 0) {
+      return null;
+    }
+    const rate = calculateSuccessRate(correctAnswers, totalSeen);
+    return {
+      rate,
+      percent: Math.round(rate * 100),
+      colorClass: getSuccessRateColorClass(rate),
+    };
+  }, [correctAnswers, totalSeen]);
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-2 py-1.5 sm:px-4 sm:py-2 bg-surface-secondary">
@@ -51,31 +65,20 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               {correctAnswers} / {totalSeen}
             </span>
           </div>
-          {totalSeen > 0 &&
-            (() => {
-              const successRate = correctAnswers / totalSeen;
-              const successRatePercent = Math.round(successRate * 100);
-              const colorClass =
-                successRate >= 0.8
-                  ? 'text-success'
-                  : successRate >= 0.5
-                    ? 'text-warning'
-                    : 'text-error';
-              return (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
-                    Success:
-                  </span>
-                  <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">S:</span>
-                  <span
-                    className={`text-sm font-medium ${colorClass}`}
-                    data-testid="stat-success-rate"
-                  >
-                    {successRatePercent}%
-                  </span>
-                </div>
-              );
-            })()}
+          {successRateData && (
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
+                Success:
+              </span>
+              <span className="text-xs text-text-tertiary whitespace-nowrap sm:hidden">S:</span>
+              <span
+                className={`text-sm font-medium ${successRateData.colorClass}`}
+                data-testid="stat-success-rate"
+              >
+                {successRateData.percent}%
+              </span>
+            </div>
+          )}
           <div
             className="flex items-center gap-1 sm:gap-2 cursor-help"
             data-tooltip-id="adaptive-range-tooltip"

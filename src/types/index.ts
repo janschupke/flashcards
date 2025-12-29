@@ -6,17 +6,14 @@ export interface Character {
   english: string;
 }
 
-export interface IncorrectAnswer {
+// Answer type that includes all answer data and correct/incorrect status
+export interface Answer {
   characterIndex: number;
   submittedPinyin: string;
   correctPinyin: string;
   simplified: string;
   traditional: string;
   english: string;
-}
-
-// Answer type that includes correct/incorrect status
-export interface Answer extends IncorrectAnswer {
   isCorrect: boolean;
 }
 
@@ -52,8 +49,8 @@ export interface FlashCardState {
   previousCharacter: number | null;
   // Previous answer tracking (includes submitted answer and correct/incorrect status)
   previousAnswer: Answer | null;
-  // Incorrect answers tracking
-  incorrectAnswers: IncorrectAnswer[];
+  // Incorrect answers tracking (answers where isCorrect is false)
+  incorrectAnswers: Answer[];
   // All answers tracking (correct and incorrect)
   allAnswers: Answer[];
   // Display mode - controls what characters are shown

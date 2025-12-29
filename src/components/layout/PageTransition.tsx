@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ANIMATION_TIMINGS } from '../../constants';
+import { cn } from '../../utils/classNameUtils';
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -33,7 +35,7 @@ export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
 
     const fadeInTimer = setTimeout(() => {
       setShouldFadeIn(true);
-    }, 20);
+    }, ANIMATION_TIMINGS.PAGE_TRANSITION_DELAY);
 
     return () => {
       clearTimeout(resetTimer);
@@ -42,6 +44,6 @@ export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   }, [location.pathname]);
 
   return (
-    <div className={`h-full ${shouldFadeIn ? 'animate-fade-in' : 'opacity-0'}`}>{children}</div>
+    <div className={cn('h-full', shouldFadeIn ? 'animate-fade-in' : 'opacity-0')}>{children}</div>
   );
 };

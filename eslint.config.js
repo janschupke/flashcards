@@ -60,7 +60,6 @@ export default [
       ...tseslint.configs['recommended-requiring-type-checking'].rules,
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      'no-console': 'error',
       'no-debugger': 'error',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [

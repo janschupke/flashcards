@@ -9,23 +9,25 @@ import {
   Character,
 } from '../types';
 import { getRandomCharacterIndex } from '../utils/characterUtils';
-import { evaluatePinyinAnswer, createIncorrectAnswer, createAnswer } from '../utils/flashcardUtils';
 import {
   loadHistory,
-  saveHistory,
   loadCounters,
-  saveCounters,
   loadPreviousAnswer,
-  savePreviousAnswer,
   loadAdaptiveRange,
-  saveAdaptiveRange,
   loadMode,
   saveMode,
-  updateCharacterPerformance,
-  getAllCharacterPerformance,
+  saveAdaptiveRange,
 } from '../utils/storageUtils';
+import { evaluatePinyinAnswer } from '../utils/flashcardUtils';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
-import { selectAdaptiveCharacter } from '../utils/adaptiveUtils';
+import { ANIMATION_TIMINGS } from '../constants';
+import {
+  processAnswer,
+  updateStorageAfterAnswer,
+  calculateAdaptiveRangeExpansion,
+  getNextCharacterIndex,
+  createNextState,
+} from '../utils/flashcardStateUtils';
 import data from '../data/characters.json';
 
 interface UseFlashCardProps {
@@ -40,6 +42,12 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
   const storedPreviousAnswer = loadPreviousAnswer();
   const storedAdaptiveRange = loadAdaptiveRange();
   const storedMode = loadMode();
+
+  // Trim history if it exceeds limit (defensive check in case of data migration or manual edits)
+  const trimmedHistory =
+    storedHistory.length > ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES
+      ? storedHistory.slice(-ADAPTIVE_CONFIG.MAX_HISTORY_ENTRIES)
+      : storedHistory;
 
   const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
   const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
@@ -65,8 +73,8 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     previousAnswer: storedPreviousAnswer ?? null,
     // Incorrect answers tracking
     incorrectAnswers: [],
-    // All answers tracking
-    allAnswers: storedHistory,
+    // All answers tracking (trimmed to MAX_HISTORY_ENTRIES)
+    allAnswers: trimmedHistory,
     // Display mode - controls what characters are shown (load from storage or default to BOTH)
     mode: storedMode ?? FlashcardMode.BOTH,
     // Adaptive learning fields
@@ -85,98 +93,65 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       const currentCharacter = getCurrentCharacter();
       if (!currentCharacter) return prev;
 
-      // Always evaluate pinyin answer
-      const evaluation = evaluatePinyinAnswer(prev.pinyinInput, currentCharacter);
-      const { isCorrect, hasInput } = evaluation;
+      // Process answer evaluation
+      const { answer, isCorrect, hasInput } = processAnswer(
+        currentCharacter,
+        prev.pinyinInput,
+        prev.current
+      );
 
-      // Create answer object for tracking (always pinyin)
-      const answer = createAnswer(currentCharacter, prev.pinyinInput, prev.current, isCorrect);
-
-      // Update character performance in storage
-      if (hasInput) {
-        updateCharacterPerformance(prev.current, isCorrect);
-      }
-
-      // Add to incorrect answers if wrong or empty input
+      // Update incorrect answers if wrong
       const newIncorrectAnswers = [...prev.incorrectAnswers];
       if (!isCorrect) {
-        newIncorrectAnswers.push(
-          createIncorrectAnswer(currentCharacter, prev.pinyinInput, prev.current)
-        );
+        newIncorrectAnswers.push(answer);
       }
-
-      // Add to all answers (both correct and incorrect)
-      const newAllAnswers = [...prev.allAnswers, answer];
 
       // Update counters
       const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
       const newTotalAttempted = hasInput ? prev.totalAttempted + 1 : prev.totalAttempted;
       const newTotalSeen = prev.totalSeen + 1;
 
-      // Save counters to storage
-      saveCounters({
-        correctAnswers: newCorrectAnswers,
-        totalSeen: newTotalSeen,
-        totalAttempted: newTotalAttempted,
-      });
+      // Add to all answers
+      const newAllAnswers = [...prev.allAnswers, answer];
 
-      // Save history to storage
-      saveHistory(newAllAnswers);
+      // Update storage
+      updateStorageAfterAnswer(
+        prev.current,
+        isCorrect,
+        hasInput,
+        newCorrectAnswers,
+        newTotalAttempted,
+        newTotalSeen,
+        newAllAnswers,
+        answer
+      );
 
-      // Save previous answer to storage
-      savePreviousAnswer(answer);
+      // Calculate adaptive range expansion
+      const { newAdaptiveRange, newAnswersSinceLastCheck } = calculateAdaptiveRangeExpansion(
+        prev.answersSinceLastCheck,
+        newTotalAttempted,
+        newCorrectAnswers,
+        prev.adaptiveRange
+      );
 
-      // Update adaptive range expansion tracking
-      const newAnswersSinceLastCheck = prev.answersSinceLastCheck + 1;
-      let newAdaptiveRange = prev.adaptiveRange;
-      let shouldExpand = false;
+      // Get next character index
+      const newIndex = getNextCharacterIndex(newAdaptiveRange);
 
-      // Check if we should expand the range
-      if (
-        newAnswersSinceLastCheck >= ADAPTIVE_CONFIG.EXPANSION_INTERVAL &&
-        newTotalAttempted >= ADAPTIVE_CONFIG.MIN_ATTEMPTS_FOR_EXPANSION
-      ) {
-        // Calculate success rate for current range
-        const successRate = newTotalAttempted > 0 ? newCorrectAnswers / newTotalAttempted : 0;
-
-        if (successRate >= ADAPTIVE_CONFIG.SUCCESS_THRESHOLD) {
-          // Expand range
-          const maxRange = Math.min(
-            prev.adaptiveRange + ADAPTIVE_CONFIG.EXPANSION_AMOUNT,
-            data.length
-          );
-          newAdaptiveRange = maxRange;
-          shouldExpand = true;
-        }
-      }
-
-      // Save adaptive range to storage
-      saveAdaptiveRange(newAdaptiveRange);
-
-      // Get new character index using adaptive selection
-      const effectiveLimit = Math.min(newAdaptiveRange, data.length);
-      const charactersInRange = Array.from({ length: effectiveLimit }, (_, i) => i);
-      const performance = getAllCharacterPerformance();
-      const newIndex = selectAdaptiveCharacter(charactersInRange, performance);
-
-      return {
-        ...prev,
-        previousCharacter: prev.current,
-        previousAnswer: answer,
-        current: newIndex,
-        limit: effectiveLimit,
-        hint: HINT_TYPES.NONE,
-        totalSeen: newTotalSeen,
-        pinyinInput: '',
-        isPinyinCorrect: null,
-        correctAnswers: newCorrectAnswers,
-        totalAttempted: newTotalAttempted,
-        flashResult: hasInput ? (isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT) : null,
-        incorrectAnswers: newIncorrectAnswers,
-        allAnswers: newAllAnswers,
-        adaptiveRange: newAdaptiveRange,
-        answersSinceLastCheck: shouldExpand ? 0 : newAnswersSinceLastCheck,
-      };
+      // Create and return new state
+      return createNextState(
+        prev,
+        answer,
+        isCorrect,
+        hasInput,
+        newCorrectAnswers,
+        newTotalAttempted,
+        newTotalSeen,
+        newIncorrectAnswers,
+        newAllAnswers,
+        newAdaptiveRange,
+        newAnswersSinceLastCheck,
+        newIndex
+      );
     });
   }, [getCurrentCharacter]);
 
@@ -303,7 +278,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     if (state.flashResult !== null && state.flashResult !== undefined) {
       const timer = setTimeout(() => {
         setState((prev) => ({ ...prev, flashResult: null }));
-      }, 1000);
+      }, ANIMATION_TIMINGS.FLASH_RESULT_DURATION);
       return () => clearTimeout(timer);
     }
     return undefined;

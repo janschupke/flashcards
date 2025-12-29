@@ -1,22 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { AppTab } from '../../types/layout';
-import { TAB_CONSTANTS } from '../../constants/layout';
-
-const getRouteForTab = (tab: AppTab): string => {
-  switch (tab) {
-    case AppTab.FLASHCARDS:
-      return '/';
-    case AppTab.HISTORY:
-      return '/history';
-    case AppTab.STATISTICS:
-      return '/statistics';
-    case AppTab.ABOUT:
-      return '/about';
-    default:
-      return '/';
-  }
-};
+import { getAllTabs } from '../../constants/layout';
+import { getRouteForTab } from '../../utils/routingUtils';
+import { cn } from '../../utils/classNameUtils';
 
 export const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,12 +10,7 @@ export const MobileMenu: React.FC = () => {
   const location = useLocation();
   const prevPathnameRef = useRef<string>(location.pathname);
 
-  const tabs = [
-    { value: AppTab.FLASHCARDS, ...TAB_CONSTANTS.FLASHCARDS },
-    { value: AppTab.HISTORY, ...TAB_CONSTANTS.HISTORY },
-    { value: AppTab.STATISTICS, label: 'Statistics', id: 'statistics', ariaLabel: 'Statistics' },
-    { value: AppTab.ABOUT, label: 'About', id: 'about', ariaLabel: 'About' },
-  ];
+  const tabs = getAllTabs();
 
   // Close menu when route changes
   useEffect(() => {
@@ -53,12 +34,12 @@ export const MobileMenu: React.FC = () => {
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       // Prevent body scroll when menu is open
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('overflow-hidden');
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = '';
+      document.body.classList.remove('overflow-hidden');
     };
   }, [isOpen]);
 
@@ -91,24 +72,26 @@ export const MobileMenu: React.FC = () => {
 
       {/* Menu dropdown */}
       <div
-        className={`fixed top-12 left-0 right-0 bg-surface-primary border-t border-border-primary shadow-lg overflow-hidden transition-all duration-300 ease-out ${
+        className={cn(
+          'fixed top-12 left-0 right-0 bg-surface-primary border-t border-border-primary shadow-lg overflow-hidden transition-all duration-300 ease-out',
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-        }`}
+        )}
       >
         <nav className="flex flex-col">
           {tabs.map((tab) => {
-            const tabLabel = 'LABEL' in tab ? tab.LABEL : tab.label;
-            const tabAriaLabel = 'ARIA_LABEL' in tab ? tab.ARIA_LABEL : tab.ariaLabel;
+            const tabLabel = tab.LABEL;
+            const tabAriaLabel = tab.ARIA_LABEL;
             const isActive = location.pathname === getRouteForTab(tab.value);
             return (
               <NavLink
                 key={tab.value}
                 to={getRouteForTab(tab.value)}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
+                className={cn(
+                  'px-4 py-3 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-primary text-text-on-primary'
                     : 'text-text-primary hover:bg-surface-secondary'
-                }`}
+                )}
                 aria-label={tabAriaLabel}
                 onClick={() => setIsOpen(false)}
               >

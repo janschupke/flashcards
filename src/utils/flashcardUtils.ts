@@ -1,4 +1,4 @@
-import { Character, IncorrectAnswer, Answer } from '../types';
+import { Character, Answer } from '../types';
 import { evaluatePinyinInput } from './pinyinUtils';
 
 export interface EvaluationResult {
@@ -14,11 +14,12 @@ export const evaluatePinyinAnswer = (input: string, character: Character): Evalu
   return { isCorrect, hasInput };
 };
 
-export const createIncorrectAnswer = (
+export const createAnswer = (
   character: Character,
   submittedPinyin: string,
-  characterIndex: number
-): IncorrectAnswer => {
+  characterIndex: number,
+  isCorrect: boolean
+): Answer => {
   return {
     characterIndex,
     submittedPinyin: submittedPinyin.trim() || '(empty)',
@@ -26,18 +27,6 @@ export const createIncorrectAnswer = (
     simplified: character.simplified,
     traditional: character.traditional,
     english: character.english,
-  };
-};
-
-export const createAnswer = (
-  character: Character,
-  submittedPinyin: string,
-  characterIndex: number,
-  isCorrect: boolean
-): Answer => {
-  const incorrectAnswer = createIncorrectAnswer(character, submittedPinyin, characterIndex);
-  return {
-    ...incorrectAnswer,
     isCorrect,
   };
 };
