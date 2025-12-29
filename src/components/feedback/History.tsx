@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Answer } from '../../types';
 import { PaginatedTable } from '../common/PaginatedTable';
 import { getSubmittedText, getCorrectText } from '../../utils/answerUtils';
 import { getAnswerColorClass } from '../../utils/styleUtils';
 
-interface IncorrectAnswersProps {
+interface HistoryProps {
   allAnswers: Answer[];
 }
 
@@ -18,12 +18,14 @@ interface AnswerRow {
   english: string;
 }
 
-export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }) => {
+export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Reverse order to show newest first
   const reversedAnswers = [...allAnswers].reverse();
 
   // Transform data for table (always pinyin now)
-  const tableData = useMemo<AnswerRow[]>(() => {
+  const allTableData = useMemo<AnswerRow[]>(() => {
     return reversedAnswers.map((answer) => {
       const submittedText = getSubmittedText(answer);
       const correctText = getCorrectText(answer);
@@ -39,6 +41,24 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
       };
     });
   }, [reversedAnswers]);
+
+  // Filter data based on search query
+  const tableData = useMemo<AnswerRow[]>(() => {
+    if (!searchQuery.trim()) {
+      return allTableData;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return allTableData.filter((row) => {
+      return (
+        row.simplified.toLowerCase().includes(query) ||
+        row.traditional.toLowerCase().includes(query) ||
+        row.expected.toLowerCase().includes(query) ||
+        row.submitted.toLowerCase().includes(query) ||
+        row.english.toLowerCase().includes(query)
+      );
+    });
+  }, [allTableData, searchQuery]);
 
   // Define columns (always pinyin)
   const columns = useMemo<ColumnDef<AnswerRow>[]>(() => {
@@ -82,5 +102,21 @@ export const IncorrectAnswers: React.FC<IncorrectAnswersProps> = ({ allAnswers }
     );
   }
 
-  return <PaginatedTable data={tableData} columns={columns} pageSize={20} />;
+  return (
+    <div className="space-y-4">
+      {/* Search input */}
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Search in any column..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-surface-secondary text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+      </div>
+
+      {/* Paginated Table */}
+      <PaginatedTable data={tableData} columns={columns} pageSize={20} />
+    </div>
+  );
 };

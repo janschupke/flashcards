@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useStatistics } from '../../hooks/useStatistics';
 import { FilterButton } from '../common/FilterButton';
@@ -21,6 +21,8 @@ interface StatisticsRow {
 }
 
 export const Statistics: React.FC<StatisticsProps> = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const {
     statisticsData,
     sortedData,
@@ -33,7 +35,7 @@ export const Statistics: React.FC<StatisticsProps> = () => {
   } = useStatistics();
 
   // Transform data for table
-  const tableData = useMemo<StatisticsRow[]>(() => {
+  const allTableData = useMemo<StatisticsRow[]>(() => {
     return sortedData.map((item) => {
       const successRatePercent = (item.successRate * 100).toFixed(1);
       const successRateClass =
@@ -56,6 +58,23 @@ export const Statistics: React.FC<StatisticsProps> = () => {
       };
     });
   }, [sortedData]);
+
+  // Filter data based on search query (only text columns, not numeric)
+  const tableData = useMemo<StatisticsRow[]>(() => {
+    if (!searchQuery.trim()) {
+      return allTableData;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return allTableData.filter((row) => {
+      return (
+        row.simplified.toLowerCase().includes(query) ||
+        row.traditional.toLowerCase().includes(query) ||
+        row.pinyin.toLowerCase().includes(query) ||
+        row.english.toLowerCase().includes(query)
+      );
+    });
+  }, [allTableData, searchQuery]);
 
   // Define columns
   const columns = useMemo<ColumnDef<StatisticsRow>[]>(
@@ -159,6 +178,17 @@ export const Statistics: React.FC<StatisticsProps> = () => {
           isActive={filter === 'mastered'}
           onClick={() => setFilter('mastered')}
           count={filterCounts.mastered}
+        />
+      </div>
+
+      {/* Search input */}
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Search in any column..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-border-primary rounded bg-surface-secondary text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
 
