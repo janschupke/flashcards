@@ -5,7 +5,7 @@ export const COMPONENT_CONSTANTS = {
     MD: 40,
     LG: 48,
   },
-  BUTTON_MIN_WIDTH: 120, // pixels
+  BUTTON_MIN_WIDTH: 110, // pixels
   TABLE_ROW_HEIGHT: 48, // pixels
 } as const;
 
