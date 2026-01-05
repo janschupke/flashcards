@@ -73,7 +73,7 @@ export const MobileMenu: React.FC = () => {
       {/* Menu dropdown */}
       <div
         className={cn(
-          'fixed top-12 left-0 right-0 bg-surface-primary border-t border-border-primary shadow-lg overflow-hidden transition-all duration-300 ease-out',
+          'fixed top-12 left-0 right-0 z-50 bg-surface-primary border-t border-border-primary shadow-lg overflow-hidden transition-all duration-300 ease-out',
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         )}
       >

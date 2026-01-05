@@ -48,7 +48,7 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
     return (
       <div className="m-0 text-center">
         <div
-          className={`inline-block w-full max-w-full sm:max-w-md rounded-xl transition-colors bg-transparent border-2 ${borderClass}`}
+          className={`inline-block w-full max-w-full rounded-xl transition-colors bg-transparent border-2 ${borderClass}`}
         >
           <input
             ref={ref}
