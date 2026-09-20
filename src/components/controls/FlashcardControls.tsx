@@ -3,6 +3,8 @@ import { FlashcardMode, HintType } from '../../types';
 import { Button } from '../common/Button';
 import { ButtonSize, ButtonVariant } from '../../types/components';
 import { ModeButtonGroup } from './ModeButtonGroup';
+import { KEYBOARD_SHORTCUTS } from '../../types';
+import { PLATFORM_MODIFIER_LABEL } from '../../utils/keyboardUtils';
 
 interface FlashcardControlsProps {
   currentMode: FlashcardMode;
@@ -36,7 +38,8 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
           size={ButtonSize.SM}
           className="text-xs whitespace-nowrap"
         >
-          Pinyin (,)
+          Pinyin ({PLATFORM_MODIFIER_LABEL}
+          {KEYBOARD_SHORTCUTS.PINYIN})
         </Button>
         <Button
           type="button"
@@ -45,7 +48,8 @@ export const FlashcardControls: React.FC<FlashcardControlsProps> = ({
           size={ButtonSize.SM}
           className="text-xs whitespace-nowrap"
         >
-          English (.)
+          English ({PLATFORM_MODIFIER_LABEL}
+          {KEYBOARD_SHORTCUTS.ENGLISH})
         </Button>
       </div>
     </div>

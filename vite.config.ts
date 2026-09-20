@@ -12,7 +12,14 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
+    // Opening a browser is left to the developer; automated runs must not
+    // hijack a window.
+    open: false,
+  },
+  preview: {
+    port: 4173,
+    strictPort: true,
+    open: false,
   },
   build: {
     outDir: 'dist',

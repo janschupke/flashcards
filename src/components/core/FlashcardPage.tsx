@@ -28,7 +28,6 @@ export const FlashcardPage: React.FC = () => {
     toggleHint,
     setPinyinInput,
     setMode,
-    setPinyinFlashResult,
   } = useFlashCardContext();
 
   // Show toast when range expands
@@ -84,7 +83,7 @@ export const FlashcardPage: React.FC = () => {
           ref={pinyinInputRef}
           value={pinyinInput}
           onChange={setPinyinInput}
-          onSubmit={setPinyinFlashResult}
+          onSubmit={getNext}
           placeholder={CHINESE_TEXT.MODES.PINYIN.PLACEHOLDER}
           feedbackText={getPinyinFeedbackText(isPinyinCorrect, currentCharacter?.pinyin ?? '')}
           isCorrect={isPinyinCorrect}

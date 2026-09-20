@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { FlashcardMode } from '../types';
 import { MODES } from '../constants/modes';
+import { isEditableTarget } from '../utils/keyboardUtils';
 
 interface UseModeNavigationProps {
   currentMode: FlashcardMode;
@@ -11,6 +12,11 @@ export const useModeNavigation = ({ currentMode, onModeChange }: UseModeNavigati
   useEffect(() => {
     const handleArrowModeSwitch = (e: KeyboardEvent): void => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+      // Arrow keys must move the caret when a field has focus. Switching mode
+      // here would also clear pinyinInput, silently destroying a half-typed
+      // answer. Mode switching stays available via F1/F2/F3 and the buttons.
+      if (isEditableTarget(e.target)) return;
 
       const modeIndex = MODES.findIndex((m) => m.mode === currentMode);
       if (modeIndex === -1) return;

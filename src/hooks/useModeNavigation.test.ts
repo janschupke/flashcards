@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useModeNavigation } from './useModeNavigation';
 import { FlashcardMode } from '../types';
@@ -142,5 +142,53 @@ describe('useModeNavigation', () => {
     unmount();
 
     expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+  });
+
+  describe('when a text field has focus', () => {
+    let input: HTMLInputElement;
+
+    beforeEach(() => {
+      input = document.createElement('input');
+      document.body.appendChild(input);
+    });
+
+    afterEach(() => {
+      input.remove();
+    });
+
+    const pressFrom = (target: EventTarget, key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+
+    // Switching mode also clears pinyinInput, so an unguarded ArrowRight would
+    // silently destroy a half-typed answer while the user moves the caret.
+    it.each(['ArrowLeft', 'ArrowRight'])('ignores %s from an input', (key) => {
+      renderHook(() =>
+        useModeNavigation({
+          currentMode: FlashcardMode.SIMPLIFIED,
+          onModeChange: mockOnModeChange,
+        })
+      );
+
+      const event = pressFrom(input, key);
+
+      expect(mockOnModeChange).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('still switches mode when the event came from outside a text field', () => {
+      renderHook(() =>
+        useModeNavigation({
+          currentMode: FlashcardMode.SIMPLIFIED,
+          onModeChange: mockOnModeChange,
+        })
+      );
+
+      pressFrom(document.body, 'ArrowRight');
+
+      expect(mockOnModeChange).toHaveBeenCalledWith(FlashcardMode.TRADITIONAL);
+    });
   });
 });

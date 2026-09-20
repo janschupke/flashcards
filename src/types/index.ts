@@ -64,15 +64,10 @@ export interface FlashCardState {
 export interface FlashCardActions {
   getNext: () => void;
   toggleHint: (hintType: HintType) => void;
-  reset: () => void;
   resetStatistics: () => void;
   setPinyinInput: (input: string) => void;
-  evaluatePinyin: () => void;
-  resetScore: () => void;
   // Display mode action - controls what characters are shown
   setMode: (mode: FlashcardMode) => void;
-  // Pinyin input action
-  setPinyinFlashResult: (input: string) => void;
 }
 
 // Update existing constants to use enums
@@ -82,10 +77,19 @@ export const HINT_TYPES = {
   ENGLISH: HintType.ENGLISH,
 } as const;
 
+/**
+ * Global keyboard bindings.
+ *
+ * The hint toggles require the platform modifier (Cmd on macOS, Ctrl
+ * elsewhere) because the pinyin input is focused at all times -- an unmodified
+ * key would be swallowed before it could be typed. `.` and `/` were chosen
+ * because they are unbound under both Cmd and Ctrl in Chrome, Firefox and
+ * Safari; Cmd+, is the browser's own settings shortcut on macOS.
+ */
 export const KEYBOARD_SHORTCUTS = {
   NEXT: 'Enter',
-  PINYIN: [','],
-  ENGLISH: ['.'],
+  PINYIN: '.',
+  ENGLISH: '/',
   MODE_BOTH: 'F1',
   MODE_SIMPLIFIED: 'F2',
   MODE_TRADITIONAL: 'F3',

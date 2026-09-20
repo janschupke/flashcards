@@ -36,29 +36,17 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       }
     };
 
-    const handleEnter = (e: KeyboardEvent): void => {
-      // When modal is open, prevent Enter from triggering other handlers (like answer submission)
-      if (e.key === 'Enter' && isOpen) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Trigger confirm when Enter is pressed (prevents answer submission)
-        onConfirm();
-      }
-    };
-
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      document.addEventListener('keydown', handleEnter, true); // Use capture phase to intercept early
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('keydown', handleEnter, true);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onCancel, onConfirm]);
+  }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
 
@@ -71,9 +59,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
-    // Prevent Enter from bubbling up (handled by global listener in useEffect)
+    // Stop Enter reaching the window listener that advances the flashcard, but
+    // do NOT preventDefault -- the focused confirm button needs its own default
+    // activation. Confirming is therefore always an explicit choice of which
+    // button has focus, rather than a capture-phase hijack of every Enter.
     if (e.key === 'Enter') {
-      e.preventDefault();
       e.stopPropagation();
     }
   };

@@ -3,6 +3,8 @@ import { Card } from '../common/Card';
 import { CardPadding } from '../../types/components';
 import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
 import { SUCCESS_RATE_THRESHOLDS } from '../../constants';
+import { KEYBOARD_SHORTCUTS } from '../../types';
+import { PLATFORM_MODIFIER_LABEL } from '../../utils/keyboardUtils';
 
 export const About: React.FC = () => {
   return (
@@ -51,10 +53,22 @@ export const About: React.FC = () => {
             <h4 className="font-semibold text-text-primary mb-1">Hints</h4>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>
-                <strong>Pinyin Hint (,):</strong> Reveal the Pinyin pronunciation
+                <strong>
+                  Pinyin Hint ({PLATFORM_MODIFIER_LABEL}
+                  {KEYBOARD_SHORTCUTS.PINYIN}):
+                </strong>{' '}
+                Reveal the Pinyin pronunciation
               </li>
               <li>
-                <strong>English Hint (.):</strong> Reveal the English translation
+                <strong>
+                  English Hint ({PLATFORM_MODIFIER_LABEL}
+                  {KEYBOARD_SHORTCUTS.ENGLISH}):
+                </strong>{' '}
+                Reveal the English translation
+              </li>
+              <li>
+                The hints use a modifier so that <strong>.</strong> and <strong>/</strong> stay
+                typable — the answer field keeps focus at all times.
               </li>
             </ul>
           </div>
@@ -67,6 +81,11 @@ export const About: React.FC = () => {
               <li>
                 <strong>F1/F2/F3:</strong> Switch between display modes (changes what characters are
                 shown)
+              </li>
+              <li>
+                <strong>Left/Right Arrow:</strong> Step to the previous or next display mode. Does
+                not wrap around, and is ignored while a text field has focus so the arrows still
+                move the caret.
               </li>
             </ul>
           </div>

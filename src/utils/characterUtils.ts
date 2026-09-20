@@ -1,5 +1,6 @@
-import { Character, FlashcardMode, HintType, HINT_TYPES } from '../types';
+import { Character, FlashcardMode, HintType, HINT_TYPES, KEYBOARD_SHORTCUTS } from '../types';
 import { UI_CONSTANTS } from '../constants';
+import { PLATFORM_MODIFIER_LABEL } from './keyboardUtils';
 import data from '../data/characters.json';
 
 export const getCharacterByIndex = (index: number): Character | null => {
@@ -11,7 +12,7 @@ export const getHintText = (character: Character | null, hintType: HintType): st
 
   switch (hintType) {
     case HINT_TYPES.NONE:
-      return 'Use buttons in top panel to reveal';
+      return `Use the buttons above, or ${PLATFORM_MODIFIER_LABEL}${KEYBOARD_SHORTCUTS.PINYIN} / ${PLATFORM_MODIFIER_LABEL}${KEYBOARD_SHORTCUTS.ENGLISH}, to reveal`;
     case HINT_TYPES.PINYIN:
       return character.pinyin;
     case HINT_TYPES.ENGLISH:

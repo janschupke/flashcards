@@ -48,13 +48,9 @@ describe('AppLayout', () => {
     recentAnswers: [],
     getNext: vi.fn(),
     toggleHint: vi.fn(),
-    reset: vi.fn(),
     resetStatistics: vi.fn(),
     setPinyinInput: vi.fn(),
-    evaluatePinyin: vi.fn(),
-    resetScore: vi.fn(),
     setMode: vi.fn(),
-    setPinyinFlashResult: vi.fn(),
   };
 
   beforeEach(() => {

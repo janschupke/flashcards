@@ -7,7 +7,8 @@ import {
   getDisplayCharacter,
   getRandomCharacterIndex,
 } from './characterUtils';
-import { FlashcardMode, HintType } from '../types';
+import { FlashcardMode, HintType, KEYBOARD_SHORTCUTS } from '../types';
+import { PLATFORM_MODIFIER_LABEL } from './keyboardUtils';
 
 // Mock the data import
 vi.mock('../data/characters.json', () => ({
@@ -57,9 +58,14 @@ describe('characterUtils', () => {
       english: 'one',
     };
 
-    it('returns default message when no hint is active', () => {
+    it('returns a prompt naming both routes when no hint is active', () => {
       const text = getHintText(mockCharacter, HintType.NONE);
-      expect(text).toBe('Use buttons in top panel to reveal');
+      // Derived from the shortcut table so it cannot drift from the bindings.
+      expect(text).toBe(
+        `Use the buttons above, or ${PLATFORM_MODIFIER_LABEL}${KEYBOARD_SHORTCUTS.PINYIN} / ${PLATFORM_MODIFIER_LABEL}${KEYBOARD_SHORTCUTS.ENGLISH}, to reveal`
+      );
+      expect(text).toContain(KEYBOARD_SHORTCUTS.PINYIN);
+      expect(text).toContain(KEYBOARD_SHORTCUTS.ENGLISH);
     });
 
     it('returns pinyin when pinyin hint is active', () => {

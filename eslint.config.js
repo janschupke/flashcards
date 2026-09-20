@@ -4,6 +4,7 @@ import tsparser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -19,30 +20,13 @@ export default [
         },
         project: './tsconfig.json',
       },
+      // The previous hand-rolled list of 25 names was missing navigator,
+      // localStorage, HTMLElement, KeyboardEvent, Element, MouseEvent and
+      // more, so no-undef was silently under-enforcing.
       globals: {
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'readonly',
-        describe: 'readonly',
-        it: 'readonly',
-        test: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        vi: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
+        ...globals.browser,
+        ...globals.node,
+        ...globals.vitest,
       },
     },
     plugins: {

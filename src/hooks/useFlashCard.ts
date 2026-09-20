@@ -5,10 +5,8 @@ import {
   HintType,
   HINT_TYPES,
   FlashcardMode,
-  FlashResult,
   Character,
 } from '../types';
-import { getRandomCharacterIndex } from '../utils/characterUtils';
 import {
   loadHistory,
   loadCounters,
@@ -18,7 +16,6 @@ import {
   saveMode,
   saveAdaptiveRange,
 } from '../utils/storageUtils';
-import { evaluatePinyinAnswer } from '../utils/flashcardUtils';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { ANIMATION_TIMINGS } from '../constants';
 import {
@@ -169,26 +166,6 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     }));
   }, []);
 
-  const reset = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      current: getRandomCharacterIndex(prev.limit),
-      totalSeen: 0,
-      hint: HINT_TYPES.NONE,
-      // Reset scoring
-      correctAnswers: 0,
-      totalAttempted: 0,
-      pinyinInput: '',
-      isPinyinCorrect: null,
-      flashResult: null,
-      // Reset answer tracking
-      previousAnswer: null,
-      allAnswers: [],
-      incorrectAnswers: [],
-      recentAnswers: [],
-    }));
-  }, []);
-
   const resetStatistics = useCallback(() => {
     // Reset to initial adaptive range
     const initialRange = ADAPTIVE_CONFIG.INITIAL_RANGE;
@@ -219,33 +196,6 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     }));
   }, []);
 
-  const evaluatePinyin = useCallback(() => {
-    setState((prev) => {
-      const currentCharacter = getCurrentCharacter();
-      if (!currentCharacter) return prev;
-
-      const { isCorrect } = evaluatePinyinAnswer(prev.pinyinInput, currentCharacter);
-
-      return {
-        ...prev,
-        isPinyinCorrect: isCorrect,
-        correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-        totalAttempted: prev.totalAttempted + 1,
-      };
-    });
-  }, [getCurrentCharacter]);
-
-  const resetScore = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      correctAnswers: 0,
-      totalAttempted: 0,
-      pinyinInput: '',
-      isPinyinCorrect: null,
-      flashResult: null,
-    }));
-  }, []);
-
   // Display mode action - only changes what's displayed, doesn't reset state
   const setMode = useCallback((mode: FlashcardMode) => {
     // Save mode to storage
@@ -260,26 +210,6 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       flashResult: null,
     }));
   }, []);
-
-  // Set flash result immediately for pinyin input
-  const setPinyinFlashResult = useCallback(
-    (input: string) => {
-      setState((prev) => {
-        const currentCharacter = getCurrentCharacter();
-        if (!currentCharacter) return prev;
-
-        const { isCorrect } = evaluatePinyinAnswer(input, currentCharacter);
-
-        return {
-          ...prev,
-          pinyinInput: input,
-          isPinyinCorrect: isCorrect,
-          flashResult: isCorrect ? FlashResult.CORRECT : FlashResult.INCORRECT,
-        };
-      });
-    },
-    [getCurrentCharacter]
-  );
 
   // Clear flash result after animation
   useEffect(() => {
@@ -296,12 +226,8 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     ...state,
     getNext,
     toggleHint,
-    reset,
     resetStatistics,
     setPinyinInput,
-    evaluatePinyin,
-    resetScore,
     setMode,
-    setPinyinFlashResult,
   };
 };
