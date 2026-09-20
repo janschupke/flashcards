@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../common/Button';
-import { ButtonVariant } from '../../types/components';
+import { ButtonSize, ButtonVariant } from '../../types/components';
+import { KEYBOARD_SHORTCUTS } from '../../types';
 
 interface ControlButtonsProps {
   onNext: () => void;
@@ -13,10 +14,11 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({ onNext }) => {
         type="button"
         onClick={onNext}
         variant={ButtonVariant.PRIMARY}
+        size={ButtonSize.XL}
         fullWidth
-        className="!px-3 !py-1.5 !text-2xl !border-2 !border-primary"
+        className="border-2 border-primary"
       >
-        Next (Enter)
+        Next ({KEYBOARD_SHORTCUTS.NEXT})
       </Button>
     </div>
   );

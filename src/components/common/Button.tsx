@@ -1,6 +1,5 @@
 import React from 'react';
 import { ButtonVariant, ButtonSize } from '../../types/components';
-import { COMPONENT_CONSTANTS } from '../../constants/layout';
 import cn from 'classnames';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,6 +12,9 @@ const sizeClasses: Record<ButtonSize, string> = {
   [ButtonSize.SM]: 'px-2 py-1 text-xs',
   [ButtonSize.MD]: 'px-3 py-1.5 text-sm',
   [ButtonSize.LG]: 'px-4 py-2 text-base',
+  // The primary "next" action: large text, compact padding. Existed only as
+  // four !important overrides fighting this map from the call site.
+  [ButtonSize.XL]: 'px-3 py-1.5 text-2xl',
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -37,12 +39,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Use inline style for dynamic min-width (Tailwind doesn't support dynamic arbitrary values)
-    // This is acceptable for constant values that may need to be configurable
-    const minWidthStyle = !fullWidth
-      ? { minWidth: `${COMPONENT_CONSTANTS.BUTTON_MIN_WIDTH}px` }
-      : undefined;
-
     return (
       <button
         ref={ref}
@@ -50,10 +46,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus',
           sizeClasses[size],
           variantClasses[variant],
-          fullWidth && 'w-full',
+          // Was an inline style computed from a JS constant; now a theme token.
+          fullWidth ? 'w-full' : 'min-w-(--size-button-min)',
           className
         )}
-        style={minWidthStyle}
         {...props}
       />
     );

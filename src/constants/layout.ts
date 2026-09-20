@@ -1,9 +1,5 @@
 import { AppTab } from '../types/layout';
 
-export const COMPONENT_CONSTANTS = {
-  BUTTON_MIN_WIDTH: 110, // pixels
-} as const;
-
 const TAB_CONSTANTS = {
   FLASHCARDS: {
     ID: 'flashcards',

@@ -6,8 +6,6 @@
   --color-primary: #dc2626;
   --color-primary-hover: #ef4444;
   --color-primary-active: #b91c1c;
-  --color-primary-light: #fee2e2;
-  --color-primary-dark: #b91c1c;
 
   /* Semantic Colors (Status/Feedback)
    *
@@ -17,20 +15,13 @@
    * sat at 2.5:1, 2.2:1 and 3.8:1 -- all failing. Contrast ratios against
    * #ffffff are noted; each also clears AA with white text on top. */
   --color-success: #047857; /* 5.48:1 */
-  --color-success-muted: #6ee7b7;
-  --color-success-light: #d1fae5;
-  --color-success-dark: #059669;
   --color-error: #dc2626; /* 4.83:1 */
-  --color-error-light: #fee2e2;
-  --color-error-dark: #dc2626;
   --color-warning: #b45309; /* 5.02:1 */
-  --color-info: #3b82f6;
 
   /* Surface Colors - Light Theme */
   --color-surface-primary: #ffffff;
   --color-surface-secondary: #f9fafb;
   --color-surface-tertiary: #f3f4f6;
-  --color-surface-elevated: #ffffff;
 
   /* Text Colors - Light Theme */
   --color-text-primary: #111827;
@@ -40,14 +31,12 @@
   --color-text-tertiary: #4b5563;
   /* 9ca3af was ~2.5:1 on white. 6b7280 is ~4.8:1. */
   --color-text-disabled: #6b7280;
-  --color-text-inverse: #ffffff;
 
   /* Inverse Text Colors (for colored backgrounds) */
   --color-text-on-primary: #ffffff;
   --color-text-on-success: #ffffff;
   --color-text-on-error: #ffffff;
   --color-text-on-warning: #ffffff;
-  --color-text-on-info: #ffffff;
 
   /* Border Colors - Light Theme */
   --color-border-primary: #e5e7eb;
@@ -55,13 +44,15 @@
   --color-border-focus: #dc2626;
   --color-border-error: #ef4444;
 
+  /* Minimum width of a button. Was an inline style driven by a JS constant,
+     which sat outside the token system entirely. */
+  --size-button-min: 110px;
+
   /* Scrim behind modals. This was the app's only raw colour: bg-black/50. */
   --color-overlay: oklch(0% 0 0 / 50%);
 
   /* Special Colors */
   --color-accent: #6f42c1;
-  --color-accent-light: #a78bfa;
-  --color-accent-dark: #5b21b6;
 }
 
 /* Base styles */
