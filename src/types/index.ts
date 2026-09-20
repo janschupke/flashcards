@@ -91,11 +91,11 @@ export const KEYBOARD_SHORTCUTS = {
   MODE_TRADITIONAL: 'F3',
 } as const;
 
-// New types for mode toggle buttons
-export interface ModeToggleButtonsProps {
-  currentMode: FlashcardMode;
-  onModeChange: (mode: FlashcardMode) => void;
-}
+// Statistics table sorting and filtering. Shared by useStatistics and
+// tableUtils so the column unions cannot drift apart.
+export type SortField = 'character' | 'correct' | 'total' | 'successRate';
+export type SortDirection = 'asc' | 'desc';
+export type FilterType = 'all' | 'struggling' | 'mastered';
 
 // Export layout and component types
 export * from './layout';

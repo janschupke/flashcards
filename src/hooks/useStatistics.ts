@@ -2,10 +2,7 @@ import { useState, useMemo } from 'react';
 import { getAllCharacterPerformance } from '../utils/storageUtils';
 import data from '../data/characters.json';
 import { getSuccessRate } from '../utils/adaptiveUtils';
-
-export type SortField = 'character' | 'correct' | 'total' | 'successRate';
-export type SortDirection = 'asc' | 'desc';
-export type FilterType = 'all' | 'struggling' | 'mastered';
+import { SortField, SortDirection, FilterType } from '../types';
 
 interface StatisticsItem {
   characterIndex: number;

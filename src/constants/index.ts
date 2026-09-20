@@ -1,9 +1,3 @@
-// Application limits
-export const APP_LIMITS = {
-  PINYIN_MODE_MAX: 1500,
-  MIN_LIMIT: 50,
-} as const;
-
 // Animation timings
 export const ANIMATION_TIMINGS = {
   FLASH_RESULT_DURATION: 1000,
@@ -13,15 +7,13 @@ export const ANIMATION_TIMINGS = {
 
 // UI constants
 export const UI_CONSTANTS = {
-  INCREMENT_STEP: 50,
   MIN_WIDTH: 100,
 } as const;
 
-// Success rate thresholds
+// Success rate thresholds. Anything below LEARNING is "struggling".
 export const SUCCESS_RATE_THRESHOLDS = {
   MASTERED: 0.8, // ≥80% = mastered (green)
-  LEARNING: 0.5, // 50-79% = learning (yellow)
-  STRUGGLING: 0.5, // <50% = struggling (red)
+  LEARNING: 0.5, // 50-79% = learning (yellow), <50% = struggling (red)
 } as const;
 
 // Table constants
@@ -35,14 +27,7 @@ export const CHINESE_TEXT = {
   APP_TITLE: '汉字 Flashcards',
   MODES: {
     PINYIN: {
-      LABEL: '拼音 (F1)',
       PLACEHOLDER: '输入拼音',
-    },
-    SIMPLIFIED: {
-      LABEL: '简体 (F2)',
-    },
-    TRADITIONAL: {
-      LABEL: '繁体 (F3)',
     },
   },
   FEEDBACK: {

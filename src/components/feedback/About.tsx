@@ -191,7 +191,7 @@ export const About: React.FC = () => {
             </li>
             <li>
               <span className="text-error">
-                Red (&lt;{SUCCESS_RATE_THRESHOLDS.STRUGGLING * 100}%):
+                Red (&lt;{SUCCESS_RATE_THRESHOLDS.LEARNING * 100}%):
               </span>{' '}
               Struggling
             </li>

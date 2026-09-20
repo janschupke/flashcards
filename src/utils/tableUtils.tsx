@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Answer } from '../types';
+import { Answer, SortField, SortDirection } from '../types';
 import { getSubmittedText, getCorrectText } from './answerUtils';
 import { getAnswerColorClass } from './styleUtils';
 
@@ -58,9 +58,9 @@ export const transformAnswerToRow = (answer: Answer): AnswerRow => {
  * @returns Array of column definitions
  */
 export const createStatisticsColumns = (
-  sortField: 'character' | 'correct' | 'total' | 'successRate',
-  sortDirection: 'asc' | 'desc',
-  handleSort: (field: 'character' | 'correct' | 'total' | 'successRate') => void
+  sortField: SortField,
+  sortDirection: SortDirection,
+  handleSort: (field: SortField) => void
 ): ColumnDef<StatisticsRow>[] => {
   return [
     {

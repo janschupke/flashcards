@@ -1,7 +1,7 @@
 import { Character, Answer } from '../types';
 import { evaluatePinyinInput } from './pinyinUtils';
 
-export interface EvaluationResult {
+interface EvaluationResult {
   isCorrect: boolean;
   hasInput: boolean;
 }

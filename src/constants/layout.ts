@@ -1,12 +1,7 @@
+import { AppTab } from '../types/layout';
+
 export const COMPONENT_CONSTANTS = {
-  CARD_BORDER_RADIUS: 12, // pixels
-  INPUT_HEIGHT: {
-    SM: 32,
-    MD: 40,
-    LG: 48,
-  },
   BUTTON_MIN_WIDTH: 110, // pixels
-  TABLE_ROW_HEIGHT: 48, // pixels
 } as const;
 
 const TAB_CONSTANTS = {
@@ -32,12 +27,10 @@ const TAB_CONSTANTS = {
   },
 } as const;
 
-import { AppTab } from '../types/layout';
-
 /**
  * Tab configuration type
  */
-export type TabConfig = {
+type TabConfig = {
   value: AppTab;
   ID: string;
   LABEL: string;
