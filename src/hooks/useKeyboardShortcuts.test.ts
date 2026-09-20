@@ -1,19 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { KEYBOARD_SHORTCUTS, FlashcardMode } from '../types';
 
 describe('useKeyboardShortcuts', () => {
-  let mockOnNext: ReturnType<typeof vi.fn>;
-  let mockOnTogglePinyin: ReturnType<typeof vi.fn>;
-  let mockOnToggleEnglish: ReturnType<typeof vi.fn>;
-  let mockOnModeChange: ReturnType<typeof vi.fn>;
+  let mockOnNext: Mock<() => void>;
+  let mockOnTogglePinyin: Mock<() => void>;
+  let mockOnToggleEnglish: Mock<() => void>;
+  let mockOnModeChange: Mock<(mode: FlashcardMode) => void>;
 
   beforeEach(() => {
-    mockOnNext = vi.fn();
-    mockOnTogglePinyin = vi.fn();
-    mockOnToggleEnglish = vi.fn();
-    mockOnModeChange = vi.fn();
+    mockOnNext = vi.fn<() => void>();
+    mockOnTogglePinyin = vi.fn<() => void>();
+    mockOnToggleEnglish = vi.fn<() => void>();
+    mockOnModeChange = vi.fn<(mode: FlashcardMode) => void>();
   });
 
   it('should call onNext when NEXT key is pressed', () => {

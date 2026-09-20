@@ -46,7 +46,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const removeToast = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
-    if (timer) {
+    // Explicit undefined check: the browser setTimeout returns a number, and a
+    // truthiness test would skip a legitimate timer id of 0.
+    if (timer !== undefined) {
       clearTimeout(timer);
       timersRef.current.delete(id);
     }

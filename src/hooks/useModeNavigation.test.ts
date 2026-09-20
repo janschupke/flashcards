@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useModeNavigation } from './useModeNavigation';
 import { FlashcardMode } from '../types';
 import { MODES } from '../constants/modes';
 
 describe('useModeNavigation', () => {
-  let mockOnModeChange: ReturnType<typeof vi.fn>;
+  let mockOnModeChange: Mock<(mode: FlashcardMode) => void>;
 
   beforeEach(() => {
-    mockOnModeChange = vi.fn();
+    mockOnModeChange = vi.fn<(mode: FlashcardMode) => void>();
   });
 
   it('should navigate to previous mode on ArrowLeft', () => {
