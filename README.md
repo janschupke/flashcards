@@ -1,395 +1,187 @@
 # 汉字 Flashcards
 
-A modern, adaptive learning flashcard web application for mastering Chinese characters. Practice the 1,500 most common 汉字 (Chinese characters) through an intelligent system that adapts to your learning progress, prioritizing characters you struggle with while ensuring comprehensive practice.
+An adaptive flashcard app for the 1,500 most common Chinese characters. You are shown a character and type its pinyin; the app tracks how you do on each one and keeps putting the ones you are struggling with in front of you.
 
-**Live Demo:** [https://flashcards.schupke.io](https://flashcards.schupke.io)
+**Live demo:** [https://flashcards.schupke.io](https://flashcards.schupke.io)
 
 ---
 
 ## Features
 
-### Core Learning Features
+### Practice
 
-- **Three Display Modes:**
-  - **全部 (Both) - F1:** Display both simplified and traditional characters side-by-side
-  - **简体 (Simplified) - F2:** Display only simplified character
-  - **繁体 (Traditional) - F3:** Display only traditional character
-- **Pinyin-Only Input:** Always type pinyin pronunciation regardless of display mode
-- **Instant Feedback:** Real-time visual feedback with color-coded borders (green for correct, red for incorrect)
-- **Flash Animations:** Visual flash effects when submitting answers
-- **Hint System:** Toggle pinyin and English hints with keyboard shortcuts or buttons
-- **Keyboard Shortcuts:** Full keyboard support for efficient practice
+- **Three display modes:** 全部 (both, F1), 简体 (simplified, F2), 繁体 (traditional, F3).
+- **Pinyin input,** whichever mode you are in. Matching is **tone-insensitive**: tone marks and tone numbers are stripped before comparison, so `wo`, `wǒ` and `wo4` are all accepted for 我. `v` is accepted for `ü`.
+- **Instant feedback:** a coloured border and a ✓/✗ flash on submit, announced to screen readers.
+- **Hints** for pinyin and English, from the buttons or the keyboard.
 
-### Adaptive Learning System
+### Adaptive selection
 
-- **Progressive Character Selection:** 80% of selections prioritize struggling/new characters with progressive weighting, 20% for successful ones
-- **Weighted Random Selection:** Characters weighted by inverse success rate within each group
-- **Progressive Range Expansion:** Automatically expands from 100 to 1,500 characters as you improve
-- **Performance Tracking:** Individual tracking for each character's success rate
-- **Adaptive Thresholds:** Characters with <50% success rate are prioritized
+Characters in your current range fall into three tiers, each with a fixed share of the draws:
 
-### Statistics & Progress Tracking
+| Tier           | Definition                     | Share of draws |
+| -------------- | ------------------------------ | -------------- |
+| **Struggling** | below 50% success, ≥ 1 attempt | 50%            |
+| **Untested**   | never attempted                | 30%            |
+| **Mastered**   | 50% success or better          | 20%            |
 
-- **Per-Character Statistics:** Detailed performance metrics for each character
-- **Success Rate Categories:**
-  - 🟢 **Mastered:** ≥80% success rate
-  - 🟡 **Learning:** 50-79% success rate
-  - 🔴 **Struggling:** <50% success rate
-- **Sortable & Filterable:** Sort by character, correct count, total attempts, or success rate
-- **Filter Options:** View all, struggling only, or mastered characters
-- **Answer History:** Review last 100 answers with color-coded status
-- **Previous Answer Display:** See your last answer with feedback
+Within the struggling and mastered tiers, a character's weight is `(1 − successRate)² ÷ (1 + 0.5 × attempts)` — worse and less-practised ranks higher than worse but heavily drilled. Untested characters are drawn uniformly. 15% of each tier's share is spread evenly across its members so no single character can take over its tier.
 
-### Search & Navigation
+Two things worth knowing:
 
-- **Real-time Search:** Search across all columns in History and Statistics
-- **Pinyin Normalization:** Search handles tone variations and ü/u alternatives
-- **Dictionary Links:** Click any row to open Purple Culture dictionary page
-- **Responsive Tables:** Paginated tables with customizable page size
+- **The shares are a budget, not a guarantee.** An empty tier's share is redistributed across the tiers that have members, so once everything in range is mastered, mastered characters get 100% of the draws.
+- **The character you just answered is never shown twice in a row**, as long as there is anything else in range.
 
-### Data Persistence
+Adaptive selection starts as soon as any character in range has one attempt. Before that, selection is uniformly random.
 
-- **Local Storage:** All progress saved in browser localStorage
-- **Cross-Session Persistence:** Data persists across refreshes and sessions
-- **Reset Functionality:** Clear all data with confirmation modal
+### Range expansion
 
-### User Interface
+- Starts at the first **100** characters, grows to all **1,500**.
+- Expands by **+10** when **≥ 80%** of your **last 10 answers** are correct.
+- That window is **rolling and checked after every answer** once you have ten of them, not on every tenth answer. It restarts after each expansion, and it survives a page reload.
+- **The range only grows.** Dropping below 80% does not shrink it back.
+- A toast appears when it expands.
 
-- **Responsive Design:** Optimized for desktop, tablet, and mobile
-- **Toast Notifications:** Visual feedback for range expansions
-- **Smooth Animations:** Fade-in modals, page transitions, and character displays
-- **Accessible:** Keyboard navigation and ARIA labels
-- **Modern UI:** Clean design with Tailwind CSS
+### Statistics and history
 
----
+- Per-character success rates, colour-coded: 🟢 ≥ 80%, 🟡 50–79%, 🔴 < 50%.
+- Sortable by character, correct count, attempts or success rate; filterable to all / struggling / mastered.
+- Last 100 answers in History.
+- Search across both tables, with the same pinyin normalisation used for answers.
+- Each character links to its [Purple Culture](https://www.purpleculture.net/) dictionary entry.
 
-## Keyboard Shortcuts
+### Persistence
 
-- **Enter:** Submit answer and move to next character
-- **F1:** Switch to Pinyin mode
-- **F2:** Switch to Simplified mode
-- **F3:** Switch to Traditional mode
-- **Left Arrow:** Switch to previous mode
-- **Right Arrow:** Switch to next mode
-- **Comma (,):** Toggle pinyin hint
-- **Period (.):** Toggle English hint
+Everything lives in `localStorage` under `flashcard-*` keys and is validated on read: records that fail validation are dropped rather than allowed to corrupt selection. A `flashcard-schema-version` key marks the shape. Clearing your data is available from the Reset button, behind a confirmation.
+
+### Accessibility
+
+Checked by `axe-core` in the test suite and by `eslint-plugin-jsx-a11y`, both of which gate CI. There is a skip link, every route has a heading, tables are captioned with scoped headers, sortable headers are real buttons, the reset dialog traps focus, and `prefers-reduced-motion` is honoured. Colour tokens meet WCAG AA at the sizes they are used.
+
+> `axe` cannot evaluate colour contrast under jsdom, which has no layout, so that rule is disabled in the unit tests rather than silently reported as passing. Contrast is handled by the token values themselves.
 
 ---
 
-## Adaptive Learning System Explained
+## Keyboard shortcuts
 
-### Character Selection Algorithm
+| Key                    | Action                               |
+| ---------------------- | ------------------------------------ |
+| `Enter`                | Submit the answer and advance        |
+| `F1` / `F2` / `F3`     | Both / simplified / traditional mode |
+| `←` / `→`              | Previous / next display mode         |
+| `Cmd`+`.` / `Ctrl`+`.` | Toggle the pinyin hint               |
+| `Cmd`+`/` / `Ctrl`+`/` | Toggle the English hint              |
 
-The app uses a simple weighted selection algorithm that ensures characters you're struggling with or that are new get prioritized:
-
-**Selection Distribution:**
-
-- **80% of selections** come from unsuccessful or new characters
-  - Prioritizes characters you're struggling with
-  - Ensures new characters in your range get practice
-  - Progressive weighting: lower success rate and fewer attempts = exponentially higher priority
-  - Prevents over-showing characters with many failed attempts
-- **20% of selections** come from successful characters
-  - Maintains exposure to characters you've mastered
-  - Reduced weight for high success with many attempts
-  - Prevents repeatedly showing the same mastered characters
-
-**Character Categories:**
-
-1. **Unsuccessful/Untested Characters** (<50% success OR 0 attempts)
-   - 80% of all selections
-   - Progressive weighting: (1 - successRate)² × attempt_penalty
-   - Untested characters get highest priority (weight = 1.0)
-   - Lower success rate and fewer attempts = exponentially higher weight
-2. **Successful Characters** (≥50% success rate)
-   - 20% of all selections
-   - Reduced weight for high success with many attempts
-   - Prevents over-showing mastered characters
-
-**Configuration:**
-
-- Unsuccessful threshold: <50% success rate
-- Selection distribution: 80% unsuccessful/untested, 20% successful
-- Progressive weighting: prioritizes low success rates and low attempt counts
-
-### Range Expansion
-
-The app automatically expands your practice range as you improve:
-
-- **Starting Range:** First 100 characters
-- **Expansion Check:** Every 10 answers (EXPANSION_INTERVAL)
-- **Expansion Criteria:**
-  - ≥80% success rate in your **last 10 answers**
-  - Must have at least 10 answers total
-- **Expansion Amount:** +10 characters per expansion
-- **Maximum Range:** 1,500 characters (full dataset)
-
-**Note:** The success rate is calculated from your **last 10 answers only** (rolling window). This ensures expansion is based on recent performance, not historical performance. The system checks this every 10 answers.
-
-When your range expands, you'll see a toast notification at the top of the screen.
+The hint shortcuts need a modifier because the answer field keeps focus at all times — an unmodified `.` or `/` would be swallowed instead of typed. `Cmd`+`,` is unavailable: every browser binds it to its own settings on macOS. The arrow keys are ignored while a text field has focus, so they still move the caret. Mode switching does not wrap at either end.
 
 ---
 
-## Data Source
-
-- Contains the 1,500 most common Chinese characters
-- Each entry includes: 汉字 (simplified), traditional character, pinyin, and English meaning
-- All modes support the full 1,500 character dataset
-- Traditional characters are included for all entries
-
----
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- **Node.js** v18 or newer ([Download](https://nodejs.org/))
-- **npm** (comes with Node.js) or **yarn** or **pnpm**
+- **Node.js 22.12 or newer.** Vite 7 requires `^20.19 || >=22.12`, and Vitest 5 requires `>=22.12`. CI runs Node 22.
+- **npm.** Only `package-lock.json` is committed, and CI uses `npm ci`; yarn or pnpm would produce a divergent tree.
 
-### Development Installation
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/janschupke/flashcards.git
-   cd flashcards
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-   The app will be available at [http://localhost:5173](http://localhost:5173) (Vite default port)
-
-4. **Open in browser:**
-   - The dev server will automatically open, or navigate to the URL shown in the terminal
-
-### Development Scripts
+### Install and run
 
 ```bash
-# Start development server with hot reload
+git clone https://github.com/janschupke/flashcards.git
+cd flashcards
+npm install
 npm run dev
-
-# Run all tests
-npm run test
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:ui
-
-# Type checking (TypeScript)
-npm run typecheck
-
-# Lint code
-npm run lint
-
-# Auto-fix linting issues
-npm run lint:fix
-
-# Format code with Prettier
-npm run format
-
-# Check code formatting
-npm run format:check
-
-# Build for production
-npm run build
-
-# Preview production build locally
-npm run preview
-
-# Run all checks (knip, typecheck, test, lint, format, build)
-npm run check
 ```
+
+The dev server listens on **http://localhost:3000** (set in `vite.config.ts`). It does not open a browser for you.
+
+### Scripts
+
+| Script                  | What it does                                           |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run dev`           | Dev server on port 3000                                |
+| `npm run build`         | Typecheck, then build to `dist/`                       |
+| `npm run preview`       | Serve the built bundle on port 4173                    |
+| `npm run test`          | Run the test suite once                                |
+| `npm run test:coverage` | Run with coverage and enforce the 80% threshold        |
+| `npm run typecheck`     | `tsc --noEmit`                                         |
+| `npm run lint`          | ESLint over the whole project, zero warnings tolerated |
+| `npm run lint:fix`      | ESLint with `--fix`                                    |
+| `npm run format`        | Prettier write                                         |
+| `npm run format:check`  | Prettier check                                         |
+| `npm run knip`          | Unused files, exports and dependencies                 |
+| `npm run check`         | All of the above, in the order CI runs them            |
 
 ### Testing
 
-- **Test Framework:** [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/)
-- **Coverage:** 191 tests covering components, hooks, utilities, and algorithms
-- **Run Tests:** `npm run test` or `npm run test:coverage` for coverage report
+[Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/) and jsdom. **381 tests across 39 files.** Coverage is gated at **80%** for statements, branches, functions and lines.
+
+`src/test/test-utils.tsx` provides `renderWithProviders`, `renderWithRouter` and `expectNoA11yViolations`; use them rather than re-wrapping components at each call site.
 
 ---
 
-## Building for Production
+## Continuous integration
 
-Create an optimized production build:
-
-```bash
-npm run build
-```
-
-Preview the production build locally:
-
-```bash
-npm run preview
-```
+`.github/workflows/pr-checks.yml` runs on every pull request and on pushes to `master`/`main`, on Node 22. It runs knip, typecheck, tests with coverage, lint, format check and build — the same steps as `npm run check`, in the same order, so a green local run means a green CI run.
 
 ---
 
 ## Deployment
 
-### Vercel Deployment (Recommended)
+Configured for [Vercel](https://vercel.com/): framework preset Vite, build `npm run build`, output `dist`. `vercel.json` rewrites all routes to `index.html` so `/history` and `/statistics` resolve on a hard refresh. No environment variables are needed. Pushes to the default branch deploy automatically; pull requests get preview deployments.
 
-This project is pre-configured for [Vercel](https://vercel.com/) with optimal settings for a React SPA.
-
-#### Prerequisites
-
-- A [Vercel account](https://vercel.com/signup) (free tier works)
-- Your code pushed to GitHub, GitLab, or Bitbucket
-
-#### Deployment Steps
-
-1. **Push to Git:**
-
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
-
-2. **Import to Vercel:**
-   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
-   - Click "Add New Project"
-   - Import your repository
-   - Vercel will auto-detect the following settings:
-     - **Framework Preset:** Vite
-     - **Build Command:** `npm run build`
-     - **Output Directory:** `dist`
-     - **Install Command:** `npm install`
-
-3. **Deploy:**
-   - Click "Deploy"
-   - Vercel will build and deploy your app
-   - You'll get a production URL (e.g., `your-app.vercel.app`)
-
-#### Vercel Configuration
-
-The project includes `vercel.json` for SPA routing:
-
-```json
-{
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-```
-
-This ensures all routes (e.g., `/history`, `/statistics`) work correctly in production.
-
-#### Environment Variables
-
-**No environment variables required** - the app works out of the box with default settings.
-
-#### Custom Domain
-
-1. In Vercel project settings, go to "Domains"
-2. Add your custom domain
-3. Follow DNS configuration instructions
-4. Vercel will automatically provision SSL certificates
-
-#### Continuous Deployment
-
-- Every push to `main` branch triggers automatic deployment
-- Pull requests get preview deployments automatically
-- Deployments are instant and zero-downtime
-
-#### Local Production Testing
-
-Before deploying, test the production build locally:
+To check a production build locally:
 
 ```bash
-# Build the production bundle
 npm run build
-
-# Preview the production build
 npm run preview
 ```
 
-This serves the optimized build at `http://localhost:4173` (or similar) to verify everything works correctly.
-
 ---
 
-## Tech Stack
+## Tech stack
 
-- **React 19.1.0**
-- **Vite 7.0.2**
-- **TypeScript 5.8.3**
-- **Tailwind CSS** (styling)
-- **Vitest 3.2.4** (unit testing)
-- **Testing Library** (React component testing)
+React 19, Vite 7, TypeScript 5.9, Tailwind CSS 4, TanStack Table 8, React Router 7, Vitest 5. Exact versions live in `package.json`; they are not repeated here because a hand-copied list drifts on the first install.
 
 ---
 
 ## Configuration
 
-All adaptive learning parameters can be configured in `src/constants/adaptive.ts`:
-
-```typescript
-export const ADAPTIVE_CONFIG = {
-  // Selection algorithm
-  MIN_ATTEMPTS_FOR_ADAPTIVE: 3, // Attempts needed before adaptive selection activates
-
-  // Success rate threshold for categorization
-  UNSUCCESSFUL_THRESHOLD: 0.5, // <50% = unsuccessful (untested also in this group)
-
-  // Weighting constants
-  UNTESTED_WEIGHT: 1.0, // Weight for untested characters (highest priority)
-  SELECTION_SPLIT: 0.8, // 80% for unsuccessful/untested, 20% for successful
-  ATTEMPT_PENALTY_FACTOR: 0.5, // Factor to reduce weight for characters with many attempts
-  SUCCESS_PENALTY_EXPONENT: 2.0, // Exponent for progressive success rate penalty
-
-  // Range expansion
-  INITIAL_RANGE: 100, // Starting character count
-  EXPANSION_INTERVAL: 10, // Check every N answers (rolling window size)
-  EXPANSION_AMOUNT: 10, // Add N characters when expanding
-  SUCCESS_THRESHOLD: 0.8, // 80% success rate required for expansion (in last N answers)
-  // Note: MIN_ATTEMPTS_FOR_EXPANSION is no longer used - expansion checks when recentAnswers.length >= EXPANSION_INTERVAL
-
-  // Storage limits
-  MAX_HISTORY_ENTRIES: 100, // Maximum history entries to store
-} as const;
-```
+Adaptive parameters live in [`src/constants/adaptive.ts`](src/constants/adaptive.ts) and are the single source of truth — the in-app **About** page renders its numbers from them, so it cannot drift. Read that file rather than a copy pasted here.
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 src/
-├── components/          # React components
-│   ├── common/         # Reusable components (Button, Table, Toast, etc.)
-│   ├── controls/       # Control components (ModeButtonGroup, etc.)
-│   ├── feedback/       # Feedback components (PreviousCharacter, Statistics, About, etc.)
-│   ├── input/          # Input components (PinyinInput, CharacterInput, etc.)
-│   ├── layout/         # Layout components (AppLayout, Navigation, etc.)
-│   └── core/           # Core components (FlashCards, CharacterDisplay, etc.)
-├── contexts/           # React contexts (ToastContext)
-├── constants/          # Configuration constants
-├── hooks/              # Custom React hooks
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-│   ├── adaptiveUtils.ts    # Adaptive selection algorithm
-│   ├── storageUtils.ts    # Local storage utilities
-│   ├── characterUtils.ts   # Character-related utilities
-│   └── ...
-└── data/               # Data files (characters.json)
+├── components/
+│   ├── common/      Button, Card, ConfirmModal, ErrorBoundary,
+│   │                FilterButton, PaginatedTable, SearchInput, Toast
+│   ├── controls/    ControlButtons, FlashcardControls, ModeButtonGroup
+│   ├── core/        FlashcardPage, CharacterDisplay
+│   ├── feedback/    About, History, Statistics, PreviousCharacter,
+│   │                CharacterInfoColumn
+│   ├── input/       FlashcardInput
+│   └── layout/      AppLayout, Navigation, TabNavigation, TabButton,
+│                    MobileMenu, PageShell, PageTransition,
+│                    FlashcardStatsPanel
+├── constants/       adaptive, layout, modes, routes
+├── contexts/        FlashCardContext, ToastContext
+├── data/            characters.json (1,500 entries)
+├── hooks/           useFlashCard, useStatistics, useKeyboardShortcuts,
+│                    useModeNavigation, useModeToggle, useFlashAnimation,
+│                    useInputVariant
+├── pages/           HistoryPage, StatisticsPage, AboutPage
+├── test/            setup, test-utils, a11y smoke tests
+├── types/           shared types and enums
+└── utils/           adaptiveUtils, storageUtils, flashcardStateUtils,
+                     keyboardUtils, pinyinUtils, tableUtils, ...
 ```
+
+The flashcard route renders `components/core/FlashcardPage`; the other three routes are thin wrappers in `pages/`.
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE)
