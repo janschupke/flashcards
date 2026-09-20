@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { getAllCharacterPerformance } from '../utils/storageUtils';
 import data from '../data/characters.json';
-import { getSuccessRate } from '../utils/adaptiveUtils';
+import { calculateSuccessRate } from '../utils/statisticsUtils';
 import { SortField, SortDirection, FilterType } from '../types';
 
 interface StatisticsItem {
@@ -26,23 +26,21 @@ export const useStatistics = (): {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  // Load performance data from storage
-  const performance = getAllCharacterPerformance();
-
-  // Get character data and calculate success rates
+  // Read storage once, not on every render. Previously this ran on each
+  // render -- a localStorage read plus a JSON.parse of up to 1500 records --
+  // and returned a fresh array identity that defeated the memo below.
   const statisticsData = useMemo<StatisticsItem[]>(() => {
-    return performance.map((perf) => {
-      const character = data[perf.characterIndex] ?? null;
-      const successRate = getSuccessRate(perf);
-      return {
-        characterIndex: perf.characterIndex,
-        character,
-        correct: perf.correct,
-        total: perf.total,
-        successRate,
-      };
-    });
-  }, [performance]);
+    return getAllCharacterPerformance().map((perf) => ({
+      characterIndex: perf.characterIndex,
+      character: data[perf.characterIndex] ?? null,
+      correct: perf.correct,
+      total: perf.total,
+      // Display rate: an untested character shows 0%, not 100%. The selection
+      // code deliberately answers this differently, which is why the two now
+      // have distinct names.
+      successRate: calculateSuccessRate(perf.correct, perf.total),
+    }));
+  }, []);
 
   // Filter data
   const filteredData = useMemo(() => {

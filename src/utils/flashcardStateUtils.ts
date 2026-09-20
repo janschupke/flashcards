@@ -6,6 +6,7 @@ import {
   saveHistory,
   savePreviousAnswer,
   saveAdaptiveRange,
+  saveRecentAnswers,
   updateCharacterPerformance,
   getAllCharacterPerformance,
 } from './storageUtils';
@@ -49,13 +50,14 @@ export const updateStorageAfterAnswer = (
   totalAttempted: number,
   totalSeen: number,
   allAnswers: Answer[],
-  answer: Answer
+  answer: Answer,
+  recentAnswers: Answer[],
+  adaptiveRange: number,
+  previousAdaptiveRange: number
 ): void => {
-  // Note: allAnswers parameter is used for saving history
   // Always update performance - empty answers are incorrect attempts
   updateCharacterPerformance(characterIndex, isCorrect);
 
-  // Save counters to storage
   saveCounters({
     correctAnswers,
     totalSeen,
@@ -64,9 +66,16 @@ export const updateStorageAfterAnswer = (
 
   // Save history to storage (trimmed to MAX_HISTORY_ENTRIES)
   saveHistory(allAnswers);
-
-  // Save previous answer to storage
   savePreviousAnswer(answer);
+
+  // Persisted so expansion progress survives a reload. Previously the window
+  // was state-only, so every refresh needed ten fresh answers again.
+  saveRecentAnswers(recentAnswers);
+
+  // Only write the range when it actually moved.
+  if (adaptiveRange !== previousAdaptiveRange) {
+    saveAdaptiveRange(adaptiveRange);
+  }
 };
 
 /**
@@ -79,44 +88,40 @@ export const calculateAdaptiveRangeExpansion = (
   recentAnswers: Answer[],
   currentAdaptiveRange: number
 ): { newAdaptiveRange: number; shouldExpand: boolean } => {
-  let newAdaptiveRange = currentAdaptiveRange;
-  let shouldExpand = false;
-
-  // Only check expansion if we have enough recent answers
-  if (recentAnswers.length >= ADAPTIVE_CONFIG.EXPANSION_INTERVAL) {
-    // Calculate success rate from last 10 answers
-    const recentCorrect = recentAnswers.filter((a) => a.isCorrect).length;
-    const recentTotal = recentAnswers.length;
-    const successRate = recentCorrect / recentTotal;
-
-    if (successRate >= ADAPTIVE_CONFIG.SUCCESS_THRESHOLD) {
-      // Expand range
-      const maxRange = Math.min(
-        currentAdaptiveRange + ADAPTIVE_CONFIG.EXPANSION_AMOUNT,
-        data.length
-      );
-      newAdaptiveRange = maxRange;
-      shouldExpand = true;
-    }
+  // Pure: the caller persists the result. Writing here meant this ran inside a
+  // setState updater on every single answer, even when nothing changed.
+  if (recentAnswers.length < ADAPTIVE_CONFIG.EXPANSION_INTERVAL) {
+    return { newAdaptiveRange: currentAdaptiveRange, shouldExpand: false };
   }
 
-  // Save adaptive range to storage
-  saveAdaptiveRange(newAdaptiveRange);
+  const recentCorrect = recentAnswers.filter((a) => a.isCorrect).length;
+  const successRate = recentCorrect / recentAnswers.length;
 
-  return {
-    newAdaptiveRange,
-    shouldExpand,
-  };
+  if (successRate < ADAPTIVE_CONFIG.SUCCESS_THRESHOLD) {
+    return { newAdaptiveRange: currentAdaptiveRange, shouldExpand: false };
+  }
+
+  const expanded = Math.min(currentAdaptiveRange + ADAPTIVE_CONFIG.EXPANSION_AMOUNT, data.length);
+
+  // Already at the full dataset: nothing to expand into.
+  if (expanded === currentAdaptiveRange) {
+    return { newAdaptiveRange: currentAdaptiveRange, shouldExpand: false };
+  }
+
+  return { newAdaptiveRange: expanded, shouldExpand: true };
 };
 
 /**
  * Gets the next character index using adaptive selection
+ *
+ * @param adaptiveRange - Current practice range
+ * @param excludeIndex - Character to avoid repeating immediately
  */
-export const getNextCharacterIndex = (adaptiveRange: number): number => {
+export const getNextCharacterIndex = (adaptiveRange: number, excludeIndex?: number): number => {
   const effectiveLimit = Math.min(adaptiveRange, data.length);
   const charactersInRange = Array.from({ length: effectiveLimit }, (_, i) => i);
   const performance = getAllCharacterPerformance();
-  return selectAdaptiveCharacter(charactersInRange, performance);
+  return selectAdaptiveCharacter(charactersInRange, performance, excludeIndex);
 };
 
 /**

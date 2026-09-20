@@ -38,6 +38,7 @@ vi.mock('./storageUtils', () => ({
   saveHistory: vi.fn(),
   saveCounters: vi.fn(),
   savePreviousAnswer: vi.fn(),
+  saveRecentAnswers: vi.fn(),
   updateCharacterPerformance: vi.fn(),
 }));
 
@@ -144,11 +145,48 @@ describe('flashcardStateUtils', () => {
         1, // totalAttempted (should increment for empty)
         1,
         [mockAnswer],
-        mockAnswer
+        mockAnswer,
+        [mockAnswer], // recentAnswers
+        100, // adaptiveRange
+        100 // previousAdaptiveRange
       );
 
       // Should update character performance even for empty answers
       expect(storageUtils.updateCharacterPerformance).toHaveBeenCalledWith(0, false);
+    });
+
+    it('persists the rolling window so expansion progress survives a reload', () => {
+      const mockAnswer: Answer = {
+        characterIndex: 0,
+        submittedPinyin: 'wo',
+        correctPinyin: 'wǒ',
+        simplified: '我',
+        traditional: '我',
+        english: 'I',
+        isCorrect: true,
+      };
+
+      updateStorageAfterAnswer(0, true, 1, 1, 1, [mockAnswer], mockAnswer, [mockAnswer], 100, 100);
+
+      expect(storageUtils.saveRecentAnswers).toHaveBeenCalledWith([mockAnswer]);
+    });
+
+    it('only writes the adaptive range when it actually moved', () => {
+      const mockAnswer: Answer = {
+        characterIndex: 0,
+        submittedPinyin: 'wo',
+        correctPinyin: 'wǒ',
+        simplified: '我',
+        traditional: '我',
+        english: 'I',
+        isCorrect: true,
+      };
+
+      updateStorageAfterAnswer(0, true, 1, 1, 1, [mockAnswer], mockAnswer, [mockAnswer], 100, 100);
+      expect(storageUtils.saveAdaptiveRange).not.toHaveBeenCalled();
+
+      updateStorageAfterAnswer(0, true, 1, 1, 1, [mockAnswer], mockAnswer, [mockAnswer], 110, 100);
+      expect(storageUtils.saveAdaptiveRange).toHaveBeenCalledWith(110);
     });
   });
 

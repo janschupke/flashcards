@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { selectAdaptiveCharacter, getSuccessRate } from './adaptiveUtils';
+import {
+  selectAdaptiveCharacter,
+  getSuccessRate,
+  getSuccessRateOrNull,
+  getTier,
+  calculateCharacterWeights,
+} from './adaptiveUtils';
+import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { CharacterPerformance } from '../types/storage';
 
 // Number of iterations for statistical tests to ensure reliable results
@@ -89,18 +96,91 @@ describe('adaptiveUtils', () => {
       expect(unsuccessfulOrNewPercent).toBeLessThan(0.85);
     });
 
-    it('should prioritize untested over unsuccessful characters', () => {
+    it('should prioritize struggling over untested characters', () => {
       const characters = [0, 1];
       const performance: CharacterPerformance[] = [
-        { characterIndex: 0, correct: 0, total: 5 }, // 0% - unsuccessful (weight reduced by attempt penalty)
-        // Character 1 is untested (no performance data) - gets weight = 1.0 (highest priority)
+        { characterIndex: 0, correct: 0, total: 5 }, // 0% - struggling
+        // Character 1 is untested (no performance data)
       ];
 
       const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
       const percentages = getPercentages(counts, TEST_ITERATIONS);
 
-      // Untested should be selected more often than unsuccessful (untested has weight = 1.0, unsuccessful has penalty)
-      expect(percentages[1] ?? 0).toBeGreaterThan(percentages[0] ?? 0);
+      // The struggling tier holds a larger share than the untested tier. Under
+      // the old two-group split the opposite held: a flat untested weight of
+      // 1.0 beat a struggling card's maximum of 0.667, so the card you had
+      // just got wrong was the least likely card in the pool.
+      expect(percentages[0] ?? 0).toBeGreaterThan(percentages[1] ?? 0);
+    });
+
+    it('draws a freshly-missed character more often than its untested neighbours', () => {
+      // The specific case the About page promises and the old algorithm broke:
+      // one card answered wrong once, in a range of otherwise-untested cards.
+      const characters = Array.from({ length: 20 }, (_, i) => i);
+      const performance: CharacterPerformance[] = [{ characterIndex: 0, correct: 0, total: 1 }];
+
+      const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
+      const percentages = getPercentages(counts, TEST_ITERATIONS);
+
+      const missed = percentages[0] ?? 0;
+      const untestedAverage =
+        characters.slice(1).reduce((sum, i) => sum + (percentages[i] ?? 0), 0) /
+        (characters.length - 1);
+
+      expect(missed).toBeGreaterThan(untestedAverage);
+    });
+
+    it('never returns the excluded character when others are available', () => {
+      const characters = [0, 1, 2];
+      const performance: CharacterPerformance[] = [
+        { characterIndex: 0, correct: 0, total: 2 }, // would otherwise dominate
+        { characterIndex: 1, correct: 10, total: 10 },
+        { characterIndex: 2, correct: 10, total: 10 },
+      ];
+
+      for (let i = 0; i < 300; i++) {
+        expect(selectAdaptiveCharacter(characters, performance, 0)).not.toBe(0);
+      }
+    });
+
+    it('falls back to the full range when every candidate is excluded', () => {
+      expect(selectAdaptiveCharacter([7], [{ characterIndex: 7, correct: 0, total: 1 }], 7)).toBe(
+        7
+      );
+    });
+
+    it('bounds how much of a tier a single struggling character can take', () => {
+      // One failing card among mastered ones used to take the whole
+      // struggling-or-untested budget and repeat back to back.
+      const characters = [0, 1, 2, 3, 4];
+      const performance: CharacterPerformance[] = [
+        { characterIndex: 0, correct: 0, total: 2 },
+        ...[1, 2, 3, 4].map((characterIndex) => ({ characterIndex, correct: 10, total: 10 })),
+      ];
+
+      const counts = runSelectionTest(characters, performance, TEST_ITERATIONS);
+      const percentages = getPercentages(counts, TEST_ITERATIONS);
+
+      // getPercentages returns a fraction of 1, not a percent.
+      // It should lead, but not monopolise: the struggling tier is the only
+      // populated one besides mastered, so its share is 0.5/0.7 ~= 0.71.
+      expect(percentages[0] ?? 0).toBeGreaterThan(0.5);
+      expect(percentages[0] ?? 0).toBeLessThan(0.85);
+    });
+
+    it('survives a corrupt performance record instead of pinning to one character', () => {
+      // A record missing `total` used to produce NaN weights, making the
+      // cumulative loop fall through to the last character on every draw.
+      const characters = [0, 1, 2, 3];
+      const performance = [
+        { characterIndex: 0, correct: 1 },
+        { characterIndex: 1, correct: 0, total: 2 },
+      ] as CharacterPerformance[];
+
+      const counts = runSelectionTest(characters, performance, 400);
+      const distinct = Object.values(counts).filter((c) => c > 0).length;
+
+      expect(distinct).toBeGreaterThan(1);
     });
 
     it('should prioritize unsuccessful/new over successful characters', () => {
@@ -235,5 +315,111 @@ describe('adaptiveUtils', () => {
         expect(percentages[charIndex] ?? 0).toBeGreaterThan(0);
       });
     });
+  });
+});
+
+describe('getSuccessRateOrNull', () => {
+  it('returns null for an untested character so callers must decide what that means', () => {
+    expect(getSuccessRateOrNull(null)).toBeNull();
+    expect(getSuccessRateOrNull({ characterIndex: 0, correct: 0, total: 0 })).toBeNull();
+  });
+
+  it('returns the ratio for an attempted character', () => {
+    expect(getSuccessRateOrNull({ characterIndex: 0, correct: 3, total: 4 })).toBe(0.75);
+  });
+});
+
+describe('getTier', () => {
+  it.each([
+    ['untested', undefined, 'untested'],
+    ['zero attempts', { characterIndex: 0, correct: 0, total: 0 }, 'untested'],
+    ['0% success', { characterIndex: 0, correct: 0, total: 3 }, 'struggling'],
+    ['just below the threshold', { characterIndex: 0, correct: 4, total: 9 }, 'struggling'],
+    ['exactly at the threshold', { characterIndex: 0, correct: 1, total: 2 }, 'mastered'],
+    ['100% success', { characterIndex: 0, correct: 5, total: 5 }, 'mastered'],
+  ])('classifies %s', (_label, perf, expected) => {
+    expect(getTier(perf)).toBe(expected);
+  });
+});
+
+describe('calculateCharacterWeights', () => {
+  const sum = (weights: number[]): number => weights.reduce((a, b) => a + b, 0);
+
+  it('always sums to 1', () => {
+    const weights = calculateCharacterWeights(
+      [0, 1, 2, 3],
+      [
+        { characterIndex: 0, correct: 0, total: 2 },
+        { characterIndex: 1, correct: 5, total: 5 },
+      ]
+    );
+
+    expect(sum(weights)).toBeCloseTo(1, 10);
+  });
+
+  it('gives each tier its configured share when all three are populated', () => {
+    const weights = calculateCharacterWeights(
+      [0, 1, 2],
+      [
+        { characterIndex: 0, correct: 0, total: 2 }, // struggling
+        { characterIndex: 2, correct: 5, total: 5 }, // mastered
+        // 1 is untested
+      ]
+    );
+
+    expect(weights[0]).toBeCloseTo(ADAPTIVE_CONFIG.TIER_SHARES.STRUGGLING, 10);
+    expect(weights[1]).toBeCloseTo(ADAPTIVE_CONFIG.TIER_SHARES.UNTESTED, 10);
+    expect(weights[2]).toBeCloseTo(ADAPTIVE_CONFIG.TIER_SHARES.MASTERED, 10);
+  });
+
+  it('ranks a struggling character above an untested one', () => {
+    const weights = calculateCharacterWeights(
+      [0, 1],
+      [{ characterIndex: 0, correct: 0, total: 1 }]
+    );
+
+    expect(weights[0] ?? 0).toBeGreaterThan(weights[1] ?? 0);
+  });
+
+  it('redistributes an empty tier across the populated ones, in proportion', () => {
+    // Only struggling and mastered are populated, so their shares are
+    // rescaled by 1 / (0.5 + 0.2).
+    const weights = calculateCharacterWeights(
+      [0, 1],
+      [
+        { characterIndex: 0, correct: 0, total: 2 },
+        { characterIndex: 1, correct: 5, total: 5 },
+      ]
+    );
+    const scale = ADAPTIVE_CONFIG.TIER_SHARES.STRUGGLING + ADAPTIVE_CONFIG.TIER_SHARES.MASTERED;
+
+    expect(weights[0]).toBeCloseTo(ADAPTIVE_CONFIG.TIER_SHARES.STRUGGLING / scale, 10);
+    expect(weights[1]).toBeCloseTo(ADAPTIVE_CONFIG.TIER_SHARES.MASTERED / scale, 10);
+  });
+
+  it('ranks a worse character above a better one inside the same tier', () => {
+    const weights = calculateCharacterWeights(
+      [0, 1],
+      [
+        { characterIndex: 0, correct: 0, total: 4 }, // 0%
+        { characterIndex: 1, correct: 1, total: 4 }, // 25%
+      ]
+    );
+
+    expect(weights[0] ?? 0).toBeGreaterThan(weights[1] ?? 0);
+  });
+
+  it('falls back to uniform weights when every record is corrupt', () => {
+    const weights = calculateCharacterWeights([0, 1, 2], [
+      { characterIndex: 0, correct: 1, total: Number.NaN },
+    ] as CharacterPerformance[]);
+
+    expect(sum(weights)).toBeCloseTo(1, 10);
+    weights.forEach((w) => expect(Number.isFinite(w)).toBe(true));
+  });
+
+  it('returns an empty array for no characters and [1] for one', () => {
+    expect(calculateCharacterWeights([], [])).toEqual([]);
+    expect(calculateCharacterWeights([5], [])).toEqual([1.0]);
   });
 });

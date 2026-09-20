@@ -12,14 +12,18 @@ vi.mock('../utils/storageUtils', () => ({
   loadCounters: vi.fn(() => null),
   loadPreviousAnswer: vi.fn(() => null),
   loadAdaptiveRange: vi.fn(() => null),
+  loadRecentAnswers: vi.fn(() => []),
   loadMode: vi.fn(() => null),
   saveHistory: vi.fn(),
   saveCounters: vi.fn(),
   savePreviousAnswer: vi.fn(),
   saveAdaptiveRange: vi.fn(),
+  saveRecentAnswers: vi.fn(),
   saveMode: vi.fn(),
   updateCharacterPerformance: vi.fn(),
   getAllCharacterPerformance: vi.fn(() => []),
+  clearAllStorage: vi.fn(),
+  migrateStorage: vi.fn(),
 }));
 
 vi.mock('../utils/flashcardUtils', () => ({

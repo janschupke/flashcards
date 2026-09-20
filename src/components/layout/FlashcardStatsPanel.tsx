@@ -3,7 +3,6 @@ import { Tooltip } from 'react-tooltip';
 import { Button } from '../common/Button';
 import { ButtonSize, ButtonVariant } from '../../types/components';
 import { ConfirmModal } from '../common/ConfirmModal';
-import { clearAllStorage } from '../../utils/storageUtils';
 import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
 import { calculateSuccessRate, getSuccessRateColorClass } from '../../utils/statisticsUtils';
 import { Answer } from '../../types';
@@ -30,7 +29,8 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
   };
 
   const handleResetConfirm = (): void => {
-    clearAllStorage();
+    // resetStatistics clears storage itself; this no longer has to be sequenced
+    // by the caller to be correct.
     if (onReset) {
       onReset();
     }
@@ -134,8 +134,7 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               </p>
               <p className="text-xs opacity-90">
                 Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} • Expansion: +
-                {ADAPTIVE_CONFIG.EXPANSION_AMOUNT} every {ADAPTIVE_CONFIG.EXPANSION_INTERVAL}{' '}
-                answers
+                {ADAPTIVE_CONFIG.EXPANSION_AMOUNT} characters, checked after every answer
               </p>
             </div>
           </Tooltip>

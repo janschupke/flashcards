@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveHistory, loadHistory } from './storageUtils';
+import {
+  saveHistory,
+  loadHistory,
+  getAllCharacterPerformance,
+  loadAdaptiveRange,
+  saveAdaptiveRange,
+  saveRecentAnswers,
+  loadRecentAnswers,
+  migrateStorage,
+  clearAllStorage,
+} from './storageUtils';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { Answer } from '../types';
 
@@ -144,5 +154,117 @@ describe('storageUtils - History', () => {
       expect(saved[0]?.characterIndex).toBe(10);
       expect(saved[saved.length - 1]?.characterIndex).toBe(109);
     });
+  });
+});
+
+describe('storageUtils - validation', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  const validRecord = { characterIndex: 3, correct: 1, total: 2, lastSeen: 123 };
+
+  it('returns an empty array when performance is not an array', () => {
+    // This used to throw from inside a setState updater, with no
+    // ErrorBoundary above it -- a white screen with no way back.
+    window.localStorage.setItem('flashcard-performance', JSON.stringify({ not: 'an array' }));
+
+    expect(getAllCharacterPerformance()).toEqual([]);
+  });
+
+  it('returns an empty array when performance is not valid JSON', () => {
+    window.localStorage.setItem('flashcard-performance', '{oh no');
+
+    expect(getAllCharacterPerformance()).toEqual([]);
+  });
+
+  it.each([
+    ['missing total', { characterIndex: 0, correct: 1 }],
+    ['non-numeric total', { characterIndex: 0, correct: 1, total: 'two' }],
+    ['NaN total', { characterIndex: 0, correct: 1, total: Number.NaN }],
+    ['negative total', { characterIndex: 0, correct: 0, total: -1 }],
+    ['correct greater than total', { characterIndex: 0, correct: 5, total: 2 }],
+    ['not an object', 42],
+    ['null', null],
+  ])('drops a record with %s but keeps the valid ones', (_label, bad) => {
+    window.localStorage.setItem('flashcard-performance', JSON.stringify([bad, validRecord]));
+
+    expect(getAllCharacterPerformance()).toEqual([validRecord]);
+  });
+
+  it('drops lastSeen when it is not a usable number, keeping the record', () => {
+    window.localStorage.setItem(
+      'flashcard-performance',
+      JSON.stringify([{ characterIndex: 3, correct: 1, total: 2, lastSeen: 'yesterday' }])
+    );
+
+    expect(getAllCharacterPerformance()).toEqual([{ characterIndex: 3, correct: 1, total: 2 }]);
+  });
+
+  it.each([
+    ['zero', 0],
+    ['negative', -5],
+    ['non-numeric', 'lots'],
+    ['NaN', Number.NaN],
+  ])('rejects a %s adaptive range', (_label, bad) => {
+    window.localStorage.setItem('flashcard-adaptive-range', JSON.stringify(bad));
+
+    expect(loadAdaptiveRange()).toBeNull();
+  });
+
+  it('accepts a valid adaptive range', () => {
+    saveAdaptiveRange(250);
+
+    expect(loadAdaptiveRange()).toBe(250);
+  });
+
+  it('round-trips the rolling window, trimmed to the expansion interval', () => {
+    const answers: Answer[] = Array.from(
+      { length: ADAPTIVE_CONFIG.EXPANSION_INTERVAL + 5 },
+      (_, i) => ({
+        characterIndex: i,
+        submittedPinyin: 'a',
+        correctPinyin: 'a',
+        simplified: '一',
+        traditional: '一',
+        english: 'one',
+        isCorrect: true,
+      })
+    );
+
+    saveRecentAnswers(answers);
+
+    expect(loadRecentAnswers()).toHaveLength(ADAPTIVE_CONFIG.EXPANSION_INTERVAL);
+  });
+
+  it('drops malformed answers from stored history', () => {
+    window.localStorage.setItem(
+      'flashcard-history',
+      JSON.stringify([{ characterIndex: 0 }, 'nope', null])
+    );
+
+    expect(loadHistory()).toEqual([]);
+  });
+
+  it('migrateStorage rewrites storage without the invalid records', () => {
+    window.localStorage.setItem(
+      'flashcard-performance',
+      JSON.stringify([{ characterIndex: 0, correct: 1 }, validRecord])
+    );
+
+    migrateStorage();
+
+    // Dropped on disk, not merely filtered on read.
+    expect(JSON.parse(window.localStorage.getItem('flashcard-performance') ?? '[]')).toEqual([
+      validRecord,
+    ]);
+    expect(window.localStorage.getItem('flashcard-schema-version')).toBe('1');
+  });
+
+  it('clearAllStorage removes the schema version too', () => {
+    migrateStorage();
+    clearAllStorage();
+
+    expect(window.localStorage.getItem('flashcard-schema-version')).toBeNull();
   });
 });

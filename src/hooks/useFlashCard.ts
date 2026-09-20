@@ -1,21 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  FlashCardState,
-  FlashCardActions,
-  HintType,
-  HINT_TYPES,
-  FlashcardMode,
-  Character,
-} from '../types';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FlashCardState, FlashCardActions, HintType, HINT_TYPES, FlashcardMode } from '../types';
 import {
   loadHistory,
   loadCounters,
   loadPreviousAnswer,
   loadAdaptiveRange,
+  loadRecentAnswers,
   loadMode,
   saveMode,
   saveAdaptiveRange,
+  getAllCharacterPerformance,
+  clearAllStorage,
+  migrateStorage,
 } from '../utils/storageUtils';
+import { selectAdaptiveCharacter } from '../utils/adaptiveUtils';
 import { ADAPTIVE_CONFIG } from '../constants/adaptive';
 import { ANIMATION_TIMINGS } from '../constants';
 import {
@@ -35,11 +33,14 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
   FlashCardActions => {
   // Lazy initializer: load storage data and compute initial state only once on mount
   const [state, setState] = useState<FlashCardState>(() => {
-    // Load data from storage
+    // Validate and version everything on disk before the first read.
+    migrateStorage();
+
     const storedHistory = loadHistory();
     const storedCounters = loadCounters();
     const storedPreviousAnswer = loadPreviousAnswer();
     const storedAdaptiveRange = loadAdaptiveRange();
+    const storedRecentAnswers = loadRecentAnswers();
     const storedMode = loadMode();
 
     // Trim history if it exceeds limit (defensive check in case of data migration or manual edits)
@@ -51,8 +52,14 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
     const initialAdaptiveRange = storedAdaptiveRange ?? ADAPTIVE_CONFIG.INITIAL_RANGE;
     const effectiveLimit = Math.min(initialAdaptiveRange, data.length);
 
-    // Initialize current index - use effectiveLimit for random selection
-    const initialCurrentIndex = initialCurrent ?? Math.floor(Math.random() * effectiveLimit);
+    // Seed the first card through the adaptive selector rather than uniformly,
+    // so a session resumes on something worth practising.
+    const initialCurrentIndex =
+      initialCurrent ??
+      selectAdaptiveCharacter(
+        Array.from({ length: effectiveLimit }, (_, i) => i),
+        getAllCharacterPerformance()
+      );
 
     return {
       current: initialCurrentIndex,
@@ -76,72 +83,64 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       mode: storedMode ?? FlashcardMode.BOTH,
       // Adaptive learning fields
       adaptiveRange: initialAdaptiveRange,
-      recentAnswers: [], // Last 10 answers for expansion calculation
+      // Restored, so expansion progress survives a reload
+      recentAnswers: storedRecentAnswers,
     };
   });
 
-  // Get current character - always return full character (mode only affects display)
-  const currentIndex = state.current;
-  const getCurrentCharacter = useCallback((): Character | null => {
-    return data[currentIndex] ?? null;
-  }, [currentIndex]);
+  // Persistence bookkeeping. An answer is written once it is committed, never
+  // from inside an updater; keying on totalAttempted makes a re-run of the
+  // effect a no-op rather than a second write.
+  const persistedAttemptsRef = useRef<number | null>(null);
+  const persistedRangeRef = useRef(state.adaptiveRange);
 
   const getNext = useCallback(() => {
+    // The updater is pure: it computes the next state and nothing else.
+    // Storage writes used to run inside it, which meant any double invocation
+    // -- StrictMode, a concurrent re-render -- double-counted every answer in
+    // localStorage. Persistence now happens in an effect, from committed state.
     setState((prev) => {
-      const currentCharacter = getCurrentCharacter();
+      // Read the character from prev, not from the render-scoped closure. The
+      // old code graded against getCurrentCharacter() but recorded against
+      // prev.current, so two calls in one batch attributed the answer to the
+      // wrong character.
+      const currentCharacter = data[prev.current] ?? null;
       if (!currentCharacter) return prev;
 
-      // Process answer evaluation
       const { answer, isCorrect, hasInput } = processAnswer(
         currentCharacter,
         prev.pinyinInput,
         prev.current
       );
 
-      // Update incorrect answers if wrong
       const newIncorrectAnswers = [...prev.incorrectAnswers];
       if (!isCorrect) {
         newIncorrectAnswers.push(answer);
       }
 
-      // Update counters
       // Empty answers are still attempts (incorrect ones), so count them
       const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
       const newTotalAttempted = prev.totalAttempted + 1;
       const newTotalSeen = prev.totalSeen + 1;
 
-      // Add to all answers
       const newAllAnswers = [...prev.allAnswers, answer];
 
-      // Maintain last 10 answers for expansion calculation
+      // Rolling window that drives range expansion
       const newRecentAnswers = [...prev.recentAnswers, answer].slice(
         -ADAPTIVE_CONFIG.EXPANSION_INTERVAL
       );
 
-      // Update storage
-      updateStorageAfterAnswer(
-        prev.current,
-        isCorrect,
-        newCorrectAnswers,
-        newTotalAttempted,
-        newTotalSeen,
-        newAllAnswers,
-        answer
-      );
-
-      // Calculate adaptive range expansion using recent answers
       const { newAdaptiveRange, shouldExpand } = calculateAdaptiveRangeExpansion(
         newRecentAnswers,
         prev.adaptiveRange
       );
 
-      // If expansion happened, clear recent answers to start fresh
+      // Start a fresh window after an expansion
       const finalRecentAnswers = shouldExpand ? [] : newRecentAnswers;
 
-      // Get next character index
-      const newIndex = getNextCharacterIndex(newAdaptiveRange);
+      // Exclude the character just answered so it cannot come up twice running
+      const newIndex = getNextCharacterIndex(newAdaptiveRange, prev.current);
 
-      // Create and return new state
       return createNextState(
         prev,
         answer,
@@ -157,7 +156,7 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
         newIndex
       );
     });
-  }, [getCurrentCharacter]);
+  }, []);
 
   const toggleHint = useCallback((hintType: HintType) => {
     setState((prev) => ({
@@ -167,9 +166,14 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
   }, []);
 
   const resetStatistics = useCallback(() => {
-    // Reset to initial adaptive range
+    // Self-sufficient: clears storage itself rather than relying on the caller
+    // having called clearAllStorage first, which is what made correctness
+    // depend on call order at the single call site.
     const initialRange = ADAPTIVE_CONFIG.INITIAL_RANGE;
+    clearAllStorage();
     saveAdaptiveRange(initialRange);
+    persistedAttemptsRef.current = 0;
+    persistedRangeRef.current = initialRange;
 
     setState((prev) => ({
       ...prev,
@@ -210,6 +214,33 @@ export const useFlashCard = ({ initialCurrent }: UseFlashCardProps = {}): FlashC
       flashResult: null,
     }));
   }, []);
+
+  useEffect(() => {
+    if (persistedAttemptsRef.current === null) {
+      // First render: nothing was answered yet, just record the starting point.
+      persistedAttemptsRef.current = state.totalAttempted;
+      return;
+    }
+    if (persistedAttemptsRef.current === state.totalAttempted) return;
+    persistedAttemptsRef.current = state.totalAttempted;
+
+    const answer = state.previousAnswer;
+    if (!answer) return;
+
+    updateStorageAfterAnswer(
+      answer.characterIndex,
+      answer.isCorrect,
+      state.correctAnswers,
+      state.totalAttempted,
+      state.totalSeen,
+      state.allAnswers,
+      answer,
+      state.recentAnswers,
+      state.adaptiveRange,
+      persistedRangeRef.current
+    );
+    persistedRangeRef.current = state.adaptiveRange;
+  }, [state]);
 
   // Clear flash result after animation
   useEffect(() => {

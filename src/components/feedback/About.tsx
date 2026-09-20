@@ -98,68 +98,53 @@ export const About: React.FC = () => {
           <div>
             <h4 className="font-semibold text-text-primary mb-1">Character Selection</h4>
             <p className="mb-2">
-              The app uses a progressive weighted selection algorithm that prioritizes characters
-              you&apos;re struggling with or that are new. The system guarantees that 80% of
-              selections come from unsuccessful or new characters, with progressive weighting that
-              ensures all characters get practice.
+              Every character in your range falls into one of three tiers, and each tier gets a
+              fixed share of the draws. Characters you are struggling with rank above ones you have
+              never seen, which in turn rank above ones you have mastered.
             </p>
-            <p className="mb-2 font-semibold text-text-primary">Selection Distribution:</p>
+            <p className="mb-2 font-semibold text-text-primary">Tiers and their share of draws:</p>
             <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
               <li>
-                <strong>80% Unsuccessful or New:</strong> Characters with low success rates or that
-                are new to your practice range get 80% of all selections
+                <strong>Struggling ({ADAPTIVE_CONFIG.TIER_SHARES.STRUGGLING * 100}%):</strong> below{' '}
+                {ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success, with at least one attempt
               </li>
               <li>
-                <strong>20% Successful:</strong> Characters with higher success rates get the
-                remaining 20% of selections
+                <strong>Untested ({ADAPTIVE_CONFIG.TIER_SHARES.UNTESTED * 100}%):</strong> never
+                attempted
+              </li>
+              <li>
+                <strong>Mastered ({ADAPTIVE_CONFIG.TIER_SHARES.MASTERED * 100}%):</strong>{' '}
+                {ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success or better
               </li>
             </ul>
-            <p className="mb-2 font-semibold text-text-primary">Progressive Weighting:</p>
+            <p className="mb-2 font-semibold text-text-primary">Within a tier:</p>
             <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
               <li>
-                <strong>Untested characters:</strong> Highest priority (weight = 1.0) - ensures all
-                characters in range get shown
+                Attempted characters are weighted by (1 − successRate)
+                <sup>{ADAPTIVE_CONFIG.SUCCESS_PENALTY_EXPONENT}</sup> ÷ (1 +{' '}
+                {ADAPTIVE_CONFIG.ATTEMPT_PENALTY_FACTOR} × attempts), so a worse and less-practised
+                character ranks higher than a worse but heavily-drilled one.
               </li>
+              <li>Untested characters are drawn uniformly.</li>
               <li>
-                <strong>Unsuccessful characters:</strong> Weight = (1 - successRate)² ×
-                attempt_penalty
-                <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
-                  <li>Lower success rate = exponentially higher weight</li>
-                  <li>
-                    Fewer attempts = higher weight (prioritizes characters needing more practice)
-                  </li>
-                  <li>Prevents over-showing characters with many failed attempts</li>
-                </ul>
-              </li>
-              <li>
-                <strong>Successful characters:</strong> Lower weight, further reduced by high
-                success rate and many attempts
-                <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
-                  <li>Prevents repeatedly showing mastered characters</li>
-                  <li>Ensures variety in practice</li>
-                </ul>
+                {ADAPTIVE_CONFIG.TIER_UNIFORM_BLEND * 100}% of each tier&apos;s share is spread
+                evenly across its members, so no single character can take over its tier.
               </li>
             </ul>
-            <p className="mb-2 font-semibold text-text-primary">Priority Categories:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2 mb-3">
-              <li>
-                <strong>
-                  Unsuccessful/Untested (&lt;{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success
-                  or 0 attempts):
-                </strong>{' '}
-                80% of selections - progressive weighting prioritizes low success and low attempts
-              </li>
-              <li>
-                <strong>
-                  Successful (≥{ADAPTIVE_CONFIG.UNSUCCESSFUL_THRESHOLD * 100}% success):
-                </strong>{' '}
-                20% of selections - reduced weight for high success with many attempts
-              </li>
-            </ul>
+            <p className="mb-2 font-semibold text-text-primary">Things worth knowing:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>
+                The shares are a budget, not a guarantee. When a tier is empty its share is split
+                across the tiers that are not — so once every character in range is mastered,
+                mastered characters get 100% of the draws.
+              </li>
+              <li>
+                The character you just answered is never shown twice in a row, as long as there is
+                anything else in range.
+              </li>
+              <li>
                 Adaptive selection activates as soon as any character in your range has at least 1
-                attempt. If no characters have been attempted yet, selection falls back to random.
+                attempt. Before that, selection is uniformly random.
               </li>
             </ul>
           </div>
@@ -171,14 +156,24 @@ export const About: React.FC = () => {
             </p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>Starting range: {ADAPTIVE_CONFIG.INITIAL_RANGE} characters</li>
-              <li>Expansion check: Every {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers</li>
               <li>
-                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate in your
+                Expansion criteria: {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success across your
                 last {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers
               </li>
               <li>
-                Expansion amount: +{ADAPTIVE_CONFIG.EXPANSION_AMOUNT} characters per expansion
+                Expansion check: after every answer, once you have{' '}
+                {ADAPTIVE_CONFIG.EXPANSION_INTERVAL} of them — it is a rolling window, not a
+                milestone. The window restarts after each expansion.
               </li>
+              <li>
+                Expansion amount: +{ADAPTIVE_CONFIG.EXPANSION_AMOUNT} characters per expansion, up
+                to all 1,500
+              </li>
+              <li>
+                The range only ever grows. Dropping below {ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}%
+                will not shrink it back.
+              </li>
+              <li>Your progress toward the next expansion survives a page reload.</li>
             </ul>
           </div>
         </div>

@@ -16,13 +16,12 @@ interface HistoryProps {
 export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Reverse order to show newest first
-  const reversedAnswers = [...allAnswers].reverse();
-
-  // Transform data for table (always pinyin now)
+  // Newest first. The reverse has to happen inside the memo: building it
+  // outside produced a new array identity on every render, so the memo it fed
+  // never cached and all 100 rows re-transformed each time.
   const allTableData = useMemo<AnswerRow[]>(() => {
-    return reversedAnswers.map(transformAnswerToRow);
-  }, [reversedAnswers]);
+    return [...allAnswers].reverse().map(transformAnswerToRow);
+  }, [allAnswers]);
 
   // Filter data based on search query (with pinyin normalization)
   const tableData = useMemo<AnswerRow[]>(() => {
