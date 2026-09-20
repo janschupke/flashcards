@@ -9,29 +9,22 @@
   --color-primary-light: #fee2e2;
   --color-primary-dark: #b91c1c;
 
-  /* Semantic Colors (Status/Feedback) */
-  --color-success: #10b981;
+  /* Semantic Colors (Status/Feedback)
+   *
+   * These double as text colours for the success-rate and answer-correctness
+   * indicators, so they are chosen to clear WCAG AA (4.5:1) against both
+   * surface-primary and surface-secondary. The previous emerald/amber/red
+   * sat at 2.5:1, 2.2:1 and 3.8:1 -- all failing. Contrast ratios against
+   * #ffffff are noted; each also clears AA with white text on top. */
+  --color-success: #047857; /* 5.48:1 */
   --color-success-muted: #6ee7b7;
   --color-success-light: #d1fae5;
   --color-success-dark: #059669;
-  --color-error: #ef4444;
+  --color-error: #dc2626; /* 4.83:1 */
   --color-error-light: #fee2e2;
   --color-error-dark: #dc2626;
-  --color-warning: #f59e0b;
+  --color-warning: #b45309; /* 5.02:1 */
   --color-info: #3b82f6;
-
-  /* Neutral Colors */
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
-  --color-neutral-950: #030712;
 
   /* Surface Colors - Light Theme */
   --color-surface-primary: #ffffff;
@@ -42,8 +35,11 @@
   /* Text Colors - Light Theme */
   --color-text-primary: #111827;
   --color-text-secondary: #374151;
-  --color-text-tertiary: #6b7280;
-  --color-text-disabled: #9ca3af;
+  /* 6b7280 was ~4.8:1 on surface-secondary, which fails AA at the text-xs
+     sizes this token is mostly used at. 4b5563 is ~7.0:1. */
+  --color-text-tertiary: #4b5563;
+  /* 9ca3af was ~2.5:1 on white. 6b7280 is ~4.8:1. */
+  --color-text-disabled: #6b7280;
   --color-text-inverse: #ffffff;
 
   /* Inverse Text Colors (for colored backgrounds) */
@@ -59,18 +55,13 @@
   --color-border-focus: #dc2626;
   --color-border-error: #ef4444;
 
+  /* Scrim behind modals. This was the app's only raw colour: bg-black/50. */
+  --color-overlay: oklch(0% 0 0 / 50%);
+
   /* Special Colors */
   --color-accent: #6f42c1;
   --color-accent-light: #a78bfa;
   --color-accent-dark: #5b21b6;
-
-  /* Legacy aliases for backward compatibility during migration */
-  --color-secondary: #4a5568;
-  --color-secondary-dark: #2d3748;
-  --color-secondary-light: #718096;
-  --color-background-primary: #0f172a;
-  --color-background-secondary: #1f2937;
-  --color-background-card: #1f2937;
 }
 
 /* Base styles */
@@ -132,6 +123,10 @@ input {
     }
   }
 
+  .animate-rolldown {
+    animation: rolldown 500ms ease-out;
+  }
+
   /* Fade-in animation for page transitions */
   @keyframes fadeIn {
     from {
@@ -156,6 +151,10 @@ input {
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .animate-fade-in-scale {
+    animation: fadeInScale 200ms ease-in;
   }
 
   .card-default {
@@ -184,5 +183,21 @@ input {
 
   .card-padding-lg {
     @apply p-4;
+  }
+}
+
+/*
+ * Honour the operating system's reduced-motion setting. The character display
+ * runs an infinite pulse, which is precisely the kind of motion this setting
+ * is meant to stop.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

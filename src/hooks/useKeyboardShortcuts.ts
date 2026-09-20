@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { KEYBOARD_SHORTCUTS, FlashcardMode } from '../types';
-import { isEditableTarget, hasPlatformModifier } from '../utils/keyboardUtils';
+import { isEditableTarget, hasPlatformModifier, isInsideDialog } from '../utils/keyboardUtils';
 
 interface UseKeyboardShortcutsProps {
   onNext: () => void;
@@ -17,6 +17,11 @@ export const useKeyboardShortcuts = ({
 }: UseKeyboardShortcutsProps): void => {
   const handleKeyPress = useCallback(
     (event: KeyboardEvent): void => {
+      // An open dialog owns the keyboard entirely.
+      if (isInsideDialog(event.target)) {
+        return;
+      }
+
       // Function keys never collide with typing, so they stay unmodified and
       // work regardless of where focus currently is.
       switch (event.key) {

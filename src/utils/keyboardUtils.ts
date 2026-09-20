@@ -30,6 +30,16 @@ export const isEditableTarget = (target: EventTarget | null): boolean => {
 };
 
 /**
+ * True when the event originated inside an open dialog.
+ *
+ * A dialog owns the keyboard while it is open. Without this, Enter on the
+ * reset dialog's confirm button would also reach the window listener and
+ * advance the flashcard behind it.
+ */
+export const isInsideDialog = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement && target.closest('[role="dialog"]') !== null;
+
+/**
  * Whether the platform's primary modifier is held: Cmd on macOS, Ctrl elsewhere.
  *
  * Resolved once at module scope rather than per keystroke. `userAgent` is used

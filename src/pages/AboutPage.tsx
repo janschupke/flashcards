@@ -1,12 +1,12 @@
 import React from 'react';
 import { About } from '../components/feedback/About';
+import { PageShell } from '../components/layout/PageShell';
 
 export const AboutPage: React.FC = () => {
+  // About renders its own "About This App" heading, so the shell's is hidden.
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl min-h-full">
-        <About />
-      </div>
-    </div>
+    <PageShell title="About" visuallyHiddenTitle>
+      <About />
+    </PageShell>
   );
 };

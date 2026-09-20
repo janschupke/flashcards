@@ -16,14 +16,14 @@ const variantStyles: Record<ToastType['variant'], string> = {
 export const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
   return (
     <div
-      className={`px-4 py-3 rounded-b-lg shadow-lg flex items-center justify-between min-w-[300px] max-w-md ${variantStyles[toast.variant]} animate-[rolldown_0.5s_ease-out]`}
+      className={`px-4 py-3 rounded-b-lg shadow-lg flex items-center justify-between min-w-75 max-w-md ${variantStyles[toast.variant]} animate-rolldown`}
       role="alert"
       aria-live="polite"
     >
       <span className="text-sm font-medium">{toast.message}</span>
       <button
         onClick={() => onDismiss(toast.id)}
-        className={`ml-4 hover:opacity-80 focus:outline-none ${
+        className={`ml-4 rounded-sm hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-current ${
           toast.variant === 'success'
             ? 'text-text-on-success'
             : toast.variant === 'error'
@@ -34,7 +34,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
         }`}
         aria-label="Dismiss notification"
       >
-        ×
+        <span aria-hidden="true">×</span>
       </button>
     </div>
   );

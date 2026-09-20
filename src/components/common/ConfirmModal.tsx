@@ -22,6 +22,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onCancel,
 }) => {
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && confirmButtonRef.current) {
@@ -30,20 +31,41 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape' && isOpen) {
+    if (!isOpen) return undefined;
+
+    const handleKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
         onCancel();
+        return;
+      }
+
+      // Keep Tab inside the dialog. Focus was set to the confirm button but
+      // nothing held it there, so Tab walked straight out to the page behind --
+      // on a dialog that permanently deletes all progress.
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
-    }
+    document.addEventListener('keydown', handleKey);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = '';
     };
   }, [isOpen, onCancel]);
@@ -58,29 +80,28 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     onCancel();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    // Stop Enter reaching the window listener that advances the flashcard, but
-    // do NOT preventDefault -- the focused confirm button needs its own default
-    // activation. Confirming is therefore always an explicit choice of which
-    // button has focus, rather than a capture-phase hijack of every Enter.
-    if (e.key === 'Enter') {
-      e.stopPropagation();
-    }
-  };
-
+  // No keydown handler on the dialog itself: Escape and the focus trap live in
+  // the effect above, and the global shortcuts already ignore anything inside
+  // [role="dialog"], so Enter activates the focused button and nothing else.
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-      onClick={handleCancel}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* The backdrop is click-to-dismiss, so it is a real button rather than a
+          div with an onClick and no keyboard equivalent. It is out of the tab
+          order because Escape already covers the keyboard path. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label={cancelText}
+        onClick={handleCancel}
+        className="absolute inset-0 bg-overlay animate-fade-in cursor-default"
+      />
       <div
-        className="bg-surface-primary rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-[fadeInScale_0.2s_ease-in]"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={handleKeyDown}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+        className="relative bg-surface-primary rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-fade-in-scale"
       >
         <h2 id="modal-title" className="text-xl font-bold text-text-primary mb-4">
           {title}

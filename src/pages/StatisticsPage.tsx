@@ -1,12 +1,11 @@
 import React from 'react';
 import { Statistics } from '../components/feedback/Statistics';
+import { PageShell } from '../components/layout/PageShell';
 
 export const StatisticsPage: React.FC = () => {
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4 max-w-screen-xl min-h-full">
-        <Statistics />
-      </div>
-    </div>
+    <PageShell title="Statistics">
+      <Statistics />
+    </PageShell>
   );
 };

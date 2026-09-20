@@ -77,10 +77,9 @@ export const MobileMenu: React.FC = () => {
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         )}
       >
-        <nav className="flex flex-col">
+        <nav aria-label="Pages" className="flex flex-col">
           {tabs.map((tab) => {
             const tabLabel = tab.LABEL;
-            const tabAriaLabel = tab.ARIA_LABEL;
             const isActive = location.pathname === getRouteForTab(tab.value);
             return (
               <NavLink
@@ -92,7 +91,6 @@ export const MobileMenu: React.FC = () => {
                     ? 'bg-primary text-text-on-primary'
                     : 'text-text-primary hover:bg-surface-secondary'
                 )}
-                aria-label={tabAriaLabel}
                 onClick={() => setIsOpen(false)}
               >
                 {tabLabel}

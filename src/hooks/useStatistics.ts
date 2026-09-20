@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { getAllCharacterPerformance } from '../utils/storageUtils';
 import data from '../data/characters.json';
 import { calculateSuccessRate } from '../utils/statisticsUtils';
@@ -22,8 +22,15 @@ export const useStatistics = (): {
   setFilter: (filter: FilterType) => void;
   handleSort: (field: SortField) => void;
 } => {
-  const [sortField, setSortField] = useState<SortField>('successRate');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  // Field and direction are one piece of state so that handleSort can be a
+  // stable callback. When it changed identity, the statistics columns were
+  // rebuilt on every sort, TanStack remounted the header cells, and the
+  // keyboard user lost focus the instant they activated a header.
+  const [sort, setSort] = useState<{ field: SortField; direction: SortDirection }>({
+    field: 'successRate',
+    direction: 'asc',
+  });
+  const { field: sortField, direction: sortDirection } = sort;
   const [filter, setFilter] = useState<FilterType>('all');
 
   // Read storage once, not on every render. Previously this ran on each
@@ -84,14 +91,13 @@ export const useStatistics = (): {
     return sorted;
   }, [filteredData, sortField, sortDirection]);
 
-  const handleSort = (field: SortField): void => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
+  const handleSort = useCallback((field: SortField): void => {
+    setSort((prev) =>
+      prev.field === field
+        ? { field, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+        : { field, direction: 'asc' }
+    );
+  }, []);
 
   const filterCounts = useMemo(() => {
     return {

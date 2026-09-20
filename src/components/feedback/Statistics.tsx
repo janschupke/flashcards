@@ -3,7 +3,6 @@ import { useStatistics } from '../../hooks/useStatistics';
 import { FilterButton } from '../common/FilterButton';
 import { PaginatedTable } from '../common/PaginatedTable';
 import { SearchInput } from '../common/SearchInput';
-import { getPurpleCultureUrl } from '../../utils/pinyinUtils';
 import { filterTableRows } from '../../utils/searchUtils';
 import { formatSuccessRatePercent, getSuccessRateColorClass } from '../../utils/statisticsUtils';
 import { createStatisticsColumns, StatisticsRow } from '../../utils/tableUtils';
@@ -58,10 +57,10 @@ export const Statistics: React.FC<StatisticsProps> = () => {
   }, [allTableData, searchQuery]);
 
   // Define columns
-  const columns = useMemo(
-    () => createStatisticsColumns(sortField, sortDirection, handleSort),
-    [sortField, sortDirection, handleSort]
-  );
+  // Deliberately independent of the sort state: it reaches the headers through
+  // the table's meta instead, so this array never changes identity and the
+  // header buttons keep focus when activated.
+  const columns = useMemo(() => createStatisticsColumns(handleSort), [handleSort]);
 
   if (statisticsData.length === 0) {
     return (
@@ -96,14 +95,15 @@ export const Statistics: React.FC<StatisticsProps> = () => {
       </div>
 
       {/* Search input */}
-      <SearchInput value={searchQuery} onChange={setSearchQuery} />
+      <SearchInput value={searchQuery} onChange={setSearchQuery} label="Search statistics" />
 
       {/* Paginated Table */}
       <PaginatedTable
         data={tableData}
         columns={columns}
+        caption="Per-character statistics"
         pageSize={TABLE_CONSTANTS.DEFAULT_PAGE_SIZE}
-        getRowUrl={(row) => getPurpleCultureUrl(row.simplified)}
+        meta={{ sortField, sortDirection }}
       />
     </div>
   );

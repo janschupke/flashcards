@@ -8,22 +8,18 @@ const TAB_CONSTANTS = {
   FLASHCARDS: {
     ID: 'flashcards',
     LABEL: 'Flashcards',
-    ARIA_LABEL: 'Flashcards tab',
   },
   HISTORY: {
     ID: 'history',
     LABEL: 'History',
-    ARIA_LABEL: 'Answer history tab',
   },
   STATISTICS: {
     ID: 'statistics',
     LABEL: 'Statistics',
-    ARIA_LABEL: 'Statistics tab',
   },
   ABOUT: {
     ID: 'about',
     LABEL: 'About',
-    ARIA_LABEL: 'About tab',
   },
 } as const;
 
@@ -34,7 +30,6 @@ type TabConfig = {
   value: AppTab;
   ID: string;
   LABEL: string;
-  ARIA_LABEL: string;
 };
 
 /**

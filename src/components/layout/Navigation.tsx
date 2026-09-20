@@ -26,8 +26,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   const isFlashcardsPage = location.pathname === ROUTES.FLASHCARDS;
 
   return (
-    <div className="bg-surface-secondary border-b border-border-primary">
-      <nav className="h-12 flex items-center justify-between px-4">
+    <header className="bg-surface-secondary border-b border-border-primary">
+      <nav aria-label="Main" className="h-12 flex items-center justify-between px-4">
         <div className="flex items-center">
           <Link to={ROUTES.FLASHCARDS} className="no-underline">
             <h1 className="text-xl font-bold text-text-primary hover:text-primary cursor-pointer transition-colors">
@@ -53,6 +53,6 @@ export const Navigation: React.FC<NavigationProps> = ({
           onReset={onReset}
         />
       )}
-    </div>
+    </header>
   );
 };

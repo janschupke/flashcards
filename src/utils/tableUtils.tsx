@@ -1,7 +1,9 @@
+import type { ReactElement } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Answer, SortField, SortDirection } from '../types';
 import { getSubmittedText, getCorrectText } from './answerUtils';
 import { getAnswerColorClass } from './styleUtils';
+import { getPurpleCultureUrl } from './pinyinUtils';
 
 /**
  * Interface for table row data from answers
@@ -51,29 +53,93 @@ export const transformAnswerToRow = (answer: Answer): AnswerRow => {
 };
 
 /**
- * Creates column definitions for the statistics table
- * @param sortField - Current sort field
- * @param sortDirection - Current sort direction
+ * The simplified character, linked to its Purple Culture entry.
+ *
+ * This used to be a click handler on the whole <tr> with tabIndex={0}. Giving
+ * a table row role="link" overrides its implicit row role and breaks the
+ * table's structure; a link belongs inside a cell.
+ */
+export const CharacterLink = ({ simplified }: { simplified: string }): ReactElement => (
+  <a
+    href={getPurpleCultureUrl(simplified)}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-text-secondary underline decoration-dotted underline-offset-2 hover:text-primary focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
+  >
+    {simplified}
+    <span className="sr-only"> (look up on Purple Culture, opens in a new tab)</span>
+  </a>
+);
+
+/**
+ * A sortable column header.
+ *
+ * These used to be click-only <span>s: not focusable, not operable by
+ * keyboard, and with no aria-sort on the header cell. A real <button> gets
+ * keyboard operation and an accessible name for free.
+ */
+const SortableHeader = ({
+  label,
+  field,
+  sortField,
+  sortDirection,
+  handleSort,
+}: {
+  label: string;
+  field: SortField;
+  sortField: SortField;
+  sortDirection: SortDirection;
+  handleSort: (field: SortField) => void;
+}): ReactElement => {
+  const isActive = sortField === field;
+  return (
+    <button
+      type="button"
+      onClick={() => handleSort(field)}
+      aria-label={`Sort by ${label}`}
+      className="inline-flex items-center gap-1 font-inherit hover:text-text-secondary focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
+    >
+      {label}
+      <span aria-hidden="true">{isActive ? (sortDirection === 'asc' ? '↑' : '↓') : ''}</span>
+    </button>
+  );
+};
+
+/** Sort state handed to the table through TanStack's `meta`. */
+interface SortMeta {
+  sortField: SortField;
+  sortDirection: SortDirection;
+}
+
+/**
+ * Creates column definitions for the statistics table.
+ *
+ * Takes only the handler: current sort state is read per render from the
+ * table's `meta`, so this array stays referentially stable and the header
+ * buttons are not remounted (and focus not lost) on every sort.
+ *
  * @param handleSort - Sort handler function
  * @returns Array of column definitions
  */
 export const createStatisticsColumns = (
-  sortField: SortField,
-  sortDirection: SortDirection,
   handleSort: (field: SortField) => void
 ): ColumnDef<StatisticsRow>[] => {
   return [
     {
-      header: () => (
-        <span
-          className="cursor-pointer hover:text-text-secondary"
-          onClick={() => handleSort('character')}
-        >
-          Simplified {sortField === 'character' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </span>
-      ),
+      header: ({ table }) => {
+        const { sortField, sortDirection } = table.options.meta as SortMeta;
+        return (
+          <SortableHeader
+            label="Simplified"
+            field="character"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            handleSort={handleSort}
+          />
+        );
+      },
       accessorKey: 'simplified',
-      cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+      cell: (info) => <CharacterLink simplified={info.getValue() as string} />,
     },
     {
       header: 'Traditional',
@@ -91,38 +157,50 @@ export const createStatisticsColumns = (
       cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
     },
     {
-      header: () => (
-        <span
-          className="cursor-pointer hover:text-text-secondary"
-          onClick={() => handleSort('correct')}
-        >
-          Correct {sortField === 'correct' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </span>
-      ),
+      header: ({ table }) => {
+        const { sortField, sortDirection } = table.options.meta as SortMeta;
+        return (
+          <SortableHeader
+            label="Correct"
+            field="correct"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            handleSort={handleSort}
+          />
+        );
+      },
       accessorKey: 'correct',
       cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
     },
     {
-      header: () => (
-        <span
-          className="cursor-pointer hover:text-text-secondary"
-          onClick={() => handleSort('total')}
-        >
-          Total {sortField === 'total' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </span>
-      ),
+      header: ({ table }) => {
+        const { sortField, sortDirection } = table.options.meta as SortMeta;
+        return (
+          <SortableHeader
+            label="Total"
+            field="total"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            handleSort={handleSort}
+          />
+        );
+      },
       accessorKey: 'total',
       cell: (info) => <span className="text-text-secondary">{info.getValue() as number}</span>,
     },
     {
-      header: () => (
-        <span
-          className="cursor-pointer hover:text-text-secondary"
-          onClick={() => handleSort('successRate')}
-        >
-          Success Rate {sortField === 'successRate' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </span>
-      ),
+      header: ({ table }) => {
+        const { sortField, sortDirection } = table.options.meta as SortMeta;
+        return (
+          <SortableHeader
+            label="Success Rate"
+            field="successRate"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            handleSort={handleSort}
+          />
+        );
+      },
       accessorKey: 'successRatePercent',
       cell: (info) => {
         const row = info.row.original;

@@ -111,10 +111,14 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               </span>
             )}
           </div>
-          <div
-            className="flex items-center gap-1 sm:gap-2 cursor-help"
+          {/* aria-label on a plain div is ignored by most assistive tech, and
+              the tooltip is hover-only. A focusable button with the text as its
+              accessible name gives keyboard users the same information. */}
+          <button
+            type="button"
+            className="flex items-center gap-1 sm:gap-2 cursor-help focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
             data-tooltip-id="adaptive-range-tooltip"
-            aria-label={`Character range 1-${adaptiveRange}. The range automatically expands when your last ${ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers achieve ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success rate.`}
+            aria-label={`Character range 1 to ${adaptiveRange}. The range expands when your last ${ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers reach ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success.`}
           >
             <span className="text-xs text-text-tertiary whitespace-nowrap hidden sm:inline">
               Range:
@@ -123,7 +127,7 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
             <span className="text-sm font-medium text-text-secondary" data-testid="adaptive-range">
               1-{adaptiveRange}
             </span>
-          </div>
+          </button>
           <Tooltip id="adaptive-range-tooltip" place="bottom" className="max-w-xs z-50">
             <div className="text-sm">
               <p className="font-semibold mb-1">Adaptive Range</p>

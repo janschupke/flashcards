@@ -19,7 +19,7 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ currentIndex
   const traditionalChar = displayChars.traditional || '?';
 
   return (
-    <div className="animate-slideIn">
+    <div>
       <div className="flex items-center justify-center gap-8">
         {mode === FlashcardMode.BOTH ? (
           <>

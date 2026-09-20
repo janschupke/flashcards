@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useId } from 'react';
 import { FlashResult } from '../../types';
 import { useFlashAnimation } from '../../hooks/useFlashAnimation';
 import { useInputVariant } from '../../hooks/useInputVariant';
@@ -31,6 +31,8 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
     },
     ref
   ) => {
+    const inputId = useId();
+    const feedbackId = useId();
     const isFlashing = useFlashAnimation(flashResult);
     const { borderClass, feedbackClass } = useInputVariant(isFlashing, flashResult, isCorrect);
 
@@ -47,11 +49,16 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
 
     return (
       <div className="m-0 text-center">
+        <label htmlFor={inputId} className="sr-only">
+          Pinyin for the character shown
+        </label>
         <div
           className={`inline-block w-full max-w-full rounded-xl transition-colors bg-transparent border-2 ${borderClass}`}
         >
           <input
             ref={ref}
+            id={inputId}
+            aria-describedby={feedbackId}
             type="text"
             value={value}
             onChange={handleChange}
@@ -65,8 +72,14 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
             className="w-full px-3 py-1.5 text-2xl text-center bg-transparent text-text-primary outline-none disabled:bg-surface-primary disabled:text-text-disabled disabled:cursor-not-allowed placeholder:text-text-tertiary"
           />
         </div>
+        {/* Correctness was conveyed by colour alone to anything that cannot
+            see the input. The text carries a check or cross glyph, so
+            announcing it is enough. */}
         <div
-          className={`mt-2 text-xs sm:text-sm font-medium min-h-[20px] ${feedbackClass}`}
+          id={feedbackId}
+          role="status"
+          aria-live="polite"
+          className={`mt-2 text-xs sm:text-sm font-medium min-h-5 ${feedbackClass}`}
           data-testid="feedback-text"
         >
           {feedbackText}

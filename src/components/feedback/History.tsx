@@ -3,9 +3,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Answer } from '../../types';
 import { PaginatedTable } from '../common/PaginatedTable';
 import { SearchInput } from '../common/SearchInput';
-import { getPurpleCultureUrl } from '../../utils/pinyinUtils';
 import { filterTableRows } from '../../utils/searchUtils';
-import { transformAnswerToRow, AnswerRow } from '../../utils/tableUtils';
+import { transformAnswerToRow, AnswerRow, CharacterLink } from '../../utils/tableUtils';
 import { ADAPTIVE_CONFIG } from '../../constants/adaptive';
 import { TABLE_CONSTANTS } from '../../constants';
 
@@ -39,7 +38,7 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
       {
         header: 'Simplified',
         accessorKey: 'simplified',
-        cell: (info) => <span className="text-text-secondary">{info.getValue() as string}</span>,
+        cell: (info) => <CharacterLink simplified={info.getValue() as string} />,
       },
       {
         header: 'Traditional',
@@ -85,14 +84,14 @@ export const History: React.FC<HistoryProps> = ({ allAnswers }) => {
       )}
 
       {/* Search input */}
-      <SearchInput value={searchQuery} onChange={setSearchQuery} />
+      <SearchInput value={searchQuery} onChange={setSearchQuery} label="Search answer history" />
 
       {/* Paginated Table */}
       <PaginatedTable
         data={tableData}
         columns={columns}
+        caption="Answer history, newest first"
         pageSize={TABLE_CONSTANTS.DEFAULT_PAGE_SIZE}
-        getRowUrl={(row) => getPurpleCultureUrl(row.simplified)}
       />
     </div>
   );
