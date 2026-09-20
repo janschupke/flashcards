@@ -29,8 +29,7 @@ vi.mock('./Navigation', () => ({
 }));
 
 describe('AppLayout', () => {
-  const mockContextValue = {
-    // Add other required context values
+  const mockContextValue: FlashCardContextValue = {
     current: 0,
     limit: 100,
     hint: HINT_TYPES.NONE,
@@ -59,9 +58,7 @@ describe('AppLayout', () => {
   };
 
   beforeEach(() => {
-    vi.mocked(FlashCardContext.useFlashCardContext).mockReturnValue(
-      mockContextValue as FlashCardContextValue
-    );
+    vi.mocked(FlashCardContext.useFlashCardContext).mockReturnValue(mockContextValue);
   });
 
   it('should render children', () => {
