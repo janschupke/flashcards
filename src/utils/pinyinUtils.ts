@@ -105,7 +105,7 @@ export function matchesPinyinSearch(searchQuery: string, pinyinText: string): bo
   const normalizedText = normalizePinyin(pinyinText);
 
   // Empty query should not match
-  if (!normalizedQuery) {
+  if (normalizedQuery === '') {
     return false;
   }
 

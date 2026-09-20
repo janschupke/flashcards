@@ -22,7 +22,7 @@ vi.mock('./flashcardUtils', () => ({
   createAnswer: vi.fn(
     (character: Character, input: string, index: number, isCorrect: boolean): Answer => ({
       characterIndex: index,
-      submittedPinyin: input.trim() || '(empty)',
+      submittedPinyin: input.trim() === '' ? '(empty)' : input.trim(),
       correctPinyin: character.pinyin,
       simplified: character.simplified,
       traditional: character.traditional,

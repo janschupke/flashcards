@@ -26,14 +26,9 @@
     "noImplicitReturns": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "exactOptionalPropertyTypes": true,
+    "allowJs": true
   },
-  "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "include": ["src", "*.ts", "*.js"]
 }

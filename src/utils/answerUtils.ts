@@ -6,9 +6,7 @@ import { Answer } from '../types';
  * @returns The submitted pinyin text or '(empty)' if empty
  */
 export const getSubmittedText = (answer: Answer): string => {
-  return answer.submittedPinyin && answer.submittedPinyin.trim() !== ''
-    ? answer.submittedPinyin
-    : '(empty)';
+  return answer.submittedPinyin.trim() !== '' ? answer.submittedPinyin : '(empty)';
 };
 
 /**

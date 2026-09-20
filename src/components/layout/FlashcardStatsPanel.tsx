@@ -12,7 +12,9 @@ interface FlashcardStatsPanelProps {
   correctAnswers: number;
   totalSeen: number;
   allAnswers: Answer[];
-  onReset?: () => void;
+  // `| undefined` is explicit for exactOptionalPropertyTypes: Navigation
+  // forwards a value that may be undefined rather than omitting the prop.
+  onReset?: (() => void) | undefined;
 }
 
 export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({

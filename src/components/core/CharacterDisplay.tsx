@@ -15,8 +15,9 @@ export const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ currentIndex
     ? getDisplayCharacter(character, mode)
     : { simplified: '?', traditional: '?' };
 
-  const simplifiedChar = displayChars.simplified || '?';
-  const traditionalChar = displayChars.traditional || '?';
+  // A mode can deliberately blank one of the two; '?' marks a missing entry.
+  const simplifiedChar = displayChars.simplified === '' ? '?' : displayChars.simplified;
+  const traditionalChar = displayChars.traditional === '' ? '?' : displayChars.traditional;
 
   return (
     <div>

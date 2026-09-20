@@ -91,7 +91,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <button
         type="button"
         tabIndex={-1}
-        aria-label={cancelText}
+        aria-label="Close dialog"
         onClick={handleCancel}
         className="absolute inset-0 bg-overlay animate-fade-in cursor-default"
       />

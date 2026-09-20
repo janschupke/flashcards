@@ -14,7 +14,7 @@ export const filterTableRows = <T>(
   textFields: (keyof T)[],
   pinyinFields: (keyof T)[] = []
 ): T[] => {
-  if (!query.trim()) {
+  if (query.trim() === '') {
     return rows;
   }
 

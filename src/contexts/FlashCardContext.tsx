@@ -15,7 +15,9 @@ export const FlashCardProvider: React.FC<FlashCardProviderProps> = ({
   children,
   initialCurrent,
 }) => {
-  const flashCardState = useFlashCard({ initialCurrent });
+  // Spread rather than pass undefined: with exactOptionalPropertyTypes an
+  // optional prop must be absent, not present-and-undefined.
+  const flashCardState = useFlashCard(initialCurrent === undefined ? {} : { initialCurrent });
 
   return <FlashCardContext.Provider value={flashCardState}>{children}</FlashCardContext.Provider>;
 };

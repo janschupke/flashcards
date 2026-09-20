@@ -18,7 +18,14 @@ export default defineConfig({
         'src/data/**',
         'src/index.tsx',
       ],
-      // Thresholds are set once the untested components have tests.
+      // A global floor, not a ratchet: measured at 90.5 / 83.1 / 91.5 / 91.7
+      // when this was set, so there is real headroom before it fails.
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 });

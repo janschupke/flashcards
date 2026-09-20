@@ -9,6 +9,7 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 ## Features
 
 ### Core Learning Features
+
 - **Three Display Modes:**
   - **全部 (Both) - F1:** Display both simplified and traditional characters side-by-side
   - **简体 (Simplified) - F2:** Display only simplified character
@@ -20,6 +21,7 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 - **Keyboard Shortcuts:** Full keyboard support for efficient practice
 
 ### Adaptive Learning System
+
 - **Progressive Character Selection:** 80% of selections prioritize struggling/new characters with progressive weighting, 20% for successful ones
 - **Weighted Random Selection:** Characters weighted by inverse success rate within each group
 - **Progressive Range Expansion:** Automatically expands from 100 to 1,500 characters as you improve
@@ -27,6 +29,7 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 - **Adaptive Thresholds:** Characters with <50% success rate are prioritized
 
 ### Statistics & Progress Tracking
+
 - **Per-Character Statistics:** Detailed performance metrics for each character
 - **Success Rate Categories:**
   - 🟢 **Mastered:** ≥80% success rate
@@ -38,17 +41,20 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 - **Previous Answer Display:** See your last answer with feedback
 
 ### Search & Navigation
+
 - **Real-time Search:** Search across all columns in History and Statistics
 - **Pinyin Normalization:** Search handles tone variations and ü/u alternatives
 - **Dictionary Links:** Click any row to open Purple Culture dictionary page
 - **Responsive Tables:** Paginated tables with customizable page size
 
 ### Data Persistence
+
 - **Local Storage:** All progress saved in browser localStorage
 - **Cross-Session Persistence:** Data persists across refreshes and sessions
 - **Reset Functionality:** Clear all data with confirmation modal
 
 ### User Interface
+
 - **Responsive Design:** Optimized for desktop, tablet, and mobile
 - **Toast Notifications:** Visual feedback for range expansions
 - **Smooth Animations:** Fade-in modals, page transitions, and character displays
@@ -73,9 +79,11 @@ A modern, adaptive learning flashcard web application for mastering Chinese char
 ## Adaptive Learning System Explained
 
 ### Character Selection Algorithm
+
 The app uses a simple weighted selection algorithm that ensures characters you're struggling with or that are new get prioritized:
 
 **Selection Distribution:**
+
 - **80% of selections** come from unsuccessful or new characters
   - Prioritizes characters you're struggling with
   - Ensures new characters in your range get practice
@@ -87,6 +95,7 @@ The app uses a simple weighted selection algorithm that ensures characters you'r
   - Prevents repeatedly showing the same mastered characters
 
 **Character Categories:**
+
 1. **Unsuccessful/Untested Characters** (<50% success OR 0 attempts)
    - 80% of all selections
    - Progressive weighting: (1 - successRate)² × attempt_penalty
@@ -98,12 +107,15 @@ The app uses a simple weighted selection algorithm that ensures characters you'r
    - Prevents over-showing mastered characters
 
 **Configuration:**
+
 - Unsuccessful threshold: <50% success rate
 - Selection distribution: 80% unsuccessful/untested, 20% successful
 - Progressive weighting: prioritizes low success rates and low attempt counts
 
 ### Range Expansion
+
 The app automatically expands your practice range as you improve:
+
 - **Starting Range:** First 100 characters
 - **Expansion Check:** Every 10 answers (EXPANSION_INTERVAL)
 - **Expansion Criteria:**
@@ -130,26 +142,31 @@ When your range expands, you'll see a toast notification at the top of the scree
 ## Getting Started
 
 ### Prerequisites
+
 - **Node.js** v18 or newer ([Download](https://nodejs.org/))
 - **npm** (comes with Node.js) or **yarn** or **pnpm**
 
 ### Development Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/janschupke/flashcards.git
    cd flashcards
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Start the development server:**
+
    ```bash
    npm run dev
    ```
+
    The app will be available at [http://localhost:5173](http://localhost:5173) (Vite default port)
 
 4. **Open in browser:**
@@ -196,6 +213,7 @@ npm run check
 ```
 
 ### Testing
+
 - **Test Framework:** [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/)
 - **Coverage:** 191 tests covering components, hooks, utilities, and algorithms
 - **Run Tests:** `npm run test` or `npm run test:coverage` for coverage report
@@ -203,11 +221,15 @@ npm run check
 ---
 
 ## Building for Production
+
 Create an optimized production build:
+
 ```bash
 npm run build
 ```
+
 Preview the production build locally:
+
 ```bash
 npm run preview
 ```
@@ -221,12 +243,14 @@ npm run preview
 This project is pre-configured for [Vercel](https://vercel.com/) with optimal settings for a React SPA.
 
 #### Prerequisites
+
 - A [Vercel account](https://vercel.com/signup) (free tier works)
 - Your code pushed to GitHub, GitLab, or Bitbucket
 
 #### Deployment Steps
 
 1. **Push to Git:**
+
    ```bash
    git add .
    git commit -m "Ready for deployment"
@@ -251,6 +275,7 @@ This project is pre-configured for [Vercel](https://vercel.com/) with optimal se
 #### Vercel Configuration
 
 The project includes `vercel.json` for SPA routing:
+
 ```json
 {
   "rewrites": [
@@ -284,6 +309,7 @@ This ensures all routes (e.g., `/history`, `/statistics`) work correctly in prod
 #### Local Production Testing
 
 Before deploying, test the production build locally:
+
 ```bash
 # Build the production bundle
 npm run build
@@ -297,6 +323,7 @@ This serves the optimized build at `http://localhost:4173` (or similar) to verif
 ---
 
 ## Tech Stack
+
 - **React 19.1.0**
 - **Vite 7.0.2**
 - **TypeScript 5.8.3**
@@ -313,26 +340,26 @@ All adaptive learning parameters can be configured in `src/constants/adaptive.ts
 ```typescript
 export const ADAPTIVE_CONFIG = {
   // Selection algorithm
-  MIN_ATTEMPTS_FOR_ADAPTIVE: 3,     // Attempts needed before adaptive selection activates
+  MIN_ATTEMPTS_FOR_ADAPTIVE: 3, // Attempts needed before adaptive selection activates
 
   // Success rate threshold for categorization
-  UNSUCCESSFUL_THRESHOLD: 0.5,      // <50% = unsuccessful (untested also in this group)
+  UNSUCCESSFUL_THRESHOLD: 0.5, // <50% = unsuccessful (untested also in this group)
 
   // Weighting constants
-  UNTESTED_WEIGHT: 1.0,             // Weight for untested characters (highest priority)
-  SELECTION_SPLIT: 0.8,             // 80% for unsuccessful/untested, 20% for successful
-  ATTEMPT_PENALTY_FACTOR: 0.5,      // Factor to reduce weight for characters with many attempts
-  SUCCESS_PENALTY_EXPONENT: 2.0,    // Exponent for progressive success rate penalty
+  UNTESTED_WEIGHT: 1.0, // Weight for untested characters (highest priority)
+  SELECTION_SPLIT: 0.8, // 80% for unsuccessful/untested, 20% for successful
+  ATTEMPT_PENALTY_FACTOR: 0.5, // Factor to reduce weight for characters with many attempts
+  SUCCESS_PENALTY_EXPONENT: 2.0, // Exponent for progressive success rate penalty
 
   // Range expansion
-  INITIAL_RANGE: 100,               // Starting character count
-  EXPANSION_INTERVAL: 10,           // Check every N answers (rolling window size)
-  EXPANSION_AMOUNT: 10,             // Add N characters when expanding
-  SUCCESS_THRESHOLD: 0.8,           // 80% success rate required for expansion (in last N answers)
+  INITIAL_RANGE: 100, // Starting character count
+  EXPANSION_INTERVAL: 10, // Check every N answers (rolling window size)
+  EXPANSION_AMOUNT: 10, // Add N characters when expanding
+  SUCCESS_THRESHOLD: 0.8, // 80% success rate required for expansion (in last N answers)
   // Note: MIN_ATTEMPTS_FOR_EXPANSION is no longer used - expansion checks when recentAnswers.length >= EXPANSION_INTERVAL
 
   // Storage limits
-  MAX_HISTORY_ENTRIES: 100,         // Maximum history entries to store
+  MAX_HISTORY_ENTRIES: 100, // Maximum history entries to store
 } as const;
 ```
 

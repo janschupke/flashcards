@@ -19,7 +19,11 @@ export default [
         ecmaFeatures: {
           jsx: true,
         },
-        project: './tsconfig.json',
+        // projectService rather than a fixed `project`: with the latter,
+        // `eslint .` crashed on the root .ts configs because they were not in
+        // any tsconfig's include.
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       // The previous hand-rolled list of 25 names was missing navigator,
       // localStorage, HTMLElement, KeyboardEvent, Element, MouseEvent and
@@ -77,14 +81,17 @@ export default [
       ],
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
+      // Four of the six escape hatches used to be open, which left the rule
+      // catching almost nothing. allowNullableObject stays on: `if (ref)` on
+      // a possibly-null element is idiomatic React and unambiguous.
       '@typescript-eslint/strict-boolean-expressions': [
         'error',
         {
-          allowString: true,
-          allowNumber: true,
+          allowString: false,
+          allowNumber: false,
           allowNullableObject: true,
           allowNullableBoolean: false,
-          allowNullableString: true,
+          allowNullableString: false,
           allowNullableNumber: false,
           allowAny: false,
         },
@@ -99,9 +106,21 @@ export default [
       'no-console': ['error', { allow: ['error'] }],
     },
   },
+  // Plain-JS config files at the root. Several eslint plugins ship no types,
+  // so the type-aware rules can only report "unsafe any" about them; linting
+  // them for syntax and correctness is still worth doing.
+  {
+    files: ['*.js'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
   prettier,
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', '*.config.js'],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**'],
   },
 ];
-

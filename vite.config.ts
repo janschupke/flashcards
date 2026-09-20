@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -62,9 +62,12 @@ export default defineConfig({
             // Other vendor code
             return 'vendor';
           }
+          // Application code stays in the entry chunk. Explicit rather than an
+          // implicit undefined, which noImplicitReturns rejects.
+          return undefined;
         },
       },
     },
   },
   base: '/',
-})
+});

@@ -22,7 +22,7 @@ export const createAnswer = (
 ): Answer => {
   return {
     characterIndex,
-    submittedPinyin: submittedPinyin.trim() || '(empty)',
+    submittedPinyin: submittedPinyin.trim() === '' ? '(empty)' : submittedPinyin.trim(),
     correctPinyin: character.pinyin,
     simplified: character.simplified,
     traditional: character.traditional,

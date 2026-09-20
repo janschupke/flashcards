@@ -1,14 +1,29 @@
-name: PR Checks
+name: Checks
 
 on:
   pull_request:
     branches:
       - '*'
+  # Nothing ran on merge before, so a broken master could go unnoticed.
+  push:
+    branches:
+      - master
+      - main
+
+# Nothing here needs write access.
+permissions:
+  contents: read
+
+# A newer push supersedes an in-flight run on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   checks:
-    name: Typecheck, Test, Lint, Format
+    name: Typecheck, Test, Lint, Format, Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -23,14 +38,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Mirrors `npm run check` step for step, so a green local run means a
+      # green CI run. Split into steps only so failures are easy to read.
+      - name: Knip
+        run: npm run knip
+
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Test
-        run: npm run test
+      - name: Test with coverage
+        run: npm run test:coverage
 
       - name: Lint
         run: npm run lint
 
       - name: Format check
         run: npm run format:check
+
+      - name: Build
+        run: npm run build
