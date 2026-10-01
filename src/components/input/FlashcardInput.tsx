@@ -52,8 +52,12 @@ export const FlashcardInput = forwardRef<HTMLInputElement, FlashcardInputProps>(
         <label htmlFor={inputId} className="sr-only">
           Pinyin for the character shown
         </label>
+        {/* The input itself is outline-none and its border only ever showed
+            correctness, so keyboard focus had no indicator at all. The ring
+            sits on the wrapper, offset like the buttons' so it reads against
+            a red error border too. */}
         <div
-          className={`inline-block w-full max-w-full rounded-xl transition-colors bg-transparent border-2 ${borderClass}`}
+          className={`inline-block w-full max-w-full rounded-xl transition-colors bg-transparent border-2 focus-within:ring-2 focus-within:ring-border-focus focus-within:ring-offset-2 ${borderClass}`}
         >
           <input
             ref={ref}
