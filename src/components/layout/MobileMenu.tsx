@@ -53,7 +53,7 @@ export const MobileMenu: React.FC = () => {
       <button
         type="button"
         onClick={toggleMenu}
-        className="p-2 rounded-md text-text-primary hover:bg-surface-tertiary focus:outline-none focus:ring-2 focus:ring-primary"
+        className="p-2 rounded-md text-text-primary hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary"
         aria-label="Toggle menu"
         aria-expanded={isOpen}
       >
@@ -88,8 +88,8 @@ export const MobileMenu: React.FC = () => {
                 className={cn(
                   'px-4 py-3 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-primary text-text-on-primary'
-                    : 'text-text-primary hover:bg-surface-secondary'
+                    ? 'bg-primary text-text-on-primary hover:bg-primary-hover'
+                    : 'text-text-primary hover:bg-surface-hover'
                 )}
                 onClick={() => setIsOpen(false)}
               >

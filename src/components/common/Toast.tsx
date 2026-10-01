@@ -23,7 +23,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
       <span className="text-sm font-medium">{toast.message}</span>
       <button
         onClick={() => onDismiss(toast.id)}
-        className={`ml-4 rounded-sm hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-current ${
+        className={`ml-4 px-1.5 rounded-sm hover:bg-overlay-hover focus:outline-none focus:ring-2 focus:ring-current ${
           toast.variant === 'success'
             ? 'text-text-on-success'
             : toast.variant === 'error'

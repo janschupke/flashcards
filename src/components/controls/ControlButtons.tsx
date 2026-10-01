@@ -16,7 +16,7 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({ onNext }) => {
         variant={ButtonVariant.PRIMARY}
         size={ButtonSize.XL}
         fullWidth
-        className="border-2 border-primary"
+        className="border-2 border-transparent"
       >
         Next ({KEYBOARD_SHORTCUTS.NEXT})
       </Button>

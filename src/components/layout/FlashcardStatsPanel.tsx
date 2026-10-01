@@ -118,7 +118,7 @@ export const FlashcardStatsPanel: React.FC<FlashcardStatsPanelProps> = ({
               accessible name gives keyboard users the same information. */}
           <button
             type="button"
-            className="flex items-center gap-1 sm:gap-2 cursor-help focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
+            className="flex items-center gap-1 sm:gap-2 px-1 cursor-help hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
             data-tooltip-id="adaptive-range-tooltip"
             aria-label={`Character range 1 to ${adaptiveRange}. The range expands when your last ${ADAPTIVE_CONFIG.EXPANSION_INTERVAL} answers reach ${ADAPTIVE_CONFIG.SUCCESS_THRESHOLD * 100}% success.`}
           >

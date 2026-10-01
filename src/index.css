@@ -2,10 +2,15 @@
 
 /* Tailwind v4 design tokens - Semantic Color System */
 @theme {
-  /* Primary Colors (Brand/Actions) */
+  /* Primary Colors (Brand/Actions)
+   *
+   * Hover and active go DARKER. The old hover, #ef4444, was lighter than rest,
+   * which dropped white text from 4.83:1 to 3.76:1 and failed AA the moment a
+   * pointer touched the button. White on #b91c1c is 6.47:1, on #991b1b
+   * 8.31:1. */
   --color-primary: #dc2626;
-  --color-primary-hover: #ef4444;
-  --color-primary-active: #b91c1c;
+  --color-primary-hover: #b91c1c;
+  --color-primary-active: #991b1b;
 
   /* Semantic Colors (Status/Feedback)
    *
@@ -17,11 +22,23 @@
   --color-success: #047857; /* 5.48:1 */
   --color-error: #dc2626; /* 4.83:1 */
   --color-warning: #b45309; /* 5.02:1 */
+  /* The error button's states, which used to be opacity-90/80: fading a fill
+     toward the page lowers the contrast of the text on it. */
+  --color-error-hover: #b91c1c; /* 6.47:1 */
+  --color-error-active: #991b1b; /* 8.31:1 */
 
   /* Surface Colors - Light Theme */
   --color-surface-primary: #ffffff;
   --color-surface-secondary: #f9fafb;
-  --color-surface-tertiary: #f3f4f6;
+
+  /* Interaction states for neutral controls.
+   *
+   * Hovers used to step surface-secondary -> #f3f4f6 (OKLab ΔE 0.018) or
+   * white -> surface-secondary (0.015), which nobody can see. #e5e7eb is ΔE
+   * 0.057 from surface-secondary and 0.073 from white, and text-secondary on
+   * it is still 8.3:1. src/test/tokens.test.ts holds these numbers. */
+  --color-surface-hover: #e5e7eb;
+  --color-surface-active: #d1d5db;
 
   /* Text Colors - Light Theme */
   --color-text-primary: #111827;
@@ -50,6 +67,11 @@
 
   /* Scrim behind modals. This was the app's only raw colour: bg-black/50. */
   --color-overlay: oklch(0% 0 0 / 50%);
+
+  /* Hover for a transparent control sitting on a coloured fill, such as a
+     toast's dismiss button. Darkens whatever is behind it, so the white glyph
+     gains contrast rather than losing it the way opacity-80 did. */
+  --color-overlay-hover: oklch(0% 0 0 / 20%);
 
   /* Special Colors */
   --color-accent: #6f42c1;

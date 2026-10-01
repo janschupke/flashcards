@@ -23,10 +23,10 @@ export const TabButton: React.FC<TabButtonProps> = ({ label, to }) => (
     className={({ isActive }) =>
       cn(
         'inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md no-underline transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-border-focus',
+        'outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
         isActive
-          ? 'bg-primary text-text-on-primary'
-          : 'bg-surface-secondary text-text-primary border border-border-primary hover:bg-surface-tertiary'
+          ? 'bg-primary text-text-on-primary hover:bg-primary-hover'
+          : 'bg-surface-secondary text-text-primary border border-border-primary hover:bg-surface-hover'
       )
     }
   >

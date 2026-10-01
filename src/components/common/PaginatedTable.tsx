@@ -23,7 +23,8 @@ interface PaginatedTableProps<T> {
 
 const PAGE_BUTTON_CLASS =
   'px-2 py-1 text-sm border border-border-primary rounded bg-surface-secondary text-text-primary ' +
-  'disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-tertiary ' +
+  // enabled: so a disabled button does not light up as if it could be pressed.
+  'disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:bg-surface-hover ' +
   'focus:outline-none focus:ring-2 focus:ring-border-focus';
 
 export function PaginatedTable<T>({
@@ -101,7 +102,7 @@ export function PaginatedTable<T>({
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
             }}
-            className="px-2 py-1 text-sm border border-border-primary rounded bg-transparent text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus"
+            className="px-2 py-1 text-sm border border-border-primary rounded bg-transparent text-text-primary hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-border-focus"
           >
             {TABLE_CONSTANTS.PAGE_SIZE_OPTIONS.map((option) => (
               <option key={option} value={option}>

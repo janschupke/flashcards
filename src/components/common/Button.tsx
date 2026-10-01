@@ -21,11 +21,12 @@ const variantClasses: Record<ButtonVariant, string> = {
   [ButtonVariant.PRIMARY]:
     'bg-primary text-text-on-primary hover:bg-primary-hover active:bg-primary-active',
   [ButtonVariant.SECONDARY]:
-    'bg-surface-secondary text-text-secondary border-2 border-border-secondary hover:bg-surface-tertiary hover:border-primary',
+    'bg-surface-secondary text-text-secondary border-2 border-border-secondary hover:bg-surface-hover hover:border-primary active:bg-surface-active',
   [ButtonVariant.TERTIARY]:
-    'bg-transparent text-text-secondary border border-border-primary hover:bg-surface-secondary',
-  [ButtonVariant.GHOST]: 'bg-transparent text-text-secondary hover:bg-surface-secondary',
-  [ButtonVariant.ERROR]: 'bg-error text-text-on-error hover:opacity-90 active:opacity-80',
+    'bg-transparent text-text-secondary border border-border-primary hover:bg-surface-hover active:bg-surface-active',
+  [ButtonVariant.GHOST]:
+    'bg-transparent text-text-secondary hover:bg-surface-hover active:bg-surface-active',
+  [ButtonVariant.ERROR]: 'bg-error text-text-on-error hover:bg-error-hover active:bg-error-active',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -43,7 +44,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none focus:outline-none focus:ring-2 focus:ring-border-focus',
+          // The ring is offset because it is the same red as a primary fill:
+          // drawn flush against one, it was invisible. focus-visible keeps a
+          // mouse click from leaving it behind.
+          'inline-flex items-center justify-center rounded-xl font-semibold transition-all select-none outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
           sizeClasses[size],
           variantClasses[variant],
           // Was an inline style computed from a JS constant; now a theme token.

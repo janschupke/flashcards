@@ -97,7 +97,7 @@ const SortableHeader = ({
       type="button"
       onClick={() => handleSort(field)}
       aria-label={`Sort by ${label}`}
-      className="inline-flex items-center gap-1 font-inherit hover:text-text-secondary focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
+      className="inline-flex items-center gap-1 font-inherit hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus rounded-sm"
     >
       {label}
       <span aria-hidden="true">{isActive ? (sortDirection === 'asc' ? '↑' : '↓') : ''}</span>
