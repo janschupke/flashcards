@@ -30,5 +30,5 @@
     "exactOptionalPropertyTypes": true,
     "allowJs": true
   },
-  "include": ["src", "*.ts", "*.js"]
+  "include": ["src", "e2e", "*.ts", "*.js"]
 }

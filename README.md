@@ -56,9 +56,13 @@ Everything lives in `localStorage` under `flashcard-*` keys and is validated on 
 
 ### Accessibility
 
-Checked by `axe-core` in the test suite and by `eslint-plugin-jsx-a11y`, both of which gate CI. There is a skip link, every route has a heading, tables are captioned with scoped headers, sortable headers are real buttons, the reset dialog traps focus, and `prefers-reduced-motion` is honoured. Colour tokens meet WCAG AA at the sizes they are used.
+Checked at three levels, all of which gate CI, plus `eslint-plugin-jsx-a11y`:
 
-> `axe` cannot evaluate colour contrast under jsdom, which has no layout, so that rule is disabled in the unit tests rather than silently reported as passing. Contrast is handled by the token values themselves.
+- **jsdom axe tests** (`src/test/a11y.test.tsx`) check structure: labels, landmarks, roles, table semantics. `axe` cannot evaluate colour contrast under jsdom, which has no layout, so that rule is disabled there rather than silently reported as passing.
+- **Token tests** (`src/test/tokens.test.ts`) read the `@theme` block in `src/index.css` and check every real colour pairing: text on each surface clears WCAG AA (4.5:1), inverse text clears it on each fill at rest, hover and active, and each rest → hover step is at least 0.035 OKLab ΔE apart. Contrast ratio only measures luminance, so it can't tell you whether a hover is visible at all.
+- **Browser tests** (`e2e/`, Playwright + `@axe-core/playwright`) run against the built bundle in Chromium. `a11y.spec.ts` runs a full axe scan with contrast on for each page state (fresh and seeded, wrong answer, reset dialog, tooltip, mobile menu) at desktop and phone widths. `interaction-states.spec.ts` hovers every control and checks that the hover is visible and still passes axe contrast, then Tabs through each page and checks that every stop shows a focus indicator. A negative control proves the hover probe rejects both of the old failing hover styles.
+
+There is a skip link, every route has a heading, tables are captioned with scoped headers, sortable headers are real buttons, the reset dialog traps focus, and `prefers-reduced-motion` is honoured.
 
 ---
 
@@ -103,6 +107,7 @@ The dev server listens on **http://localhost:3000** (set in `vite.config.ts`). I
 | `npm run preview`       | Serve the built bundle on port 4173                    |
 | `npm run test`          | Run the test suite once                                |
 | `npm run test:coverage` | Run with coverage and enforce the 80% threshold        |
+| `npm run test:e2e`      | Build, then run the Playwright accessibility tests     |
 | `npm run typecheck`     | `tsc --noEmit`                                         |
 | `npm run lint`          | ESLint over the whole project, zero warnings tolerated |
 | `npm run lint:fix`      | ESLint with `--fix`                                    |
@@ -113,15 +118,17 @@ The dev server listens on **http://localhost:3000** (set in `vite.config.ts`). I
 
 ### Testing
 
-[Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/) and jsdom. **381 tests across 39 files.** Coverage is gated at **80%** for statements, branches, functions and lines.
+[Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/) and jsdom. **420 tests across 40 files.** Coverage is gated at **80%** for statements, branches, functions and lines.
 
 `src/test/test-utils.tsx` provides `renderWithProviders`, `renderWithRouter` and `expectNoA11yViolations`; use them rather than re-wrapping components at each call site.
+
+The browser tests need Chromium once: `npx playwright install chromium`. They run one worker against `npm run preview`, never a leftover server. Page states live in `e2e/scenarios.ts`, which seeds `localStorage` in the shapes `src/utils/storageUtils.ts` accepts.
 
 ---
 
 ## Continuous integration
 
-`.github/workflows/pr-checks.yml` runs on every pull request and on pushes to `master`/`main`, on Node 22. It runs knip, typecheck, tests with coverage, lint, format check and build — the same steps as `npm run check`, in the same order, so a green local run means a green CI run.
+`.github/workflows/pr-checks.yml` runs on every pull request and on pushes to `master`/`main`, on Node 22. It runs knip, typecheck, tests with coverage, lint, format check, build and the Playwright accessibility tests — the same steps as `npm run check`, in the same order, so a green local run means a green CI run.
 
 ---
 
@@ -172,7 +179,7 @@ src/
 │                    useModeNavigation, useModeToggle, useFlashAnimation,
 │                    useInputVariant
 ├── pages/           HistoryPage, StatisticsPage, AboutPage
-├── test/            setup, test-utils, a11y smoke tests
+├── test/            setup, test-utils, a11y smoke tests, colour/token gate
 ├── types/           shared types and enums
 └── utils/           adaptiveUtils, storageUtils, flashcardStateUtils,
                      keyboardUtils, pinyinUtils, tableUtils, ...

@@ -1,7 +1,8 @@
 import { ReactElement } from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import axe, { type Result } from 'axe-core';
+import axe from 'axe-core';
+import { formatViolations } from './axe-format';
 import { ToastProvider } from '../contexts/ToastContext';
 import { FlashCardProvider } from '../contexts/FlashCardContext';
 import { ROUTES } from '../constants/routes';
@@ -43,17 +44,6 @@ export const renderWithRouter = (
     wrapper: ({ children }) => <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>,
     ...options,
   });
-
-const formatViolations = (violations: Result[]): string =>
-  violations
-    .map((violation) => {
-      const targets = violation.nodes
-        .map((node) => `      ${String(node.target)}`)
-        .slice(0, 5)
-        .join('\n');
-      return `  [${violation.impact ?? 'unknown'}] ${violation.id}: ${violation.help}\n${targets}`;
-    })
-    .join('\n');
 
 /**
  * Fails the test if axe finds any accessibility violation in `container`.

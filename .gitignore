@@ -4,6 +4,8 @@ dist
 .idea
 .vercel
 coverage/**
+playwright-report/
+test-results/
 .nyc_output/**
 .vscode/**
 .idea/**

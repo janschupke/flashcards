@@ -8,15 +8,51 @@
  */
 
 /** An sRGB colour with channels in 0-255 and alpha in 0-1. */
-interface Rgba {
+export interface Rgba {
   r: number;
   g: number;
   b: number;
   a: number;
 }
 
-/** Parses `#rrggbb` and the `rgb()`/`rgba()` strings getComputedStyle returns. */
+const parseAlpha = (a: string | undefined): number =>
+  a === undefined ? 1 : a.endsWith('%') ? parseFloat(a) / 100 : parseFloat(a);
+
+const fromLinear = (c: number): number => {
+  const v = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+  return Math.min(255, Math.max(0, v * 255));
+};
+
+/** OKLCH -> sRGB, clamped to gamut. */
+const fromOklch = (l: number, c: number, h: number, alpha: number): Rgba => {
+  const hr = (h * Math.PI) / 180;
+  const a = c * Math.cos(hr);
+  const b = c * Math.sin(hr);
+  const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return {
+    r: fromLinear(4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_),
+    g: fromLinear(-1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_),
+    b: fromLinear(-0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_),
+    a: alpha,
+  };
+};
+
+/**
+ * Parses `#rrggbb` and what getComputedStyle returns: `rgb()`/`rgba()`, and
+ * `oklch()`, which Chromium keeps as-is for tokens authored in it.
+ */
 export const parseColor = (value: string): Rgba => {
+  const oklch =
+    /^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+|none)(?:\s*\/\s*([\d.]+%?))?\s*\)$/i.exec(
+      value.trim()
+    );
+  if (oklch) {
+    const [, l = '0', percent, c = '0', h = '0', a] = oklch;
+    const lightness = percent === '%' ? parseFloat(l) / 100 : parseFloat(l);
+    return fromOklch(lightness, parseFloat(c), h === 'none' ? 0 : parseFloat(h), parseAlpha(a));
+  }
   const hex = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(value.trim());
   if (hex) {
     const [, r = '', g = '', b = ''] = hex;
@@ -28,11 +64,18 @@ export const parseColor = (value: string): Rgba => {
     );
   if (rgb) {
     const [, r = '0', g = '0', b = '0', a] = rgb;
-    const alpha = a === undefined ? 1 : a.endsWith('%') ? parseFloat(a) / 100 : parseFloat(a);
-    return { r: parseFloat(r), g: parseFloat(g), b: parseFloat(b), a: alpha };
+    return { r: parseFloat(r), g: parseFloat(g), b: parseFloat(b), a: parseAlpha(a) };
   }
   throw new Error(`Unsupported colour: ${value}`);
 };
+
+/** Paints `top` over an opaque `bottom`. */
+export const composite = (top: Rgba, bottom: Rgba): Rgba => ({
+  r: top.r * top.a + bottom.r * (1 - top.a),
+  g: top.g * top.a + bottom.g * (1 - top.a),
+  b: top.b * top.a + bottom.b * (1 - top.a),
+  a: 1,
+});
 
 const toLinear = (channel: number): number => {
   const c = channel / 255;
@@ -71,10 +114,13 @@ export const deltaE = (a: Rgba, b: Rgba): number => {
 };
 
 /**
- * Floor for a hover background change someone can actually see. Calibrated against hovers that read clearly (#f9fafb ->
+ * Floors for a state change someone can actually see. A background change is
+ * the usual hover signal; a text-colour change counts when the element has no
+ * fill to change. Calibrated against hovers that read clearly (#f9fafb ->
  * #e5e7eb is 0.057) and ones that do not (#f9fafb -> #f3f4f6 is 0.018).
  */
 export const HOVER_BACKGROUND_MIN_DELTA_E = 0.035;
+export const HOVER_TEXT_MIN_DELTA_E = 0.05;
 
 /** WCAG AA for normal-size text. */
 export const AA_TEXT_CONTRAST = 4.5;

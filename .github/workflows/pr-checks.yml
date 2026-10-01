@@ -57,3 +57,10 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # `npm run test:e2e` is build + playwright; the build above is reused.
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser accessibility tests
+        run: npx playwright test

@@ -1,5 +1,7 @@
 dist
 coverage
+playwright-report
+test-results
 node_modules
 package-lock.json
 # 10.5k lines of character data; nothing here is hand-edited.

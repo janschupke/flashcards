@@ -44,6 +44,12 @@ describe('colour maths', () => {
     expect(parseColor('rgba(0, 0, 0, 0.2)').a).toBeCloseTo(0.2);
     expect(parseColor('rgb(0 0 0 / 20%)').a).toBeCloseTo(0.2);
   });
+
+  it('reads oklch, which Chromium reports for tokens authored in it', () => {
+    expect(parseColor('oklch(0 0 0 / 0.2)')).toEqual({ r: 0, g: 0, b: 0, a: 0.2 });
+    const red = parseColor('oklch(0.6368 0.2078 25.33)'); // #ef4444
+    expect(deltaE(red, parseColor('#ef4444'))).toBeLessThan(0.002);
+  });
 });
 
 describe('design tokens', () => {

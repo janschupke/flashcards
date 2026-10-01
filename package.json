@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "npm run build && playwright test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
@@ -18,7 +19,7 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "knip:fix:files": "knip --fix --allow-remove-files",
-    "check": "npm run knip && npm run typecheck && npm run test:coverage && npm run lint && npm run format:check && npm run build"
+    "check": "npm run knip && npm run typecheck && npm run test:coverage && npm run lint && npm run format:check && npm run test:e2e"
   },
   "author": "jan@schupke.io",
   "license": "MIT",
@@ -31,7 +32,9 @@
     "react-tooltip": "^6.0.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
