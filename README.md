@@ -82,6 +82,12 @@ The hint shortcuts need a modifier because the answer field keeps focus at all t
 
 ## Getting started
 
+### Run with PicoRunner
+
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2Fjanschupke%2Fflashcards)
+
+[PicoRunner](https://picorunner.com/) opens installation review for this repository on macOS. The manifest uses Node 24 and locked npm dependencies, builds the app, and serves it on `127.0.0.1` with Vite preview. Learning progress and preferences stay in browser storage; keep the same browser profile and local address to retain them.
+
 ### Prerequisites
 
 - **Node.js 22.12 or newer.** Vite 7 requires `^20.19 || >=22.12`, and Vitest 5 requires `>=22.12`. CI runs Node 22.
